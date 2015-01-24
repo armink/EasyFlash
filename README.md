@@ -7,8 +7,10 @@
 EasyFlashÊÇÒ»¿î¿ªÔ´µÄÇáÁ¿¼¶Ç¶ÈëÊ½Flash¿â£¬Ö÷ÒªÎªMCU(Micro Control Unit)Ìá¹©±ã½Ý¡¢Í¨ÓÃµÄÉÏ²ãÓ¦ÓÃ½Ó¿Ú£¬Ê¹µÃ¿ª·¢Õß¸ü¼Ó¸ßÐ§ÊµÏÖ»ùÓÚµÄFlash³£¼ûÓ¦ÓÃ¿ª·¢¡£¸Ã¿âÄ¿Ç°Ìá¹© **Á½´óÊµÓÃ¹¦ÄÜ** £º
 
  - **Env** ÈÃ±äÁ¿ÇáÇáËÉËÉÊµÏÖµôµç±£´æ£¬ÎÞÐèµ£ÐÄ±äÁ¿³¤¶È¡¢¶ÔÆäµÈÎÊÌâ
+ 
  Ê¹ÓÃ **¼üÖµ¶Ô(key-value)** ·½Ê½½«±äÁ¿´æ´¢µ½FlashÖÐ£¬ÀàËÆU-BootµÄ `»·¾³±äÁ¿` £¬Ê¹ÓÃ·½Ê½ÓëU-BootÒ»ÖÂ¡£
  - **IAP** ÔÚÏßÉý¼¶ÔÙÒ²²»ÊÇÄÑÊÂ¶ù
+ 
  ¸Ã¿â·â×°ÁËIAP(In-Application Programming)¹¦ÄÜ³£ÓÃµÄ½Ó¿Ú£¬Ö§³ÖCRC32Ð£Ñé£¬Í¬Ê±Ö§³ÖBootloader¼°ApplicationµÄÉý¼¶¡£
 
 ### 1.1¡¢ÎÄ¼þ½á¹¹
@@ -20,7 +22,7 @@ EasyFlashÊÇÒ»¿î¿ªÔ´µÄÇáÁ¿¼¶Ç¶ÈëÊ½Flash¿â£¬Ö÷ÒªÎªMCU(Micro Control Unit)Ìá¹©±ã½Ý¡
 |\flash\src\flash_utils.c               |EasyFlash³£ÓÃÐ¡¹¤¾ß£¬ÀýÈç£ºCRC32|
 |\flash\src\flash.c                     |Ä¿Ç°Ö»°üº¬EasyFlash³õÊ¼»¯·½·¨|
 |\flash\port\flash_port.c               |²»Í¬Æ½Ì¨ÏÂµÄEasyFlashÒÆÖ²½Ó¿Ú¼°ÅäÖÃ²ÎÊý|
-|\demo\stm32f10x                        |stm32f10xÆ½Ì¨ÏÂµÄDemo|
+|\demo\stm32f10x                        |stm32f10xÆ½Ì¨ÏÂµÄdemo|
 
 ### 1.2¡¢×ÊÔ´Õ¼ÓÃ
 
@@ -33,9 +35,9 @@ DemoÆ½Ì¨£ºSTM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 ### 1.3¡¢Ö§³ÖÆ½Ì¨
 
-Ä¿Ç°ÒÑÒÆÖ²Æ½Ì¨Ö»ÓÐ `STM32F10X` ÏµÁÐµÄÆ¬ÄÚFlash£¬Õâ¸öÒ²ÊÇ±ÊÕß²úÆ·Ê¹ÓÃµÄÆ½Ì¨¡£ÆäÓàÆ½Ì¨µÄÒÆÖ²ÄÑ¶È²»´ó£¬ÔÚÏîÄ¿µÄÉè¼ÆÖ®³õ¾ÍÓÐ¿¼ÂÇ¶ÔËùÓÐÆ½Ì¨µÄÊÊÅäÐÔ£¨64Î»³ýÍâ£©£¬ËùÒÔ¶ÔËùÓÐÒÆÖ²½Ó¿Ú¶¼ÓÐ×öÔ¤Áô¡£ÒÆÖ²Ö»ÐèÐÞ¸Ä `port\flash_port.c` Ò»¸öÎÄ¼þ£¬ÊµÏÖÀïÃæµÄ²Á¡¢Ð´¡¢¶Á¼°´òÓ¡¹¦ÄÜ¼´¿É¡£
+Ä¿Ç°ÒÑÒÆÖ²Æ½Ì¨Ö»ÓÐ `STM32F10X` ÏµÁÐµÄÆ¬ÄÚFlash£¬Õâ¸öÒ²ÊÇ±ÊÕß²úÆ·Ê¹ÓÃµÄÆ½Ì¨¡£ÆäÓàÆ½Ì¨µÄÒÆÖ²ÄÑ¶È²»´ó£¬ÔÚÏîÄ¿µÄÉè¼ÆÖ®³õ¾ÍÓÐ¿¼ÂÇÕë¶ÔËùÓÐÆ½Ì¨µÄÊÊÅäÐÔÎÊÌâ£¨64Î»³ýÍâ£©£¬ËùÒÔ¶ÔËùÓÐÒÆÖ²½Ó¿Ú¶¼ÓÐ×öÔ¤Áô¡£ÒÆÖ²Ö»ÐèÐÞ¸Ä `\flash\port\flash_port.c` Ò»¸öÎÄ¼þ£¬ÊµÏÖÀïÃæµÄ²Á¡¢Ð´¡¢¶Á¼°´òÓ¡¹¦ÄÜ¼´¿É¡£
 
-»¶Ó­´ó¼Ò *fork and pull request* ¡£¿ªÔ´Èí¼þµÄ³É¹¦Àë²»¿ªËùÓÐÈËµÄÅ¬Á¦£¬Ò²Ï£Íû¸ÃÏîÄ¿ÄÜ¹»°ïÖú´ó¼Ò½µµÍ¿ª·¢ÖÜÆÚ£¬ÈÃ²úÆ·¸üÔçµÄ»ñµÃ³É¹¦¡£
+»¶Ó­´ó¼Ò **fork and pull request** ¡£¿ªÔ´Èí¼þµÄ³É¹¦Àë²»¿ªËùÓÐÈËµÄÅ¬Á¦£¬Ò²Ï£Íû¸ÃÏîÄ¿ÄÜ¹»°ïÖú´ó¼Ò½µµÍ¿ª·¢ÖÜÆÚ£¬ÈÃ²úÆ·¸üÔçµÄ»ñµÃ³É¹¦¡£
 
 ## 2¡¢Á÷³Ì
 
