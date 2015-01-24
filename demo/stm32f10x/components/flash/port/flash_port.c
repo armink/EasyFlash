@@ -104,7 +104,6 @@ FlashErrCode flash_erase(uint32_t addr, size_t size) {
     }
 
     /* start erase */
-    FLASH_DEBUG("Start erase flash from 0x%08X to 0x%08x.\n", addr, addr + size);
     FLASH_Unlock();
     FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
     for (i = 0; i < erase_pages; i++) {
@@ -134,7 +133,6 @@ FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size) {
     size_t i;
     uint32_t read_data;
 
-    FLASH_DEBUG("Start write flash from 0x%08X to 0x%08x.\n", addr, addr + size);
     FLASH_Unlock();
     FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
     for (i = 0; i < size; i += 4, buf++, addr += 4) {
