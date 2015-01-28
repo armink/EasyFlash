@@ -28,7 +28,7 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define FLASH_SW_VERSION                "1.01.23"
+#define FLASH_SW_VERSION                "1.01.28"
 
 typedef struct _flash_env{
     char *key;
@@ -49,14 +49,14 @@ typedef enum {
 FlashErrCode flash_init(void);
 
 /* flash_env.c */
+void flash_load_env(void);
+void flash_print_env(void);
+char *flash_get_env(const char *key);
+FlashErrCode flash_set_env(const char *key, const char *value);
+FlashErrCode flash_save_env(void);
+FlashErrCode flash_env_set_default(void);
 uint32_t flash_get_env_total_size(void);
 uint32_t flash_get_env_used_size(void);
-FlashErrCode flash_env_set_default(void);
-void flash_print_env(void);
-void flash_load_env(void);
-FlashErrCode flash_save_env(void);
-FlashErrCode flash_set_env(const char *key, const char *value);
-char *flash_get_env(const char *key);
 
 /* flash_iap.c */
 FlashErrCode flash_erase_bak_app(size_t app_size);
