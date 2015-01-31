@@ -58,7 +58,9 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 所有支持的API接口都在 `\flash\inc\flash.h` 中声明。以下内容较多，建议使用 **CTRL+F** 搜索。
 
 名词介绍：
+
 **备份区** ：是EasyFlash定义的一个存放环境变量及已下载程序的Flash区域，详细存储架构可以参考 `\flash\src\flash.c` 文件头位置的注释说明。
+
 **环境变量表** ：负责存放所有的环境变量，该表在Flash及RAM中均存在，上电后需从Flash加载到RAM中，修改后，则需要保存其至Flash中。
 
 ### 3.1 初始化
