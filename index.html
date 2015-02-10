@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>EasyFlash by armink</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>EasyFlash</h1>
+        <h2>EasyFlash is an open source lightweight embedded flash memory library. </h2>
+        <a href="https://github.com/armink/EasyFlash" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="easyflash-使用说明" class="anchor" href="#easyflash-%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E" aria-hidden="true"><span class="octicon octicon-link"></span></a>EasyFlash 使用说明</h1>
+
+<hr>
+
+<h2>
+<a id="1介绍" class="anchor" href="#1%E4%BB%8B%E7%BB%8D" aria-hidden="true"><span class="octicon octicon-link"></span></a>1、介绍</h2>
+
+<p>EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Micro Control Unit)提供便捷、通用的上层应用接口，使得开发者更加高效实现基于的Flash存储器常见应用开发。该库目前提供 <strong>两大实用功能</strong> ：</p>
+
+<ul>
+<li>
+<p><strong>Env</strong> 让变量轻轻松松实现掉电保存，无需担心变量长度、对其等问题</p>
+
+<p>使用 <strong>键值对(key-value)</strong> 方式将变量存储到Flash中，类似U-Boot的 <code>环境变量</code> ，使用方式与U-Boot一致。</p>
+</li>
+<li>
+<p><strong>IAP</strong> 在线升级再也不是难事儿</p>
+
+<p>该库封装了IAP(In-Application Programming)功能常用的接口，支持CRC32校验，同时支持Bootloader及Application的升级。</p>
+</li>
+</ul>
+
+<h3>
+<a id="11文件结构" class="anchor" href="#11%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84" aria-hidden="true"><span class="octicon octicon-link"></span></a>1.1、文件结构</h3>
+
+<table>
+<thead>
+<tr>
+<th align="left">源文件</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">\flash\src\flash_env.c</td>
+<td align="left">Env（环境变量）相关操作接口及实现源码</td>
+</tr>
+<tr>
+<td align="left">\flash\src\flash_iap.c</td>
+<td align="left">IAP（在线升级）相关操作接口及实现源码</td>
+</tr>
+<tr>
+<td align="left">\flash\src\flash_utils.c</td>
+<td align="left">EasyFlash常用小工具，例如：CRC32</td>
+</tr>
+<tr>
+<td align="left">\flash\src\flash.c</td>
+<td align="left">目前只包含EasyFlash初始化方法</td>
+</tr>
+<tr>
+<td align="left">\flash\port\flash_port.c</td>
+<td align="left">不同平台下的EasyFlash移植接口及配置参数</td>
+</tr>
+<tr>
+<td align="left">\demo\stm32f10x</td>
+<td align="left">stm32f10x平台下的demo</td>
+</tr>
+</tbody>
+</table>
+
+<h3>
+<a id="12资源占用" class="anchor" href="#12%E8%B5%84%E6%BA%90%E5%8D%A0%E7%94%A8" aria-hidden="true"><span class="octicon octicon-link"></span></a>1.2、资源占用</h3>
+
+<pre><code>最低要求： ROM: 6K bytes     RAM: 0.5K bytes + (Env大小)
+
+Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
+实际占用： ROM: 6K bytes     RAM: 2.6K bytes
+</code></pre>
+
+<h3>
+<a id="13支持平台" class="anchor" href="#13%E6%94%AF%E6%8C%81%E5%B9%B3%E5%8F%B0" aria-hidden="true"><span class="octicon octicon-link"></span></a>1.3、支持平台</h3>
+
+<p>目前已移植平台只有 <code>STM32F10X</code> 系列的片内Flash，这个也是笔者产品使用的平台。其余平台的移植难度不大，在项目的设计之初就有考虑针对所有平台的适配性问题（64位除外），所以对所有移植接口都有做预留。移植只需修改 <code>\flash\port\flash_port.c</code> 一个文件，实现里面的擦、写、读及打印功能即可。</p>
+
+<p>欢迎大家 <strong>fork and pull request</strong> 。开源软件的成功离不开所有人的努力，也希望该项目能够帮助大家降低开发周期，让产品更早的获得成功。</p>
+
+<h2>
+<a id="2流程" class="anchor" href="#2%E6%B5%81%E7%A8%8B" aria-hidden="true"><span class="octicon octicon-link"></span></a>2、流程</h2>
+
+<h3>
+<a id="21环境变量" class="anchor" href="#21%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>2.1、环境变量</h3>
+
+<p>下图为人工通过控制台来调用环境变量的常用接口，演示了环境变量 <code>"temp"</code> 从创建到保存，再修改，最后删除的过程。这些接口都支持被应用层直接调用。</p>
+
+<p><img src="https://cloud.githubusercontent.com/assets/1734686/5886463/46ad7efa-a3db-11e4-8401-75c00a4c35ba.gif" alt="easy_flash_env"></p>
+
+<h3>
+<a id="22在线升级" class="anchor" href="#22%E5%9C%A8%E7%BA%BF%E5%8D%87%E7%BA%A7" aria-hidden="true"><span class="octicon octicon-link"></span></a>2.2、在线升级</h3>
+
+<p>下图演示了通过控制台来进行IAP升级软件的过程，使用的是库中自带的IAP功能接口，演示采用的是串口+Ymodem协议的方式。你还也可以实现通过CAN、485、以太网等总线，来实现远程网络更新。</p>
+
+<p><img src="https://cloud.githubusercontent.com/assets/1734686/5886462/40f7d62c-a3db-11e4-866a-ba827c809370.gif" alt="easy_flash_iap"></p>
+
+<h2>
+<a id="3api" class="anchor" href="#3api" aria-hidden="true"><span class="octicon octicon-link"></span></a>3、API</h2>
+
+<p>所有支持的API接口都在 <code>\flash\inc\flash.h</code> 中声明。以下内容较多，建议使用 <strong>CTRL+F</strong> 搜索。</p>
+
+<p>名词介绍：</p>
+
+<p><strong>备份区</strong> ：是EasyFlash定义的一个存放环境变量及已下载程序的Flash区域，详细存储架构可以参考 <code>\flash\src\flash.c</code> 文件头位置的注释说明。</p>
+
+<p><strong>环境变量表</strong> ：负责存放所有的环境变量，该表在Flash及RAM中均存在，上电后需从Flash加载到RAM中，修改后，则需要保存其至Flash中。</p>
+
+<h3>
+<a id="31-初始化" class="anchor" href="#31-%E5%88%9D%E5%A7%8B%E5%8C%96" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.1 初始化</h3>
+
+<p>初始化EasyFlash。在初始化的过程中会使用 <code>\flash\port\flash_port.c</code> 中的用户自定义参数。</p>
+
+<div class="highlight highlight-C"><pre>FlashErrCode <span class="pl-en">flash_init</span>(<span class="pl-st">void</span>)</pre></div>
+
+<h3>
+<a id="32-环境变量" class="anchor" href="#32-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2 环境变量</h3>
+
+<h4>
+<a id="321-加载环境变量" class="anchor" href="#321-%E5%8A%A0%E8%BD%BD%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2.1 加载环境变量</h4>
+
+<p>加载Flash中的所有环境变量到系统内存中。</p>
+
+<div class="highlight highlight-C"><pre><span class="pl-st">void</span> <span class="pl-en">flash_load_env</span>(<span class="pl-st">void</span>)</pre></div>
+
+<h4>
+<a id="322-打印环境变量" class="anchor" href="#322-%E6%89%93%E5%8D%B0%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2.2 打印环境变量</h4>
+
+<p>通过在移植接口( <code>\flash\port\flash_port.c</code> )中定义的 <code>flash_print</code> 打印方法，来将Flash中的所有环境变量输出出来。</p>
+
+<div class="highlight highlight-C"><pre><span class="pl-st">void</span> <span class="pl-en">flash_print_env</span>(<span class="pl-st">void</span>)</pre></div>
+
+<h4>
+<a id="323-获取环境变量" class="anchor" href="#323-%E8%8E%B7%E5%8F%96%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2.3 获取环境变量</h4>
+
+<p>通过环境变量的名字来获取其对应的值。（注意：此处的环境变量指代的已加载到内存中的环境变量）</p>
+
+<div class="highlight highlight-C"><pre><span class="pl-st">char</span> *<span class="pl-en">flash_get_env</span>(<span class="pl-s">const</span> <span class="pl-st">char</span> *key)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">key</td>
+<td align="left">环境变量名称</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="324-设置环境变量" class="anchor" href="#324-%E8%AE%BE%E7%BD%AE%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2.4 设置环境变量</h4>
+
+<p>使用此方法可以实现对环境变量的增加、修改及删除功能。（注意：此处的环境变量指代的已加载到内存中的环境变量）</p>
+
+<p><strong>增加</strong> ：当环境变量表中不存在该名称的环境变量时，则会执行新增操作；</p>
+
+<p><strong>修改</strong> ：入参中的环境变量名称在当前环境变量表中存在，则把该环境变量值修改为入参中的值；</p>
+
+<p><strong>删除</strong> ：当入参中的value为空时，则会删除入参名对应的环境变量。</p>
+
+<div class="highlight highlight-C"><pre>FlashErrCode <span class="pl-en">flash_set_env</span>(<span class="pl-s">const</span> <span class="pl-st">char</span> *key, <span class="pl-s">const</span> <span class="pl-st">char</span> *value)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">key</td>
+<td align="left">环境变量名称</td>
+</tr>
+<tr>
+<td align="left">value</td>
+<td align="left">环境变量值</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="325-保存环境变量" class="anchor" href="#325-%E4%BF%9D%E5%AD%98%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2.5 保存环境变量</h4>
+
+<p>保存内存中的环境变量表到Flash中。</p>
+
+<div class="highlight highlight-C"><pre>FlashErrCode <span class="pl-en">flash_save_env</span>(<span class="pl-st">void</span>)</pre></div>
+
+<h4>
+<a id="326-恢复环境变量" class="anchor" href="#326-%E6%81%A2%E5%A4%8D%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2.6 恢复环境变量</h4>
+
+<p>将内存中的环境变量表恢复为默认值。</p>
+
+<div class="highlight highlight-C"><pre>FlashErrCode <span class="pl-en">flash_env_set_default</span>(<span class="pl-st">void</span>)</pre></div>
+
+<h4>
+<a id="327-获取环境变量分区的总容量" class="anchor" href="#327-%E8%8E%B7%E5%8F%96%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%88%86%E5%8C%BA%E7%9A%84%E6%80%BB%E5%AE%B9%E9%87%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2.7 获取环境变量分区的总容量</h4>
+
+<div class="highlight highlight-C"><pre><span class="pl-s3">uint32_t</span> <span class="pl-en">flash_get_env_total_size</span>(<span class="pl-st">void</span>)</pre></div>
+
+<h4>
+<a id="328-获取当前已使用环境变量的大小" class="anchor" href="#328-%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E5%B7%B2%E4%BD%BF%E7%94%A8%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E7%9A%84%E5%A4%A7%E5%B0%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2.8 获取当前已使用环境变量的大小</h4>
+
+<div class="highlight highlight-C"><pre><span class="pl-s3">uint32_t</span> <span class="pl-en">flash_get_env_used_size</span>(<span class="pl-st">void</span>)</pre></div>
+
+<h3>
+<a id="33-在线升级" class="anchor" href="#33-%E5%9C%A8%E7%BA%BF%E5%8D%87%E7%BA%A7" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.3 在线升级</h3>
+
+<h4>
+<a id="331-擦除备份区中的应用程序" class="anchor" href="#331-%E6%93%A6%E9%99%A4%E5%A4%87%E4%BB%BD%E5%8C%BA%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.3.1 擦除备份区中的应用程序</h4>
+
+<div class="highlight highlight-C"><pre>FlashErrCode <span class="pl-en">flash_erase_bak_app</span>(<span class="pl-s3">size_t</span> app_size)</pre></div>
+
+<h4>
+<a id="332-擦除用户的应用程序" class="anchor" href="#332-%E6%93%A6%E9%99%A4%E7%94%A8%E6%88%B7%E7%9A%84%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.3.2 擦除用户的应用程序</h4>
+
+<p>注意：请不要在应用程序中调用该方法</p>
+
+<div class="highlight highlight-C"><pre>FlashErrCode <span class="pl-en">flash_erase_user_app</span>(<span class="pl-s3">uint32_t</span> user_app_addr, <span class="pl-s3">size_t</span> user_app_size)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">user_app_addr</td>
+<td align="left">用户应用程序入口地址</td>
+</tr>
+<tr>
+<td align="left">user_app_size</td>
+<td align="left">用户应用程序大小</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="333-擦除bootloader" class="anchor" href="#333-%E6%93%A6%E9%99%A4bootloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.3.3 擦除Bootloader</h4>
+
+<p>注意：请不要在Bootloader中调用该方法</p>
+
+<div class="highlight highlight-C"><pre>FlashErrCode <span class="pl-en">flash_erase_bl</span>(<span class="pl-s3">uint32_t</span> bl_addr, <span class="pl-s3">size_t</span> bl_size)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">bl_addr</td>
+<td align="left">Bootloader入口地址</td>
+</tr>
+<tr>
+<td align="left">bl_size</td>
+<td align="left">Bootloader大小</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="334-写数据到备份区" class="anchor" href="#334-%E5%86%99%E6%95%B0%E6%8D%AE%E5%88%B0%E5%A4%87%E4%BB%BD%E5%8C%BA" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.3.4 写数据到备份区</h4>
+
+<p>为下载程序到备份区定制的Flash连续写方法。
+注意：写之前请先确认Flash已进行擦除。</p>
+
+<div class="highlight highlight-C"><pre>FlashErrCode <span class="pl-en">flash_write_data_to_bak</span>(<span class="pl-s3">uint8_t</span> *data,
+                                     <span class="pl-s3">size_t</span> size,
+                                     <span class="pl-s3">size_t</span> *cur_size,
+                                     <span class="pl-s3">size_t</span> total_size)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">data</td>
+<td align="left">需要写入到备份区中的数据存储地址</td>
+</tr>
+<tr>
+<td align="left">size</td>
+<td align="left">此次写入数据的大小（字节）</td>
+</tr>
+<tr>
+<td align="left">cur_size</td>
+<td align="left">之前已写入到备份区中的数据大小（字节）</td>
+</tr>
+<tr>
+<td align="left">total_size</td>
+<td align="left">需要写入到备份区的数据总大小（字节）</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="335-从备份拷贝应用程序" class="anchor" href="#335-%E4%BB%8E%E5%A4%87%E4%BB%BD%E6%8B%B7%E8%B4%9D%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.3.5 从备份拷贝应用程序</h4>
+
+<p>将备份区已下载好的应用程序拷贝至用户应用程序起始地址。
+注意：
+1、拷贝前必须对原有的应用程序进行擦除
+2、不要在应用程序中调用该方法</p>
+
+<div class="highlight highlight-C"><pre>FlashErrCode <span class="pl-en">flash_copy_app_from_bak</span>(<span class="pl-s3">uint32_t</span> user_app_addr, <span class="pl-s3">size_t</span> app_size)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">user_app_addr</td>
+<td align="left">用户应用程序入口地址</td>
+</tr>
+<tr>
+<td align="left">user_app_size</td>
+<td align="left">用户应用程序大小</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="335-从备份拷贝bootloader" class="anchor" href="#335-%E4%BB%8E%E5%A4%87%E4%BB%BD%E6%8B%B7%E8%B4%9Dbootloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.3.5 从备份拷贝Bootloader</h4>
+
+<p>将备份区已下载好的Bootloader拷贝至Bootloader起始地址。
+注意：
+1、拷贝前必须对原有的Bootloader进行擦除
+2、不要在Bootloader中调用该方法</p>
+
+<div class="highlight highlight-C"><pre>FlashErrCode <span class="pl-en">flash_copy_bl_from_bak</span>(<span class="pl-s3">uint32_t</span> bl_addr, <span class="pl-s3">size_t</span> bl_size)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">bl_addr</td>
+<td align="left">Bootloader入口地址</td>
+</tr>
+<tr>
+<td align="left">bl_size</td>
+<td align="left">Bootloader大小</td>
+</tr>
+</tbody>
+</table>
+
+<h3>
+<a id="34-移植" class="anchor" href="#34-%E7%A7%BB%E6%A4%8D" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.4 移植</h3>
+
+<h4>
+<a id="341-读取flash" class="anchor" href="#341-%E8%AF%BB%E5%8F%96flash" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.4.1 读取Flash</h4>
+
+<p>最小单位为4个字节</p>
+
+<div class="highlight highlight-C"><pre>FlashErrCode <span class="pl-en">flash_read</span>(<span class="pl-s3">uint32_t</span> addr, <span class="pl-s3">uint32_t</span> *buf, <span class="pl-s3">size_t</span> size)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">addr</td>
+<td align="left">读取起始地址</td>
+</tr>
+<tr>
+<td align="left">buf</td>
+<td align="left">存放读取数据的缓冲区</td>
+</tr>
+<tr>
+<td align="left">size</td>
+<td align="left">读取数据的大小（字节）</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="342-擦除flash" class="anchor" href="#342-%E6%93%A6%E9%99%A4flash" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.4.2 擦除Flash</h4>
+
+<div class="highlight highlight-C"><pre>FlashErrCode <span class="pl-en">flash_erase</span>(<span class="pl-s3">uint32_t</span> addr, <span class="pl-s3">size_t</span> size)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">addr</td>
+<td align="left">擦除起始地址</td>
+</tr>
+<tr>
+<td align="left">size</td>
+<td align="left">擦除数据的大小（字节）</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="343-写入flash" class="anchor" href="#343-%E5%86%99%E5%85%A5flash" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.4.3 写入Flash</h4>
+
+<p>最小单位为4个字节</p>
+
+<div class="highlight highlight-C"><pre>FlashErrCode <span class="pl-en">flash_write</span>(<span class="pl-s3">uint32_t</span> addr, <span class="pl-s">const</span> <span class="pl-s3">uint32_t</span> *buf, <span class="pl-s3">size_t</span> size)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">addr</td>
+<td align="left">写入的起始地址</td>
+</tr>
+<tr>
+<td align="left">buf</td>
+<td align="left">源数据的缓冲区</td>
+</tr>
+<tr>
+<td align="left">size</td>
+<td align="left">写入数据的大小（字节）</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="344-分配动态内存" class="anchor" href="#344-%E5%88%86%E9%85%8D%E5%8A%A8%E6%80%81%E5%86%85%E5%AD%98" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.4.4 分配动态内存</h4>
+
+<div class="highlight highlight-C"><pre><span class="pl-st">void</span> *<span class="pl-en">flash_malloc</span>(<span class="pl-s3">size_t</span> size)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">size</td>
+<td align="left">需分配的内存大小</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="345-释放动态内存" class="anchor" href="#345-%E9%87%8A%E6%94%BE%E5%8A%A8%E6%80%81%E5%86%85%E5%AD%98" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.4.5 释放动态内存</h4>
+
+<div class="highlight highlight-C"><pre><span class="pl-st">void</span> <span class="pl-en">flash_free</span>(<span class="pl-st">void</span> *p)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">p</td>
+<td align="left">需释放的动态内存地址</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="346-打印调试日志信息" class="anchor" href="#346-%E6%89%93%E5%8D%B0%E8%B0%83%E8%AF%95%E6%97%A5%E5%BF%97%E4%BF%A1%E6%81%AF" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.4.6 打印调试日志信息</h4>
+
+<p>在定义 <code>FLASH_PRINT_DEBUG</code> 宏后，打印调试日志信息</p>
+
+<div class="highlight highlight-C"><pre><span class="pl-st">void</span> <span class="pl-en">flash_log_debug</span>(<span class="pl-s">const</span> <span class="pl-st">char</span> *file, <span class="pl-s">const</span> <span class="pl-st">long</span> line, <span class="pl-s">const</span> <span class="pl-st">char</span> *format, ...)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">file</td>
+<td align="left">调用该方法的文件</td>
+</tr>
+<tr>
+<td align="left">line</td>
+<td align="left">调用该方法的行号</td>
+</tr>
+<tr>
+<td align="left">format</td>
+<td align="left">打印格式</td>
+</tr>
+<tr>
+<td align="left">...</td>
+<td align="left">不定参</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="347-打印普通日志信息" class="anchor" href="#347-%E6%89%93%E5%8D%B0%E6%99%AE%E9%80%9A%E6%97%A5%E5%BF%97%E4%BF%A1%E6%81%AF" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.4.7 打印普通日志信息</h4>
+
+<div class="highlight highlight-C"><pre><span class="pl-st">void</span> <span class="pl-en">flash_log_info</span>(<span class="pl-s">const</span> <span class="pl-st">char</span> *format, ...)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">format</td>
+<td align="left">打印格式</td>
+</tr>
+<tr>
+<td align="left">...</td>
+<td align="left">不定参</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="348-无格式打印信息" class="anchor" href="#348-%E6%97%A0%E6%A0%BC%E5%BC%8F%E6%89%93%E5%8D%B0%E4%BF%A1%E6%81%AF" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.4.8 无格式打印信息</h4>
+
+<p>该方法输出无固定格式的打印信息，为 <code>flash_print_env</code> 方法所用。而 <code>flash_log_debug</code> 及 <code>flash_log_info</code> 可以输出带指定前缀及格式的打印日志信息。</p>
+
+<div class="highlight highlight-C"><pre><span class="pl-st">void</span> <span class="pl-en">flash_print</span>(<span class="pl-s">const</span> <span class="pl-st">char</span> *format, ...)</pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">format</td>
+<td align="left">打印格式</td>
+</tr>
+<tr>
+<td align="left">...</td>
+<td align="left">不定参</td>
+</tr>
+</tbody>
+</table>
+
+<h2>
+<a id="4注意" class="anchor" href="#4%E6%B3%A8%E6%84%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>4、注意</h2>
+
+<p>1、写数据前务必记得先擦除；</p>
+
+<p>2、环境变量设置完后，只有调用 <code>flash_save_env</code> 才会保存在Flash中，否则开机会丢失修改的内容；</p>
+
+<p>3、不要在应用程序及Bootloader中执行擦除及拷贝自身的动作；</p>
+
+<p>4、Flash读取和写入方法的最小单位为4个字节，擦除的最小单位则需根据用户的平台来确定；</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/armink/EasyFlash/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/armink/EasyFlash/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/armink/EasyFlash"></a> is maintained by <a href="https://github.com/armink">armink</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
