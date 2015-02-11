@@ -309,8 +309,8 @@ static FlashErrCode create_env(const char *key, const char *value) {
         return FLASH_ENV_NAME_ERR;
     }
 
-    if (strstr(key, "=") || strstr(value, "=")) {
-        FLASH_INFO("Flash environment variables name or value can't contain '='.\n");
+    if (strstr(key, "=")) {
+        FLASH_INFO("Flash environment variables name can't contain '='.\n");
         return FLASH_ENV_NAME_ERR;
     }
 
