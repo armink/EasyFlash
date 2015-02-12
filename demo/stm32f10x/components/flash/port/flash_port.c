@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (C) 2013 by Armink <armink.ztl@gmail.com>
+ * Copyright (C) 2015 by Armink <armink.ztl@gmail.com>
  *
  * Function: Portable interface for each platform.
  * Created on: 2015-01-16
@@ -21,8 +21,10 @@
 
 /* Environment variables start address */
 #define FLASH_ENV_START_ADDR            (FLASH_BASE + 100 * 1024) /* from the chip position: 100KB */
+/* the minimum size of flash erasure */
+#define FLASH_ERASE_MIN_SIZE             PAGE_SIZE                /* it is one page for STM32 */
 /* Environment variables bytes size */
-#define FLASH_ENV_SECTION_SIZE          (1*PAGE_SIZE)             /* one page */
+#define FLASH_ENV_SECTION_SIZE          (4*PAGE_SIZE)             /* 4 pages */
 /* print debug information of flash */
 #define FLASH_PRINT_DEBUG
 
@@ -42,19 +44,21 @@ static char log_buf[RT_CONSOLEBUF_SIZE];
  *
  * @param env_addr environment variables start address
  * @param env_size environment variables bytes size (@note must be word alignment)
+ * @param erase_min_size the minimum size of Flash erasure
  * @param default_env default environment variables set for user
  * @param default_env_size default environment variables size
  *
  * @return result
  */
-FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_size, flash_env const **default_env,
-        size_t *default_env_size) {
+FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_size, size_t *erase_min_size,
+        flash_env const **default_env, size_t *default_env_size) {
     FlashErrCode result = FLASH_NO_ERR;
 
-    FLASH_ASSERT((*env_size) % 4 == 0);
+    FLASH_ASSERT(FLASH_ENV_SECTION_SIZE % 4 == 0);
 
     *env_addr = FLASH_ENV_START_ADDR;
     *env_size = FLASH_ENV_SECTION_SIZE;
+    *erase_min_size = FLASH_ERASE_MIN_SIZE;
     *default_env = default_env_set;
     *default_env_size = sizeof(default_env_set)/sizeof(default_env_set[0]);
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (C) 2013 by Armink <armink.ztl@gmail.com>
+ * Copyright (C) 2014 by Armink <armink.ztl@gmail.com>
  *
  * Function: Is is an head file in this library. You can see all be called functions.
  * Created on: 2014-09-10
@@ -15,6 +15,9 @@
 
 /* using CRC32 check when load environment variable from Flash */
 #define FLASH_ENV_USING_CRC_CHECK
+/* using wear leveling mode or normal mode */
+/* #define FLASH_ENV_USING_WEAR_LEVELING_MODE */
+#define FLASH_ENV_USING_NORMAL_MODE
 
 /* Flash debug print function. Must be implement by user. */
 #define FLASH_DEBUG(...) flash_log_debug(__FILE__, __LINE__, __VA_ARGS__)
@@ -28,7 +31,7 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define FLASH_SW_VERSION                "1.02.11"
+#define FLASH_SW_VERSION                "1.02.12"
 
 typedef struct _flash_env{
     char *key;

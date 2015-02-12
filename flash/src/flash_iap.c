@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (C) 2013 by Armink <armink.ztl@gmail.com>
+ * Copyright (C) 2015 by Armink <armink.ztl@gmail.com>
  *
  * Function: IAP(In-Application Programming) operating interface.
  * Created on: 2015-01-05
