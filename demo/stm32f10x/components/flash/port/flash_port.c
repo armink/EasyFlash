@@ -74,8 +74,11 @@ FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_size, flash_env con
 FlashErrCode flash_read(uint32_t addr, uint32_t *buf, size_t size) {
     FlashErrCode result = FLASH_NO_ERR;
 
+    FLASH_ASSERT(size >= 4);
+    FLASH_ASSERT(size % 4 == 0);
+
     /*copy from flash to ram */
-    for (; size > 0; size--, addr += 4, buf++) {
+    for (; size > 0; size -= 4, addr += 4, buf++) {
         *buf = *(uint32_t *) addr;
     }
 
