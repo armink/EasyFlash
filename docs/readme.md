@@ -1,4 +1,4 @@
 |File or folder name                     |Description|
 |:-----                                  |:----|
 |en                                      |English documents|
-|zh                                      |中文文档（简体）|
+|zh                                      |涓枃鏂囨。锛堢畝浣擄級|
