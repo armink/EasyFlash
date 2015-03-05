@@ -394,7 +394,7 @@ FlashErrCode flash_del_env(const char *key){
 }
 
 /**
- * Set an environment variable. If it value is NULL, delete it.
+ * Set an environment variable. If it value is empty, delete it.
  * If not find it in environment variables table, then create it.
  *
  * @param key environment variable name
@@ -407,7 +407,7 @@ FlashErrCode flash_set_env(const char *key, const char *value) {
 
     FLASH_ASSERT(env_cache);
 
-    /* if value is null, delete it */
+    /* if ENV value is empty, delete it */
     if (*value == NULL) {
         result = flash_del_env(key);
     } else {

@@ -77,8 +77,8 @@ FlashErrCode flash_set_env(const char *key, const char *value)
 FlashErrCode flash_save_env(void)
 ```
 
-#### 1.2.6 恢复环境变量
-将内存中的环境变量表恢复为默认值。
+#### 1.2.6 重置环境变量
+将内存中的环境变量表重置为默认值。
 
 ```C
 FlashErrCode flash_env_set_default(void)
