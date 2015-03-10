@@ -503,8 +503,8 @@ void flash_print_env(void) {
             }
         }
     }
-    flash_print("\nEnvironment variables size: %ld/%ld bytes\n", flash_get_env_used_size(),
-    flash_get_env_total_size());
+    flash_print("\nEnvironment variables size: %ld/%ld bytes, mode: wear leveling.\n",
+            flash_get_env_used_size(), flash_get_env_total_size());
 }
 
 /**
