@@ -517,8 +517,8 @@ void flash_load_env(void) {
 
     /* read current using data section address */
     flash_read(get_env_start_addr(), &using_data_addr, 4);
-    /* if environment variables is not initialize, set default for it */
-    if (using_data_addr == 0xFFFFFFFF) {
+    /* if environment variables is not initialize or flash has dirty data, set default for it */
+    if ((using_data_addr == 0xFFFFFFFF) || (using_data_addr > env_start_addr + env_total_size)) {
         /* initialize current using data section address */
         set_cur_using_data_addr(get_env_start_addr() + flash_erase_min_size);
         /* save current using data section address to flash*/
@@ -530,22 +530,27 @@ void flash_load_env(void) {
         set_cur_using_data_addr(using_data_addr);
         /* read environment variables detail part end address from flash */
         flash_read(get_cur_using_data_addr() + ENV_PARAM_PART_INDEX_END_ADDR * 4, &env_end_addr, 4);
-        /* set environment variables detail part end address */
-        set_env_detail_end_addr(env_end_addr);
+        /* if environment variables end address has error, set default for environment variables */
+        if (env_end_addr > env_start_addr + env_total_size) {
+            flash_env_set_default();
+        } else {
+            /* set environment variables detail part end address */
+            set_env_detail_end_addr(env_end_addr);
 
-        env_cache_bak = env_cache + ENV_PARAM_PART_WORD_SIZE;
-        /* read all environment variables from flash */
-        flash_read(get_env_detail_addr(), env_cache_bak, get_env_detail_size());
+            env_cache_bak = env_cache + ENV_PARAM_PART_WORD_SIZE;
+            /* read all environment variables from flash */
+            flash_read(get_env_detail_addr(), env_cache_bak, get_env_detail_size());
 
 #ifdef FLASH_ENV_USING_CRC_CHECK
-        /* read environment variables CRC code from flash */
-        flash_read(get_cur_using_data_addr() + ENV_PARAM_PART_INDEX_DATA_CRC * 4,
-                &env_cache[ENV_PARAM_PART_INDEX_DATA_CRC] , 4);
+            /* read environment variables CRC code from flash */
+            flash_read(get_cur_using_data_addr() + ENV_PARAM_PART_INDEX_DATA_CRC * 4,
+                    &env_cache[ENV_PARAM_PART_INDEX_DATA_CRC], 4);
 
-        /* if environment variables CRC32 check is fault, set default for it */
-        if (!env_crc_is_ok()) {
-            FLASH_INFO("Warning: Environment variables CRC check failed. Set it to default.\n");
-            flash_env_set_default();
+            /* if environment variables CRC32 check is fault, set default for it */
+            if (!env_crc_is_ok()) {
+                FLASH_INFO("Warning: Environment variables CRC check failed. Set it to default.\n");
+                flash_env_set_default();
+            }
         }
 #endif
 

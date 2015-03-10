@@ -44,7 +44,7 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define FLASH_SW_VERSION                "1.02.12"
+#define FLASH_SW_VERSION                "1.03.10"
 
 typedef struct _flash_env{
     char *key;

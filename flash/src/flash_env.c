@@ -484,8 +484,8 @@ void flash_load_env(void) {
 
     /* read environment variables end address from flash */
     flash_read(get_env_system_addr() + FLASH_ENV_SYSTEM_INDEX_END_ADDR * 4, &env_end_addr, 4);
-    /* if environment variables is not initialize, set default for it */
-    if (env_end_addr == 0xFFFFFFFF) {
+    /* if environment variables is not initialize or flash has dirty data, set default for it */
+    if ((env_end_addr == 0xFFFFFFFF) || (env_end_addr > env_start_addr + env_total_size)) {
         flash_env_set_default();
     } else {
         /* set environment variables end address */
