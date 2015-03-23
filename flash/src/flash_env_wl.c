@@ -585,8 +585,10 @@ FlashErrCode flash_save_env(void) {
         case FLASH_ERASE_ERR: {
             FLASH_INFO("Warning: Erased environment variables fault!\n");
             FLASH_INFO("Moving environment variables to next available position.\n");
-            /* calculate move offset address */
-            move_offset_addr = (env_detail_size / flash_erase_min_size + 1) * flash_erase_min_size;
+            /* Calculate move offset address.
+             * Current strategy is optimistic. It will offset the flash erasure minimum size.
+             */
+            move_offset_addr = flash_erase_min_size;
             /* calculate and set next available data section address */
             set_cur_using_data_addr(get_cur_using_data_addr() + move_offset_addr);
             /* calculate and set next available environment variables detail part end address */
@@ -605,8 +607,10 @@ FlashErrCode flash_save_env(void) {
         case FLASH_WRITE_ERR: {
             FLASH_INFO("Warning: Saved environment variables fault!\n");
             FLASH_INFO("Moving environment variables to next available position.\n");
-            /* calculate move offset address */
-            move_offset_addr = (env_detail_size / flash_erase_min_size + 1) * flash_erase_min_size;
+            /* Calculate move offset address.
+             * Current strategy is optimistic. It will offset the flash erasure minimum size.
+             */
+            move_offset_addr = flash_erase_min_size;
             /* calculate and set next available data section address */
             set_cur_using_data_addr(get_cur_using_data_addr() + move_offset_addr);
             /* calculate and set next available environment variables detail part end address */
