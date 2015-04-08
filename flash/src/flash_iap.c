@@ -175,11 +175,11 @@ FlashErrCode flash_copy_app_from_bak(uint32_t user_app_addr, size_t app_size) {
     uint32_t buff[32];
 
     /* cycle copy data */
-    for (cur_size = 0; cur_size < app_size; cur_size += sizeof(buff) / 4) {
+    for (cur_size = 0; cur_size < app_size; cur_size += sizeof(buff)) {
         app_cur_addr = user_app_addr + cur_size;
         bak_cur_addr = get_bak_app_start_addr() + cur_size;
-        flash_read(bak_cur_addr, buff, sizeof(buff) / 4);
-        result = flash_write(app_cur_addr, buff, sizeof(buff) / 4);
+        flash_read(bak_cur_addr, buff, sizeof(buff));
+        result = flash_write(app_cur_addr, buff, sizeof(buff));
         if (result != FLASH_NO_ERR) {
             break;
         }
@@ -211,15 +211,15 @@ FlashErrCode flash_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size) {
     size_t cur_size;
     uint32_t bl_cur_addr, bak_cur_addr;
     FlashErrCode result = FLASH_NO_ERR;
-    /* 32bytes buffer */
+    /* 32 words buffer */
     uint32_t buff[32];
 
     /* cycle copy data by 32bytes buffer */
-    for (cur_size = 0; cur_size < bl_size; cur_size += 32) {
+    for (cur_size = 0; cur_size < bl_size; cur_size += sizeof(buff)) {
         bl_cur_addr = bl_addr + cur_size;
         bak_cur_addr = get_bak_app_start_addr() + cur_size;
-        flash_read(bak_cur_addr, buff, 32);
-        result = flash_write(bl_cur_addr, buff, 32);
+        flash_read(bak_cur_addr, buff, sizeof(buff));
+        result = flash_write(bl_cur_addr, buff, sizeof(buff));
         if (result != FLASH_NO_ERR) {
             break;
         }
