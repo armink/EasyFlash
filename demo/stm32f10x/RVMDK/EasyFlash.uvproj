@@ -476,6 +476,11 @@
               <FilePath>..\..\..\flash\src\flash_env.c</FilePath>
             </File>
             <File>
+              <FileName>flash_env_wl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\flash\src\flash_env_wl.c</FilePath>
+            </File>
+            <File>
               <FileName>flash_iap.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\flash\src\flash_iap.c</FilePath>

@@ -32,21 +32,21 @@
  *    Storage Environment variables current using data section address.
  *    Units: Word. Total size: @see FLASH_ERASE_MIN_SIZE.
  * 2. Data section
- *    The data section storage environment variables's parameters and detail.
+ *    The data section storage ENV's parameters and detail.
  *    When an exception has occurred on flash erase or write. The current using data section
  *    address will move to next available position. This position depends on FLASH_MIN_ERASE_SIZE.
  *    2.1 Environment variables parameters part
- *        It storage environment variables's parameters.
+ *        It storage ENV's parameters.
  *    2.2 Environment variables detail part
- *        It storage all environment variables. Storage format is key=value\0.
- *        All environment variables must be 4 bytes alignment. The remaining part must fill '\0'.
+ *        It storage all ENV. Storage format is key=value\0.
+ *        All ENV must be 4 bytes alignment. The remaining part must fill '\0'.
  *
  * @note Word = 4 Bytes in this file
  */
 
 /* flash ENV parameters part index and size */
 enum {
-    /* data section environment variables detail part end address index */
+    /* data section ENV detail part end address index */
     ENV_PARAM_PART_INDEX_END_ADDR = 0,
 
 #ifdef FLASH_ENV_USING_CRC_CHECK
@@ -54,23 +54,25 @@ enum {
     ENV_PARAM_PART_INDEX_DATA_CRC,
 #endif
 
-    /* environment variables parameters part word size */
+    /* ENV parameters part word size */
     ENV_PARAM_PART_WORD_SIZE,
-    /* environment variables parameters part byte size */
+    /* ENV parameters part byte size */
     ENV_PARAM_PART_BYTE_SIZE = ENV_PARAM_PART_WORD_SIZE * 4,
 };
 
-/* default environment variables set, must be initialized by user */
+/* default ENV set, must be initialized by user */
 static flash_env const *default_env_set = NULL;
-/* default environment variables set size, must be initialized by user */
+/* default ENV set size, must be initialized by user */
 static size_t default_env_set_size = NULL;
-/* flash environment variables all section total size */
+/* flash user setting ENV size */
+static size_t env_user_size = NULL;
+/* flash ENV all section total size */
 static size_t env_total_size = NULL;
 /* the minimum size of flash erasure */
 static size_t flash_erase_min_size = NULL;
-/* environment variables RAM cache */
+/* ENV RAM cache */
 static uint32_t *env_cache = NULL;
-/* environment variables start address in flash */
+/* ENV start address in flash */
 static uint32_t env_start_addr = NULL;
 /* current using data section address */
 static uint32_t cur_using_data_addr = NULL;
@@ -84,6 +86,8 @@ static void set_env_detail_end_addr(uint32_t end_addr);
 static FlashErrCode write_env(const char *key, const char *value);
 static uint32_t *find_env(const char *key);
 static size_t get_env_detail_size(void);
+static size_t get_env_user_size(void);
+static size_t get_env_user_used_size(void);
 static FlashErrCode create_env(const char *key, const char *value);
 static FlashErrCode save_cur_using_data_addr(uint32_t cur_data_addr);
 
@@ -93,31 +97,35 @@ static bool_t env_crc_is_ok(void);
 #endif
 
 /**
- * Flash environment variables initialize.
+ * Flash ENV initialize.
  *
- * @param start_addr environment variables start address in flash
- * @param total_size environment variables section total size (@note must be word alignment)
+ * @param start_addr ENV start address in flash
+ * @param user_size user setting ENV bytes size (@note must be word alignment)
+ * @param total_size ENV section total size (@note must be word alignment)
  * @param erase_min_size the minimum size of flash erasure
- * @param default_env default environment variables set for user
- * @param default_env_size default environment variables set size
+ * @param default_env default ENV set for user
+ * @param default_env_size default ENV set size
  *
  * @return result
  */
-FlashErrCode flash_env_init(uint32_t start_addr, size_t total_size, size_t erase_min_size,
-        flash_env const *default_env, size_t default_env_size) {
+FlashErrCode flash_env_init(uint32_t start_addr, size_t user_size, size_t total_size,
+        size_t erase_min_size, flash_env const *default_env, size_t default_env_size) {
     FlashErrCode result = FLASH_NO_ERR;
 
     FLASH_ASSERT(start_addr);
+    FLASH_ASSERT(user_size);
     FLASH_ASSERT(total_size);
     FLASH_ASSERT(erase_min_size);
     FLASH_ASSERT(default_env);
-    FLASH_ASSERT(default_env_size < total_size);
-    /* must be word alignment for environment variables */
+    FLASH_ASSERT(default_env_size < user_size);
+    /* must be word alignment for ENV */
+    FLASH_ASSERT(user_size % 4 == 0);
     FLASH_ASSERT(total_size % 4 == 0);
     /* make true only be initialized once */
     FLASH_ASSERT(!env_cache);
 
     env_start_addr = start_addr;
+    env_user_size = user_size;
     env_total_size = total_size;
     flash_erase_min_size = erase_min_size;
     default_env_set = default_env;
@@ -125,8 +133,8 @@ FlashErrCode flash_env_init(uint32_t start_addr, size_t total_size, size_t erase
 
     FLASH_DEBUG("Env start address is 0x%08X, size is %d bytes.\n", start_addr, total_size);
 
-    /* create environment variables ram cache */
-    env_cache = (uint32_t *) flash_malloc(sizeof(uint8_t) * total_size);
+    /* create ENV ram cache */
+    env_cache = (uint32_t *) flash_malloc(sizeof(uint8_t) * user_size);
     FLASH_ASSERT(env_cache);
 
     flash_load_env();
@@ -150,7 +158,7 @@ FlashErrCode flash_env_set_default(void){
     /* set ENV detail part end address is at ENV detail part start address */
     set_env_detail_end_addr(get_env_detail_addr());
 
-    /* create default environment variables */
+    /* create default ENV */
     for (i = 0; i < default_env_set_size; i++) {
         create_env(default_env_set[i].key, default_env_set[i].value);
     }
@@ -161,9 +169,9 @@ FlashErrCode flash_env_set_default(void){
 }
 
 /**
- * Get environment variables start address in flash.
+ * Get ENV start address in flash.
  *
- * @return environment variables start address in flash
+ * @return ENV start address in flash
  */
 static uint32_t get_env_start_addr(void) {
     FLASH_ASSERT(env_start_addr);
@@ -189,20 +197,20 @@ static void set_cur_using_data_addr(uint32_t using_data_addr) {
 }
 
 /**
- * Get environment variables detail part start address.
+ * Get ENV detail part start address.
  *
  * @return detail part start address
  */
 static uint32_t get_env_detail_addr(void) {
     FLASH_ASSERT(cur_using_data_addr);
-    return cur_using_data_addr + ENV_PARAM_PART_BYTE_SIZE;
+    return get_cur_using_data_addr() + ENV_PARAM_PART_BYTE_SIZE;
 }
 
 /**
- * Get environment variables detail part end address.
- * It's the first word in environment variables.
+ * Get ENV detail part end address.
+ * It's the first word in ENV.
  *
- * @return environment variables end address
+ * @return ENV end address
  */
 static uint32_t get_env_detail_end_addr(void) {
     /* it is the first word */
@@ -210,17 +218,17 @@ static uint32_t get_env_detail_end_addr(void) {
 }
 
 /**
- * Set environment variables detail part end address.
- * It's the first word in environment variables.
+ * Set ENV detail part end address.
+ * It's the first word in ENV.
  *
- * @param end_addr environment variables end address
+ * @param end_addr ENV end address
  */
 static void set_env_detail_end_addr(uint32_t end_addr) {
     env_cache[ENV_PARAM_PART_INDEX_END_ADDR] = end_addr;
 }
 
 /**
- * Get current environment variables detail part size.
+ * Get current ENV detail part size.
  *
  * @return size
  */
@@ -229,7 +237,44 @@ static size_t get_env_detail_size(void) {
 }
 
 /**
- * Get current environment variables section total size.
+ * Get current user setting ENV size.
+ *
+ * @return size
+ */
+static size_t get_env_user_size(void) {
+    /* must be initialized */
+    FLASH_ASSERT(env_user_size);
+
+    return env_user_size;
+}
+
+/**
+ * Get current user used ENV size.
+ *
+ * @see get_env_user_size
+ *
+ * @return size
+ */
+    /* must be initialized */
+static size_t get_env_user_used_size(void) {
+    FLASH_ASSERT(env_user_size);
+
+    return get_env_detail_end_addr() - get_cur_using_data_addr();
+}
+
+/**
+ * Get current ENV already write bytes.
+ *
+ * @return write bytes
+ */
+uint32_t flash_get_env_write_bytes(void) {
+    return get_env_detail_end_addr() - get_env_start_addr();
+}
+
+/**
+ * Get current ENV section total size.
+ *
+ * @see flash_get_env_total_size
  *
  * @return size
  */
@@ -238,15 +283,6 @@ size_t flash_get_env_total_size(void) {
     FLASH_ASSERT(env_total_size);
 
     return env_total_size;
-}
-
-/**
- * Get current environment variables used byte size.
- *
- * @return size
- */
-uint32_t flash_get_env_used_size(void) {
-    return get_env_detail_end_addr() - get_env_start_addr();
 }
 
 /**
@@ -262,13 +298,13 @@ static FlashErrCode write_env(const char *key, const char *value) {
     uint16_t env_str_index = 0, env_str_length, i;
     char *env_str;
 
-    /* calculate environment variables storage length, contain '=' and '\0'. */
+    /* calculate ENV storage length, contain '=' and '\0'. */
     env_str_length = strlen(key) + strlen(value) + 2;
     if (env_str_length % 4 != 0) {
         env_str_length = (env_str_length / 4 + 1) * 4;
     }
-    /* check capacity of environment variables  */
-    if (env_str_length + get_env_detail_size() >= flash_get_env_total_size()) {
+    /* check capacity of ENV  */
+    if (env_str_length + get_env_detail_size() >= get_env_user_size()) {
         return FLASH_ENV_FULL;
     }
     /* use ram to process string key=value\0 */
@@ -300,11 +336,11 @@ static FlashErrCode write_env(const char *key, const char *value) {
 }
 
 /**
- * Find environment variables.
+ * Find ENV.
  *
- * @param key environment variables name
+ * @param key ENV name
  *
- * @return index of environment variables in ram cache
+ * @return index of ENV in ram cache
  */
 static uint32_t *find_env(const char *key) {
     uint32_t *env_cache_addr = NULL;
@@ -313,7 +349,7 @@ static uint32_t *find_env(const char *key) {
     FLASH_ASSERT(cur_using_data_addr);
 
     if (*key == NULL) {
-        FLASH_INFO("Flash environment variables name must be not empty!\n");
+        FLASH_INFO("Flash ENV name must be not empty!\n");
         return NULL;
     }
 
@@ -321,7 +357,7 @@ static uint32_t *find_env(const char *key) {
     env_start = (char *) ((char *) env_cache + ENV_PARAM_PART_BYTE_SIZE);
     env_end = (char *) ((char *) env_cache + ENV_PARAM_PART_BYTE_SIZE + get_env_detail_size());
 
-    /* environment variables is null */
+    /* ENV is null */
     if (env_start == env_end) {
         return NULL;
     }
@@ -335,7 +371,7 @@ static uint32_t *find_env(const char *key) {
             env_cache_addr = (uint32_t *) env;
             break;
         } else {
-            /* next environment variables */
+            /* next ENV */
             env += strlen(env) + 1;
         }
     }
@@ -358,21 +394,21 @@ static FlashErrCode create_env(const char *key, const char *value) {
     FLASH_ASSERT(value);
 
     if (*key == NULL) {
-        FLASH_INFO("Flash environment variables name must be not empty!\n");
+        FLASH_INFO("Flash ENV name must be not empty!\n");
         return FLASH_ENV_NAME_ERR;
     }
 
     if (strstr(key, "=")) {
-        FLASH_INFO("Flash environment variables name can't contain '='.\n");
+        FLASH_INFO("Flash ENV name can't contain '='.\n");
         return FLASH_ENV_NAME_ERR;
     }
 
-    /* find environment variables */
+    /* find ENV */
     if (find_env(key)) {
         FLASH_INFO("The name of \"%s\" is already exist.\n", key);
         return FLASH_ENV_NAME_EXIST;
     }
-    /* write environment variables to flash */
+    /* write ENV at the end of cache */
     result = write_env(key, value);
 
     return result;
@@ -394,19 +430,19 @@ FlashErrCode flash_del_env(const char *key){
     FLASH_ASSERT(env_cache);
 
     if (*key == NULL) {
-        FLASH_INFO("Flash environment variables name must be not NULL!\n");
+        FLASH_INFO("Flash ENV name must be not NULL!\n");
         return FLASH_ENV_NAME_ERR;
     }
 
     if (strstr(key, "=")) {
-        FLASH_INFO("Flash environment variables name or value can't contain '='.\n");
+        FLASH_INFO("Flash ENV name or value can't contain '='.\n");
         return FLASH_ENV_NAME_ERR;
     }
 
-    /* find environment variables */
+    /* find ENV */
     del_env_str = (char *) find_env(key);
     if (!del_env_str) {
-        FLASH_INFO("Not find \"%s\" in environment variables.\n", key);
+        FLASH_INFO("Not find \"%s\" in ENV.\n", key);
         return FLASH_ENV_NAME_ERR;
     }
     del_env_length = strlen(del_env_str);
@@ -416,11 +452,11 @@ FlashErrCode flash_del_env(const char *key){
     if (del_env_length % 4 != 0) {
         del_env_length = (del_env_length / 4 + 1) * 4;
     }
-    /* calculate remain environment variables length */
+    /* calculate remain ENV length */
     remain_env_length = get_env_detail_size() - ((uint32_t) del_env_str - (uint32_t) env_cache);
-    /* remain environment variables move forward */
+    /* remain ENV move forward */
     memcpy(del_env_str, del_env_str + del_env_length, remain_env_length);
-    /* reset environment variables detail part end address */
+    /* reset ENV detail part end address */
     set_env_detail_end_addr(get_env_detail_end_addr() - del_env_length);
 
     return result;
@@ -428,7 +464,7 @@ FlashErrCode flash_del_env(const char *key){
 
 /**
  * Set an environment variable. If it value is empty, delete it.
- * If not find it in environment variables table, then create it.
+ * If not find it in ENV table, then create it.
  *
  * @param key environment variable name
  * @param value environment variable value
@@ -468,7 +504,7 @@ char *flash_get_env(const char *key) {
 
     FLASH_ASSERT(env_cache);
 
-    /* find environment variables */
+    /* find ENV */
     env_cache_addr = find_env(key);
     if (env_cache_addr == NULL) {
         return NULL;
@@ -482,7 +518,7 @@ char *flash_get_env(const char *key) {
     return value;
 }
 /**
- * Print environment variables.
+ * Print ENV.
  */
 void flash_print_env(void) {
     uint32_t *env_cache_detail_addr = env_cache + ENV_PARAM_PART_WORD_SIZE,
@@ -503,12 +539,13 @@ void flash_print_env(void) {
             }
         }
     }
-    flash_print("\nEnvironment variables size: %ld/%ld bytes, mode: wear leveling.\n",
-            flash_get_env_used_size(), flash_get_env_total_size());
+    flash_print("\nEnvironment variables size: %ld/%ld bytes, write bytes %ld/%ld, mode: wear leveling.\n",
+            get_env_user_used_size(), get_env_user_size(), flash_get_env_write_bytes(),
+            flash_get_env_total_size());
 }
 
 /**
- * Load flash environment variables to ram.
+ * Load flash ENV to ram.
  */
 void flash_load_env(void) {
     uint32_t *env_cache_bak, env_end_addr, using_data_addr;
@@ -517,36 +554,38 @@ void flash_load_env(void) {
 
     /* read current using data section address */
     flash_read(get_env_start_addr(), &using_data_addr, 4);
-    /* if environment variables is not initialize or flash has dirty data, set default for it */
-    if ((using_data_addr == 0xFFFFFFFF) || (using_data_addr > env_start_addr + env_total_size)) {
+    /* if ENV is not initialize or flash has dirty data, set default for it */
+    if ((using_data_addr == 0xFFFFFFFF)
+            || (using_data_addr > get_env_start_addr() + flash_get_env_total_size())
+            || (using_data_addr < get_env_start_addr() + flash_erase_min_size)) {
         /* initialize current using data section address */
         set_cur_using_data_addr(get_env_start_addr() + flash_erase_min_size);
         /* save current using data section address to flash*/
         save_cur_using_data_addr(get_cur_using_data_addr());
-        /* set default environment variables */
+        /* set default ENV */
         flash_env_set_default();
     } else {
         /* set current using data section address */
         set_cur_using_data_addr(using_data_addr);
-        /* read environment variables detail part end address from flash */
+        /* read ENV detail part end address from flash */
         flash_read(get_cur_using_data_addr() + ENV_PARAM_PART_INDEX_END_ADDR * 4, &env_end_addr, 4);
-        /* if environment variables end address has error, set default for environment variables */
-        if (env_end_addr > env_start_addr + env_total_size) {
+        /* if ENV end address has error, set default for ENV */
+        if (env_end_addr > get_env_start_addr() + flash_get_env_total_size()) {
             flash_env_set_default();
         } else {
-            /* set environment variables detail part end address */
+            /* set ENV detail part end address */
             set_env_detail_end_addr(env_end_addr);
 
             env_cache_bak = env_cache + ENV_PARAM_PART_WORD_SIZE;
-            /* read all environment variables from flash */
+            /* read all ENV from flash */
             flash_read(get_env_detail_addr(), env_cache_bak, get_env_detail_size());
 
 #ifdef FLASH_ENV_USING_CRC_CHECK
-            /* read environment variables CRC code from flash */
+            /* read ENV CRC code from flash */
             flash_read(get_cur_using_data_addr() + ENV_PARAM_PART_INDEX_DATA_CRC * 4,
                     &env_cache[ENV_PARAM_PART_INDEX_DATA_CRC], 4);
 
-            /* if environment variables CRC32 check is fault, set default for it */
+            /* if ENV CRC32 check is fault, set default for it */
             if (!env_crc_is_ok()) {
                 FLASH_INFO("Warning: Environment variables CRC check failed. Set it to default.\n");
                 flash_env_set_default();
@@ -558,7 +597,7 @@ void flash_load_env(void) {
 }
 
 /**
- * Save environment variables to flash.
+ * Save ENV to flash.
  */
 FlashErrCode flash_save_env(void) {
     FlashErrCode result = FLASH_NO_ERR;
@@ -567,7 +606,7 @@ FlashErrCode flash_save_env(void) {
 
     FLASH_ASSERT(env_cache);
 
-    /* wear leveling process, automatic move environment variables to next available position */
+    /* wear leveling process, automatic move ENV to next available position */
     while (get_cur_using_data_addr() + env_detail_size
             < get_env_start_addr() + flash_get_env_total_size()) {
 
@@ -575,50 +614,50 @@ FlashErrCode flash_save_env(void) {
     /* calculate and cache CRC32 code */
     env_cache[ENV_PARAM_PART_INDEX_DATA_CRC] = calc_env_crc();
 #endif
-        /* erase environment variables */
+        /* erase ENV */
         result = flash_erase(get_cur_using_data_addr(), ENV_PARAM_PART_BYTE_SIZE + env_detail_size);
         switch (result) {
         case FLASH_NO_ERR: {
-            FLASH_INFO("Erased environment variables OK.\n");
+            FLASH_INFO("Erased ENV OK.\n");
             break;
         }
         case FLASH_ERASE_ERR: {
-            FLASH_INFO("Warning: Erased environment variables fault!\n");
-            FLASH_INFO("Moving environment variables to next available position.\n");
+            FLASH_INFO("Warning: Erased ENV fault!\n");
+            FLASH_INFO("Moving ENV to next available position.\n");
             /* Calculate move offset address.
              * Current strategy is optimistic. It will offset the flash erasure minimum size.
              */
             move_offset_addr = flash_erase_min_size;
             /* calculate and set next available data section address */
             set_cur_using_data_addr(get_cur_using_data_addr() + move_offset_addr);
-            /* calculate and set next available environment variables detail part end address */
+            /* calculate and set next available ENV detail part end address */
             set_env_detail_end_addr(get_env_detail_end_addr() + move_offset_addr);
             continue;
         }
         }
-        /* write environment variables to flash */
+        /* write ENV to flash */
         result = flash_write(get_cur_using_data_addr(), env_cache,
                 ENV_PARAM_PART_BYTE_SIZE + env_detail_size);
         switch (result) {
         case FLASH_NO_ERR: {
-            FLASH_INFO("Saved environment variables OK.\n");
+            FLASH_INFO("Saved ENV OK.\n");
             break;
         }
         case FLASH_WRITE_ERR: {
-            FLASH_INFO("Warning: Saved environment variables fault!\n");
-            FLASH_INFO("Moving environment variables to next available position.\n");
+            FLASH_INFO("Warning: Saved ENV fault!\n");
+            FLASH_INFO("Moving ENV to next available position.\n");
             /* Calculate move offset address.
              * Current strategy is optimistic. It will offset the flash erasure minimum size.
              */
             move_offset_addr = flash_erase_min_size;
             /* calculate and set next available data section address */
             set_cur_using_data_addr(get_cur_using_data_addr() + move_offset_addr);
-            /* calculate and set next available environment variables detail part end address */
+            /* calculate and set next available ENV detail part end address */
             set_env_detail_end_addr(get_env_detail_end_addr() + move_offset_addr);
             continue;
         }
         }
-        /* save environment variables success */
+        /* save ENV success */
         if (result == FLASH_NO_ERR) {
             break;
         }
@@ -632,7 +671,7 @@ FlashErrCode flash_save_env(void) {
         }
     } else {
         result = FLASH_ENV_FULL;
-        FLASH_INFO("Error: The flash has no available space to save environment variables.\n");
+        FLASH_INFO("Error: The flash has no available space to save ENV.\n");
         /* clear current using data section address on flash */
         save_cur_using_data_addr(0xFFFFFFFF);
     }
@@ -642,7 +681,7 @@ FlashErrCode flash_save_env(void) {
 
 #ifdef FLASH_ENV_USING_CRC_CHECK
 /**
- * Calculate the cached environment variables CRC32 value.
+ * Calculate the cached ENV CRC32 value.
  *
  * @return CRC32 value
  */
@@ -650,8 +689,8 @@ static uint32_t calc_env_crc(void) {
     uint32_t crc32 = 0;
 
     extern uint32_t calc_crc32(uint32_t crc, const void *buf, size_t size);
-    /* Calculate the environment variables end address and all environment variables data CRC32.
-     * The 4 is environment variables end address bytes size. */
+    /* Calculate the ENV end address and all ENV data CRC32.
+     * The 4 is ENV end address bytes size. */
     crc32 = calc_crc32(crc32, &env_cache[ENV_PARAM_PART_INDEX_END_ADDR], 4);
     crc32 = calc_crc32(crc32, &env_cache[ENV_PARAM_PART_WORD_SIZE], get_env_detail_size());
     FLASH_DEBUG("Calculate Env CRC32 number is 0x%08X.\n", crc32);
@@ -662,7 +701,7 @@ static uint32_t calc_env_crc(void) {
 
 #ifdef FLASH_ENV_USING_CRC_CHECK
 /**
- * Check the environment variables CRC32
+ * Check the ENV CRC32
  *
  * @return true is ok
  */
@@ -685,18 +724,18 @@ static bool_t env_crc_is_ok(void) {
  */
 static FlashErrCode save_cur_using_data_addr(uint32_t cur_data_addr) {
     FlashErrCode result = FLASH_NO_ERR;
-    /* erase environment variables system section */
+    /* erase ENV system section */
     result = flash_erase(get_env_start_addr(), 4);
     if (result == FLASH_NO_ERR) {
         /* write current using data section address to flash */
         result = flash_write(get_env_start_addr(), &cur_data_addr, 4);
         if (result == FLASH_WRITE_ERR) {
             FLASH_INFO("Error: Write system section fault!\n");
-            FLASH_INFO("Note: The environment variables can not be used.\n");
+            FLASH_INFO("Note: The ENV can not be used.\n");
         }
     } else {
         FLASH_INFO("Error: Erased system section fault!\n");
-        FLASH_INFO("Note: The environment variables can not be used\n");
+        FLASH_INFO("Note: The ENV can not be used\n");
     }
     return result;
 }

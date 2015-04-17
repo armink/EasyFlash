@@ -23,10 +23,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
 #include <rtthread.h>
-#include "delay_conf.h"
 #include "bsp.h"
 
-uint32_t ulUsart2RxNum = 0;
 
 /** @addtogroup Template_Project
   * @{
@@ -133,13 +131,6 @@ void WWDG_IRQHandler(void)
  	/* enter interrupt */
  	rt_interrupt_enter();
 
- 	/* Clear EWI flag */
- 	WWDG_ClearFlag();
-
- 	/**
- 	 *系统即将复位前的处理
- 	 */
-
  	/* leave interrupt */
  	rt_interrupt_leave();
  }
@@ -154,12 +145,6 @@ void WWDG_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
 	rt_interrupt_enter();
-
-	if (TIM_GetITStatus(TIM4, TIM_IT_Update) == SET) {
-
-		TIM_ClearFlag(TIM4, TIM_FLAG_Update); //清中断标记
-		TIM_ClearITPendingBit(TIM4, TIM_IT_Update); //清除 TIM2 的中断待处理位
-	}
 
 	rt_interrupt_leave();
 }

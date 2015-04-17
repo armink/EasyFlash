@@ -951,7 +951,7 @@
   <group>
     <name>components</name>
     <group>
-      <name>flash</name>
+      <name>easyflash</name>
       <group>
         <name>port</name>
         <file>
@@ -965,6 +965,9 @@
         </file>
         <file>
           <name>$PROJ_DIR$\..\..\..\flash\src\flash_env.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\..\flash\src\flash_env_wl.c</name>
         </file>
         <file>
           <name>$PROJ_DIR$\..\..\..\flash\src\flash_iap.c</name>

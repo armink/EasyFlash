@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Function: Is is an head file in this library. You can see all be called functions.
+ * Function: Is is an head file for this library. You can see all be called functions.
  * Created on: 2014-09-10
  */
 
@@ -29,8 +29,8 @@
 /* using CRC32 check when load environment variable from Flash */
 #define FLASH_ENV_USING_CRC_CHECK
 /* using wear leveling mode or normal mode */
-/* #define FLASH_ENV_USING_WEAR_LEVELING_MODE */
-#define FLASH_ENV_USING_NORMAL_MODE
+#define FLASH_ENV_USING_WEAR_LEVELING_MODE
+/* #define FLASH_ENV_USING_NORMAL_MODE */
 
 /* Flash debug print function. Must be implement by user. */
 #define FLASH_DEBUG(...) flash_log_debug(__FILE__, __LINE__, __VA_ARGS__)
@@ -40,11 +40,11 @@
 #define FLASH_ASSERT(EXPR)                                                    \
 if (!(EXPR))                                                                  \
 {                                                                             \
-    FLASH_DEBUG("(%s) has assert failed at %s.\n", #EXPR, __FUNCTION__);     \
+    FLASH_DEBUG("(%s) has assert failed at %s.\n", #EXPR, __FUNCTION__);      \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define FLASH_SW_VERSION                "1.04.08"
+#define FLASH_SW_VERSION                "1.04.17"
 
 typedef struct _flash_env{
     char *key;
@@ -64,15 +64,15 @@ typedef enum {
 /* flash.c */
 FlashErrCode flash_init(void);
 
-/* flash_env.c */
+/* flash_env.c flash_env_wl.c */
 void flash_load_env(void);
 void flash_print_env(void);
 char *flash_get_env(const char *key);
 FlashErrCode flash_set_env(const char *key, const char *value);
 FlashErrCode flash_save_env(void);
 FlashErrCode flash_env_set_default(void);
-uint32_t flash_get_env_total_size(void);
-uint32_t flash_get_env_used_size(void);
+size_t flash_get_env_total_size(void);
+size_t flash_get_env_write_bytes(void);
 
 /* flash_iap.c */
 FlashErrCode flash_erase_bak_app(size_t app_size);

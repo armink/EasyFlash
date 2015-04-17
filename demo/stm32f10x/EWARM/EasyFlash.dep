@@ -2,7 +2,7 @@
 
 <project>
   <fileVersion>2</fileVersion>
-  <fileChecksum>3477300256</fileChecksum>
+  <fileChecksum>4204672539</fileChecksum>
   <configuration>
     <name>stm32f103xE</name>
     <outputs/>
