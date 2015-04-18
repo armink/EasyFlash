@@ -1,5 +1,7 @@
 # EasyFlash 使用说明
 
+标签（空格分隔）： EasyFlash Flash
+
 ---
 
 ## 1、介绍
@@ -8,7 +10,7 @@ EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Mi
 
  - **Env** 让变量轻松实现掉电保存，支持 **写平衡** 模式，无需担心变量长度、磨损平衡等问题
  
- 使用 **键值对(key-value)** 方式将变量存储到Flash中，类似U-Boot的 `环境变量` ，使用方式与U-Boot一致。
+ 使用 **键值对(key-value)** 方式将变量存储到Flash中。在产品上，能够更加简捷的实现 `设定参数` 或 `运行日志` 等信息掉电保存的功能。
  - **IAP** 在线升级再也不是难事儿
  
  该库封装了IAP(In-Application Programming)功能常用的接口，支持CRC32校验，同时支持Bootloader及Application的升级。
@@ -24,6 +26,7 @@ EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Mi
 |\flash\src\flash.c                     |目前只包含EasyFlash初始化方法|
 |\flash\port\flash_port.c               |不同平台下的EasyFlash移植接口及配置参数|
 |\demo\stm32f10x                        |stm32f10x平台下的demo|
+|\demo\stm32f4xx                        |stm32f4xx平台下的demo|
 
 ### 1.2、资源占用
 
@@ -36,7 +39,7 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 ### 1.3、支持平台
 
-目前已移植平台只有 `STM32F10X` 系列的片内Flash，这个也是笔者产品使用的平台。其余平台的移植难度不大，在项目的设计之初就有考虑针对所有平台的适配性问题（64位除外），所以对所有移植接口都有做预留。移植只需修改 `\flash\port\flash_port.c` 一个文件，实现里面的擦、写、读及打印功能即可。
+目前已移植平台有 `stm32f10x`与 `stm32f4xx` 系列的片内Flash，这个也是笔者产品使用的平台。其余平台的移植难度不大，在项目的设计之初就有考虑针对所有平台的适配性问题（64位除外），所以对所有移植接口都有做预留。移植只需修改 `\flash\port\flash_port.c` 一个文件，实现里面的擦、写、读及打印功能即可。
 
 欢迎大家 **fork and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)) 。开源软件的成功离不开所有人的努力，也希望该项目能够帮助大家降低开发周期，让产品更早的获得成功。
 
