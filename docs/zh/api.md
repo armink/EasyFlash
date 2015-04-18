@@ -87,13 +87,13 @@ FlashErrCode flash_env_set_default(void)
 #### 1.2.7 获取环境变量分区的总容量
 
 ```C
-uint32_t flash_get_env_total_size(void)
+size_t flash_get_env_total_size(void)
 ```
 
-#### 1.2.8 获取当前已使用环境变量的大小
+#### 1.2.8 获取当前环境变量写入到Flash的字节大小
 
 ```C
-uint32_t flash_get_env_used_size(void)
+size_t flash_get_env_write_bytes(void)
 ```
 
 ### 1.3 在线升级
@@ -165,7 +165,7 @@ FlashErrCode flash_copy_app_from_bak(uint32_t user_app_addr, size_t app_size)
 |user_app_addr                           |用户应用程序入口地址|
 |user_app_size                           |用户应用程序大小|
 
-#### 1.3.5 从备份拷贝Bootloader
+#### 1.3.6 从备份拷贝Bootloader
 
 将备份区已下载好的Bootloader拷贝至Bootloader起始地址。
 注意：
