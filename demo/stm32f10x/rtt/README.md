@@ -1,4 +1,4 @@
-# stm32f4xx RT-Thread Demo
+# stm32f10x RT-Thread Demo
 
 ---
 
@@ -21,6 +21,6 @@
 
 `components\flash\port\flash_port.c` 移植参考文件
 
-`RVMDK` 下为Keil工程文件（后期加入，笔者目前的Keil版本是4.12，不支持stm32f4xx）
+`RVMDK` 下为Keil工程文件
 
 `EWARM` 下为IAR工程文件

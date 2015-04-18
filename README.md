@@ -1,7 +1,5 @@
 # EasyFlash 使用说明
 
-标签（空格分隔）： EasyFlash Flash
-
 ---
 
 ## 1、介绍
@@ -25,7 +23,8 @@ EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Mi
 |\flash\src\flash_utils.c               |EasyFlash常用小工具，例如：CRC32|
 |\flash\src\flash.c                     |目前只包含EasyFlash初始化方法|
 |\flash\port\flash_port.c               |不同平台下的EasyFlash移植接口及配置参数|
-|\demo\stm32f10x                        |stm32f10x平台下的demo|
+|\demo\non_os\stm32f10x                 |stm32f10x裸机的demo|
+|\demo\rtt\stm32f10x                    |stm32f10x基于RT-Thread的demo|
 |\demo\stm32f4xx                        |stm32f4xx平台下的demo|
 
 ### 1.2、资源占用
@@ -39,7 +38,7 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 ### 1.3、支持平台
 
-目前已移植平台有 `stm32f10x`与 `stm32f4xx` 系列的片内Flash，这个也是笔者产品使用的平台。其余平台的移植难度不大，在项目的设计之初就有考虑针对所有平台的适配性问题（64位除外），所以对所有移植接口都有做预留。移植只需修改 `\flash\port\flash_port.c` 一个文件，实现里面的擦、写、读及打印功能即可。
+目前已移植硬件平台有 `stm32f10x`与 `stm32f4xx` 系列的片内Flash，这个也是笔者产品使用的平台。其余平台的移植难度不大，在项目的设计之初就有考虑针对所有平台的适配性问题（64位除外），所以对所有移植接口都有做预留。移植只需修改 `\flash\port\flash_port.c` 一个文件，实现里面的擦、写、读及打印功能即可。
 
 欢迎大家 **fork and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)) 。开源软件的成功离不开所有人的努力，也希望该项目能够帮助大家降低开发周期，让产品更早的获得成功。
 
