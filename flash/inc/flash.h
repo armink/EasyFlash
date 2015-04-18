@@ -29,8 +29,8 @@
 /* using CRC32 check when load environment variable from Flash */
 #define FLASH_ENV_USING_CRC_CHECK
 /* using wear leveling mode or normal mode */
-#define FLASH_ENV_USING_WEAR_LEVELING_MODE
-/* #define FLASH_ENV_USING_NORMAL_MODE */
+/* #define FLASH_ENV_USING_WEAR_LEVELING_MODE */
+#define FLASH_ENV_USING_NORMAL_MODE
 
 /* Flash debug print function. Must be implement by user. */
 #define FLASH_DEBUG(...) flash_log_debug(__FILE__, __LINE__, __VA_ARGS__)

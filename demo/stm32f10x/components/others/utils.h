@@ -1,10 +1,3 @@
-/*
- * utils.h
- *
- *  Created on: 2013-11-26
- *      Author: BX-Zuohao
- */
-
 #ifndef UTILS_H_
 #define UTILS_H_
 
