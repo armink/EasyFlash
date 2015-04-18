@@ -8,7 +8,7 @@ EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Mi
 
  - **Env** 让变量轻松实现掉电保存，支持 **写平衡** 模式，无需担心变量长度、磨损平衡等问题
  
- 使用 **键值对(key-value)** 方式将变量存储到Flash中。在产品上，能够更加简捷的实现 `设定参数` 或 `运行日志` 等信息掉电保存的功能。
+ 使用 **键值对(key-value)** 方式将变量存储到Flash中。在产品上，能够更加简捷的实现 **设定参数** 或 **运行日志** 等信息掉电保存的功能。
  - **IAP** 在线升级再也不是难事儿
  
  该库封装了IAP(In-Application Programming)功能常用的接口，支持CRC32校验，同时支持Bootloader及Application的升级。
@@ -23,9 +23,9 @@ EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Mi
 |\flash\src\flash_utils.c               |EasyFlash常用小工具，例如：CRC32|
 |\flash\src\flash.c                     |目前只包含EasyFlash初始化方法|
 |\flash\port\flash_port.c               |不同平台下的EasyFlash移植接口及配置参数|
-|\demo\non_os\stm32f10x                 |stm32f10x裸机的demo|
-|\demo\rtt\stm32f10x                    |stm32f10x基于RT-Thread的demo|
-|\demo\stm32f4xx                        |stm32f4xx平台下的demo|
+|\demo\stm32f10x\non_os                 |stm32f10x裸机的demo|
+|\demo\stm32f10x\rtt                    |stm32f10x基于[RT-Thread](http://www.rt-thread.org/)的demo|
+|\demo\stm32f4xx                        |stm32f4xx基于[RT-Thread](http://www.rt-thread.org/)的demo|
 
 ### 1.2、资源占用
 
@@ -46,7 +46,7 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 ### 2.1、环境变量
 
-下图为人工通过控制台来调用环境变量的常用接口，演示了环境变量 `"temp"` 从创建到保存，再修改，最后删除的过程。这些接口都支持被应用层直接调用。
+下图为通过控制台（终端）来调用环境变量的常用接口，演示了环境变量 `"temp"` 从创建到保存，再修改，最后删除的过程。这些接口都支持被应用层直接调用。
 
 ![easy_flash_env](https://cloud.githubusercontent.com/assets/1734686/5886463/46ad7efa-a3db-11e4-8401-75c00a4c35ba.gif)
 
