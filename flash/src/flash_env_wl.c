@@ -295,42 +295,35 @@ size_t flash_get_env_total_size(void) {
  */
 static FlashErrCode write_env(const char *key, const char *value) {
     FlashErrCode result = FLASH_NO_ERR;
-    uint16_t env_str_index = 0, env_str_length, i;
-    char *env_str;
+    size_t ker_len = strlen(key), value_len = strlen(value), env_str_len;
+    char *env_cache_bak = (char *)env_cache;
 
     /* calculate ENV storage length, contain '=' and '\0'. */
-    env_str_length = strlen(key) + strlen(value) + 2;
-    if (env_str_length % 4 != 0) {
-        env_str_length = (env_str_length / 4 + 1) * 4;
+    env_str_len = ker_len + value_len + 2;
+    if (env_str_len % 4 != 0) {
+        env_str_len = (env_str_len / 4 + 1) * 4;
     }
     /* check capacity of ENV  */
-    if (env_str_length + get_env_detail_size() >= get_env_user_size()) {
+    if (env_str_len + get_env_detail_size() >= get_env_user_size()) {
         return FLASH_ENV_FULL;
     }
-    /* use ram to process string key=value\0 */
-    env_str = flash_malloc(env_str_length * sizeof(char));
-    FLASH_ASSERT(env_str);
-    memset(env_str, 0, env_str_length * sizeof(char));
+    /* calculate current ENV ram cache end address */
+    env_cache_bak += ENV_PARAM_PART_BYTE_SIZE + get_env_detail_size();
     /* copy key name */
-    for (env_str_index = 0; env_str_index < strlen(key); env_str_index++) {
-        env_str[env_str_index] = key[env_str_index];
-    }
+    memcpy(env_cache_bak, key, ker_len);
+    env_cache_bak += ker_len;
     /* copy equal sign */
-    env_str[env_str_index] = '=';
-    env_str_index++;
+    *env_cache_bak = '=';
+    env_cache_bak++;
     /* copy value */
-    for (i = 0; i < strlen(value); env_str_index++, i++) {
-        env_str[env_str_index] = value[i];
-    }
-
-    //TODO ¿¼ÂÇ¿É·ñÓÅ»¯
-    memcpy((char *) env_cache + ENV_PARAM_PART_BYTE_SIZE + get_env_detail_size(),
-            (uint32_t *) env_str, env_str_length);
-    set_env_detail_end_addr(get_env_detail_end_addr() + env_str_length);
-
-    /* free ram */
-    flash_free(env_str);
-    env_str = NULL;
+    memcpy(env_cache_bak, value, value_len);
+    env_cache_bak += value_len;
+    /* fill '\0' for string end sign */
+    *env_cache_bak = '\0';
+    env_cache_bak ++;
+    /* fill '\0' for word alignment */
+    memset(env_cache_bak, 0, env_str_len - (ker_len + value_len + 2));
+    set_env_detail_end_addr(get_env_detail_end_addr() + env_str_len);
 
     return result;
 }
@@ -368,11 +361,15 @@ static uint32_t *find_env(const char *key) {
         env_bak = strstr(env, key);
         /* the key name length must be equal */
         if (env_bak && (env_bak[strlen(key)] == '=')) {
-            env_cache_addr = (uint32_t *) env;
+            env_cache_addr = (uint32_t *) env_bak;
             break;
         } else {
-            /* next ENV */
-            env += strlen(env) + 1;
+            /* next ENV and word alignment */
+            if ((strlen(env) + 1) % 4 == 0) {
+                env += strlen(env) + 1;
+            } else {
+                env += ((strlen(env) + 1) / 4 + 1) * 4;
+            }
         }
     }
     return env_cache_addr;
@@ -424,7 +421,7 @@ static FlashErrCode create_env(const char *key, const char *value) {
 FlashErrCode flash_del_env(const char *key){
     FlashErrCode result = FLASH_NO_ERR;
     char *del_env_str = NULL;
-    uint32_t del_env_length, remain_env_length;
+    size_t del_env_length, remain_env_length;
 
     FLASH_ASSERT(key);
     FLASH_ASSERT(env_cache);
@@ -453,10 +450,11 @@ FlashErrCode flash_del_env(const char *key){
         del_env_length = (del_env_length / 4 + 1) * 4;
     }
     /* calculate remain ENV length */
-    remain_env_length = get_env_detail_size() - ((uint32_t) del_env_str - (uint32_t) env_cache);
+    remain_env_length = get_env_detail_size()
+            - (((uint32_t) del_env_str + del_env_length) - ((uint32_t) env_cache + ENV_PARAM_PART_BYTE_SIZE));
     /* remain ENV move forward */
     memcpy(del_env_str, del_env_str + del_env_length, remain_env_length);
-    /* reset ENV detail part end address */
+    /* reset ENV end address */
     set_env_detail_end_addr(get_env_detail_end_addr() - del_env_length);
 
     return result;

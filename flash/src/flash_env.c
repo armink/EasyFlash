@@ -37,20 +37,20 @@
  * @note Word = 4 Bytes in this file
  */
 
-/* flash ENV system section index and size */
+/* flash ENV parameters index and size in system section */
 enum {
     /* data section ENV end address index in system section */
-    FLASH_ENV_SYSTEM_INDEX_END_ADDR = 0,
+    ENV_PARAM_INDEX_END_ADDR = 0,
 
 #ifdef FLASH_ENV_USING_CRC_CHECK
     /* data section CRC32 code index in system section */
-    FLASH_ENV_SYSTEM_INDEX_DATA_CRC,
+    ENV_PARAM_INDEX_DATA_CRC,
 #endif
 
-    /* flash ENV system section word size */
-    FLASH_ENV_SYSTEM_WORD_SIZE,
-    /* flash ENV system section byte size */
-    FLASH_ENV_SYSTEM_BYTE_SIZE = FLASH_ENV_SYSTEM_WORD_SIZE * 4,
+    /* flash ENV parameters word size */
+    ENV_PARAM_WORD_SIZE,
+    /* flash ENV parameters byte size */
+    ENV_PARAM_BYTE_SIZE = ENV_PARAM_WORD_SIZE * 4,
 };
 
 /* default ENV set, must be initialized by user */
@@ -167,7 +167,7 @@ static uint32_t get_env_system_addr(void) {
  */
 static uint32_t get_env_data_addr(void) {
     FLASH_ASSERT(env_start_addr);
-    return env_start_addr + FLASH_ENV_SYSTEM_BYTE_SIZE;
+    return env_start_addr + ENV_PARAM_BYTE_SIZE;
 }
 
 /**
@@ -178,7 +178,7 @@ static uint32_t get_env_data_addr(void) {
  */
 static uint32_t get_env_end_addr(void) {
     /* it is the first word */
-    return env_cache[FLASH_ENV_SYSTEM_INDEX_END_ADDR];
+    return env_cache[ENV_PARAM_INDEX_END_ADDR];
 }
 
 /**
@@ -188,7 +188,7 @@ static uint32_t get_env_end_addr(void) {
  * @param end_addr ENV end address
  */
 static void set_env_end_addr(uint32_t end_addr) {
-    env_cache[FLASH_ENV_SYSTEM_INDEX_END_ADDR] = end_addr;
+    env_cache[ENV_PARAM_INDEX_END_ADDR] = end_addr;
 }
 
 /**
@@ -231,42 +231,35 @@ uint32_t flash_get_env_write_bytes(void) {
  */
 static FlashErrCode write_env(const char *key, const char *value) {
     FlashErrCode result = FLASH_NO_ERR;
-    uint16_t env_str_index = 0, env_str_length, i;
-    char *env_str;
+    size_t ker_len = strlen(key), value_len = strlen(value), env_str_len;
+    char *env_cache_bak = (char *)env_cache;
 
     /* calculate ENV storage length, contain '=' and '\0'. */
-    env_str_length = strlen(key) + strlen(value) + 2;
-    if (env_str_length % 4 != 0) {
-        env_str_length = (env_str_length / 4 + 1) * 4;
+    env_str_len = ker_len + value_len + 2;
+    if (env_str_len % 4 != 0) {
+        env_str_len = (env_str_len / 4 + 1) * 4;
     }
     /* check capacity of ENV  */
-    if (env_str_length + get_env_data_size() >= flash_get_env_total_size()) {
+    if (env_str_len + get_env_data_size() >= flash_get_env_total_size()) {
         return FLASH_ENV_FULL;
     }
-    /* use ram to process string key=value\0 */
-    env_str = flash_malloc(env_str_length * sizeof(char));
-    FLASH_ASSERT(env_str);
-    memset(env_str, 0, env_str_length * sizeof(char));
+    /* calculate current ENV ram cache end address */
+    env_cache_bak += flash_get_env_write_bytes();
     /* copy key name */
-    for (env_str_index = 0; env_str_index < strlen(key); env_str_index++) {
-        env_str[env_str_index] = key[env_str_index];
-    }
+    memcpy(env_cache_bak, key, ker_len);
+    env_cache_bak += ker_len;
     /* copy equal sign */
-    env_str[env_str_index] = '=';
-    env_str_index++;
+    *env_cache_bak = '=';
+    env_cache_bak++;
     /* copy value */
-    for (i = 0; i < strlen(value); env_str_index++, i++) {
-        env_str[env_str_index] = value[i];
-    }
-
-    //TODO ¿¼ÂÇ¿É·ñÓÅ»¯
-    memcpy((char *) env_cache + flash_get_env_write_bytes(), (uint32_t *) env_str,
-            env_str_length);
-    set_env_end_addr(get_env_end_addr() + env_str_length);
-
-    /* free ram */
-    flash_free(env_str);
-    env_str = NULL;
+    memcpy(env_cache_bak, value, value_len);
+    env_cache_bak += value_len;
+    /* fill '\0' for string end sign */
+    *env_cache_bak = '\0';
+    env_cache_bak ++;
+    /* fill '\0' for word alignment */
+    memset(env_cache_bak, 0, env_str_len - (ker_len + value_len + 2));
+    set_env_end_addr(get_env_end_addr() + env_str_len);
 
     return result;
 }
@@ -290,7 +283,7 @@ static uint32_t *find_env(const char *key) {
     }
 
     /* from data section start to data section end */
-    env_start = (char *) ((char *) env_cache + FLASH_ENV_SYSTEM_BYTE_SIZE);
+    env_start = (char *) ((char *) env_cache + ENV_PARAM_BYTE_SIZE);
     env_end = (char *) ((char *) env_cache + flash_get_env_write_bytes());
 
     /* ENV is null */
@@ -304,11 +297,15 @@ static uint32_t *find_env(const char *key) {
         env_bak = strstr(env, key);
         /* the key name length must be equal */
         if (env_bak && (env_bak[strlen(key)] == '=')) {
-            env_cache_addr = (uint32_t *) env;
+            env_cache_addr = (uint32_t *) env_bak;
             break;
         } else {
-            /* next ENV */
-            env += strlen(env) + 1;
+            /* next ENV and word alignment */
+            if ((strlen(env) + 1) % 4 == 0) {
+                env += strlen(env) + 1;
+            } else {
+                env += ((strlen(env) + 1) / 4 + 1) * 4;
+            }
         }
     }
     return env_cache_addr;
@@ -360,7 +357,7 @@ static FlashErrCode create_env(const char *key, const char *value) {
 FlashErrCode flash_del_env(const char *key){
     FlashErrCode result = FLASH_NO_ERR;
     char *del_env_str = NULL;
-    uint32_t del_env_length, remain_env_length;
+    size_t del_env_length, remain_env_length;
 
     FLASH_ASSERT(key);
     FLASH_ASSERT(env_cache);
@@ -389,8 +386,8 @@ FlashErrCode flash_del_env(const char *key){
         del_env_length = (del_env_length / 4 + 1) * 4;
     }
     /* calculate remain ENV length */
-    remain_env_length =
-            get_env_data_size() - ((uint32_t) del_env_str - (uint32_t) env_cache);
+    remain_env_length = get_env_data_size()
+            - (((uint32_t) del_env_str + del_env_length) - ((uint32_t) env_cache + ENV_PARAM_BYTE_SIZE));
     /* remain ENV move forward */
     memcpy(del_env_str, del_env_str + del_env_length, remain_env_length);
     /* reset ENV end address */
@@ -458,9 +455,9 @@ char *flash_get_env(const char *key) {
  * Print ENV.
  */
 void flash_print_env(void) {
-    uint32_t *env_cache_data_addr = env_cache + FLASH_ENV_SYSTEM_WORD_SIZE,
+    uint32_t *env_cache_data_addr = env_cache + ENV_PARAM_WORD_SIZE,
             *env_cache_end_addr =
-            (uint32_t *) (env_cache + FLASH_ENV_SYSTEM_WORD_SIZE + get_env_data_size() / 4);
+            (uint32_t *) (env_cache + ENV_PARAM_WORD_SIZE + get_env_data_size() / 4);
     uint8_t j;
     char c;
 
@@ -489,7 +486,7 @@ void flash_load_env(void) {
     FLASH_ASSERT(env_cache);
 
     /* read ENV end address from flash */
-    flash_read(get_env_system_addr() + FLASH_ENV_SYSTEM_INDEX_END_ADDR * 4, &env_end_addr, 4);
+    flash_read(get_env_system_addr() + ENV_PARAM_INDEX_END_ADDR * 4, &env_end_addr, 4);
     /* if ENV is not initialize or flash has dirty data, set default for it */
     if ((env_end_addr == 0xFFFFFFFF) || (env_end_addr > env_start_addr + env_total_size)) {
         flash_env_set_default();
@@ -497,14 +494,14 @@ void flash_load_env(void) {
         /* set ENV end address */
         set_env_end_addr(env_end_addr);
 
-        env_cache_bak = env_cache + FLASH_ENV_SYSTEM_WORD_SIZE;
+        env_cache_bak = env_cache + ENV_PARAM_WORD_SIZE;
         /* read all ENV from flash */
         flash_read(get_env_data_addr(), env_cache_bak, get_env_data_size());
 
 #ifdef FLASH_ENV_USING_CRC_CHECK
         /* read ENV CRC code from flash */
-        flash_read(get_env_system_addr() + FLASH_ENV_SYSTEM_INDEX_DATA_CRC * 4,
-                &env_cache[FLASH_ENV_SYSTEM_INDEX_DATA_CRC] , 4);
+        flash_read(get_env_system_addr() + ENV_PARAM_INDEX_DATA_CRC * 4,
+                &env_cache[ENV_PARAM_INDEX_DATA_CRC] , 4);
 
         /* if ENV CRC32 check is fault, set default for it */
         if (!env_crc_is_ok()) {
@@ -526,7 +523,7 @@ FlashErrCode flash_save_env(void) {
 
 #ifdef FLASH_ENV_USING_CRC_CHECK
     /* calculate and cache CRC32 code */
-    env_cache[FLASH_ENV_SYSTEM_INDEX_DATA_CRC] = calc_env_crc();
+    env_cache[ENV_PARAM_INDEX_DATA_CRC] = calc_env_crc();
 #endif
 
     /* erase ENV */
@@ -571,8 +568,8 @@ static uint32_t calc_env_crc(void) {
     extern uint32_t calc_crc32(uint32_t crc, const void *buf, size_t size);
     /* Calculate the ENV end address and all ENV data CRC32.
      * The 4 is ENV end address bytes size. */
-    crc32 = calc_crc32(crc32, &env_cache[FLASH_ENV_SYSTEM_INDEX_END_ADDR], 4);
-    crc32 = calc_crc32(crc32, &env_cache[FLASH_ENV_SYSTEM_WORD_SIZE], get_env_data_size());
+    crc32 = calc_crc32(crc32, &env_cache[ENV_PARAM_INDEX_END_ADDR], 4);
+    crc32 = calc_crc32(crc32, &env_cache[ENV_PARAM_WORD_SIZE], get_env_data_size());
     FLASH_DEBUG("Calculate Env CRC32 number is 0x%08X.\n", crc32);
 
     return crc32;
@@ -586,7 +583,7 @@ static uint32_t calc_env_crc(void) {
  * @return true is ok
  */
 static bool_t env_crc_is_ok(void) {
-    if (calc_env_crc() == env_cache[FLASH_ENV_SYSTEM_INDEX_DATA_CRC]) {
+    if (calc_env_crc() == env_cache[ENV_PARAM_INDEX_DATA_CRC]) {
         FLASH_DEBUG("Verify Env CRC32 result is OK.\n");
         return TRUE;
     } else {
