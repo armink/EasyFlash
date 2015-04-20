@@ -27,17 +27,17 @@
 #ifdef FLASH_ENV_USING_WEAR_LEVELING_MODE
 
 /**
- * Environment variables area has 2 sections
+ * ENV area has 2 sections
  * 1. System section
- *    Storage Environment variables current using data section address.
+ *    Storage ENV current using data section address.
  *    Units: Word. Total size: @see FLASH_ERASE_MIN_SIZE.
  * 2. Data section
  *    The data section storage ENV's parameters and detail.
  *    When an exception has occurred on flash erase or write. The current using data section
  *    address will move to next available position. This position depends on FLASH_MIN_ERASE_SIZE.
- *    2.1 Environment variables parameters part
+ *    2.1 ENV parameters part
  *        It storage ENV's parameters.
- *    2.2 Environment variables detail part
+ *    2.2 ENV detail part
  *        It storage all ENV. Storage format is key=value\0.
  *        All ENV must be 4 bytes alignment. The remaining part must fill '\0'.
  *
@@ -143,7 +143,7 @@ FlashErrCode flash_env_init(uint32_t start_addr, size_t user_size, size_t total_
 }
 
 /**
- * Environment variables set default.
+ * ENV set default.
  *
  * @return result
  */
@@ -286,10 +286,10 @@ size_t flash_get_env_total_size(void) {
 }
 
 /**
- * Write an environment variable at the end of cache.
+ * Write an ENV at the end of cache.
  *
- * @param key environment variable name
- * @param value environment variable value
+ * @param key ENV name
+ * @param value ENV value
  *
  * @return result
  */
@@ -376,11 +376,11 @@ static uint32_t *find_env(const char *key) {
 }
 
 /**
- * If the environment variable is not exist, create it.
+ * If the ENV is not exist, create it.
  * @see flash_write_env
  *
- * @param key environment variable name
- * @param value environment variable value
+ * @param key ENV name
+ * @param value ENV value
  *
  * @return result
  */
@@ -412,9 +412,9 @@ static FlashErrCode create_env(const char *key, const char *value) {
 }
 
 /**
- * Delete an environment variable in cache.
+ * Delete an ENV in cache.
  *
- * @param key environment variable name
+ * @param key ENV name
  *
  * @return result
  */
@@ -443,7 +443,7 @@ FlashErrCode flash_del_env(const char *key){
         return FLASH_ENV_NAME_ERR;
     }
     del_env_length = strlen(del_env_str);
-    /* '\0' also must be as environment variable length */
+    /* '\0' also must be as ENV length */
     del_env_length ++;
     /* the address must multiple of 4 */
     if (del_env_length % 4 != 0) {
@@ -461,11 +461,11 @@ FlashErrCode flash_del_env(const char *key){
 }
 
 /**
- * Set an environment variable. If it value is empty, delete it.
+ * Set an ENV. If it value is empty, delete it.
  * If not find it in ENV table, then create it.
  *
- * @param key environment variable name
- * @param value environment variable value
+ * @param key ENV name
+ * @param value ENV value
  *
  * @return result
  */
@@ -478,7 +478,7 @@ FlashErrCode flash_set_env(const char *key, const char *value) {
     if (*value == NULL) {
         result = flash_del_env(key);
     } else {
-        /* if find this variables, then delete it and recreate it  */
+        /* if find this ENV, then delete it and recreate it  */
         if (find_env(key)) {
             result = flash_del_env(key);
         }
@@ -490,9 +490,9 @@ FlashErrCode flash_set_env(const char *key, const char *value) {
 }
 
 /**
- * Get an environment variable value by key name.
+ * Get an ENV value by key name.
  *
- * @param key environment variable name
+ * @param key ENV name
  *
  * @return value
  */
@@ -537,7 +537,7 @@ void flash_print_env(void) {
             }
         }
     }
-    flash_print("\nEnvironment variables size: %ld/%ld bytes, write bytes %ld/%ld, mode: wear leveling.\n",
+    flash_print("\nENV size: %ld/%ld bytes, write bytes %ld/%ld, mode: wear leveling.\n",
             get_env_user_used_size(), get_env_user_size(), flash_get_env_write_bytes(),
             flash_get_env_total_size());
 }
@@ -585,7 +585,7 @@ void flash_load_env(void) {
 
             /* if ENV CRC32 check is fault, set default for it */
             if (!env_crc_is_ok()) {
-                FLASH_INFO("Warning: Environment variables CRC check failed. Set it to default.\n");
+                FLASH_INFO("Warning: ENV CRC check failed. Set it to default.\n");
                 flash_env_set_default();
             }
         }
