@@ -29,8 +29,6 @@
 #define FLASH_ENV_START_ADDR            (FLASH_BASE + 256 * 1024) /* on the chip position: 256KB */
 /* the minimum size of flash erasure */
 #define FLASH_ERASE_MIN_SIZE            (128 * 1024)              /* it is 128K for compatibility */
-/* the user setting size of ENV */
-#define FLASH_USER_SETTING_ENV_SIZE     (2 * 1024)                /* 2K */
 #ifdef FLASH_ENV_USING_WEAR_LEVELING_MODE
 /* ENV section total bytes size in wear leveling mode. */
 #define FLASH_ENV_SECTION_SIZE          (4 * FLASH_ERASE_MIN_SIZE)/* 512K */
@@ -85,7 +83,6 @@ static uint32_t stm32_get_sector_size(uint32_t sector);
  * Flash port for hardware initialize.
  *
  * @param env_addr ENV start address
- * @param env_user_size user setting ENV bytes size (@note must be word alignment)
  * @param env_total_size ENV sector total bytes size (@note must be word alignment)
  * @param erase_min_size the minimum size of Flash erasure
  * @param default_env default ENV set for user
@@ -93,15 +90,14 @@ static uint32_t stm32_get_sector_size(uint32_t sector);
  *
  * @return result
  */
-FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_user_size, size_t *env_total_size,
-        size_t *erase_min_size, flash_env const **default_env, size_t *default_env_size) {
+FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size, size_t *erase_min_size,
+        flash_env const **default_env, size_t *default_env_size) {
     FlashErrCode result = FLASH_NO_ERR;
 
     FLASH_ASSERT(FLASH_USER_SETTING_ENV_SIZE % 4 == 0);
     FLASH_ASSERT(FLASH_ENV_SECTION_SIZE % 4 == 0);
 
     *env_addr = FLASH_ENV_START_ADDR;
-    *env_user_size = FLASH_USER_SETTING_ENV_SIZE;
     *env_total_size = FLASH_ENV_SECTION_SIZE;
     *erase_min_size = FLASH_ERASE_MIN_SIZE;
     *default_env = default_env_set;
@@ -109,6 +105,7 @@ FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_user_size, size_t *
 
     return result;
 }
+
 
 /**
  * Read data from flash.
@@ -306,28 +303,6 @@ static uint32_t stm32_get_sector_size(uint32_t sector) {
     case 23: return 128 * 1024;
     default : return 128 * 1024;
     }
-}
-
-
-/**
- * Allocate a block of memory with a minimum of 'size' bytes.
- *
- * @param size is the minimum size of the requested block in bytes.
- *
- * @return pointer to allocated memory or NULL if no free memory was found.
- */
-void *flash_malloc(size_t size) {
-    return rt_malloc(size);
-}
-
-/**
- * This function will release the previously allocated memory block by
- * flash_malloc. The released memory block is taken back to system heap.
- *
- * @param p the pointer to allocated memory which will be released
- */
-void flash_free(void *p) {
-    rt_free(p);
 }
 
 /**

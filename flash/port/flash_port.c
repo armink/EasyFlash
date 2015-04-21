@@ -26,8 +26,6 @@
 #define FLASH_ENV_START_ADDR               /* @note you must define it for a value */
 /* the minimum size of flash erasure */
 #define FLASH_ERASE_MIN_SIZE               /* @note you must define it for a value */
-/* the user setting size of ENV */
-#define FLASH_USER_SETTING_ENV_SIZE        /* @note you must define it for a value */
 #ifdef FLASH_ENV_USING_WEAR_LEVELING_MODE
 /* ENV section total bytes size in wear leveling mode. */
 #define FLASH_ENV_SECTION_SIZE             /* @note you must define it for a value */
@@ -47,7 +45,6 @@ static const flash_env default_env_set[] = {
  * Flash port for hardware initialize.
  *
  * @param env_addr ENV start address
- * @param env_user_size user setting ENV bytes size (@note must be word alignment)
  * @param env_total_size ENV sector total bytes size (@note must be word alignment)
  * @param erase_min_size the minimum size of Flash erasure
  * @param default_env default ENV set for user
@@ -55,15 +52,14 @@ static const flash_env default_env_set[] = {
  *
  * @return result
  */
-FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_user_size, size_t *env_total_size,
-        size_t *erase_min_size, flash_env const **default_env, size_t *default_env_size) {
+FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size, size_t *erase_min_size,
+        flash_env const **default_env, size_t *default_env_size) {
     FlashErrCode result = FLASH_NO_ERR;
 
     FLASH_ASSERT(FLASH_USER_SETTING_ENV_SIZE % 4 == 0);
     FLASH_ASSERT(FLASH_ENV_SECTION_SIZE % 4 == 0);
 
     *env_addr = FLASH_ENV_START_ADDR;
-    *env_user_size = FLASH_USER_SETTING_ENV_SIZE;
     *env_total_size = FLASH_ENV_SECTION_SIZE;
     *erase_min_size = FLASH_ERASE_MIN_SIZE;
     *default_env = default_env_set;
@@ -130,31 +126,6 @@ FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size) {
 	/* You can add your code under here. */
 
     return result;
-}
-
-/**
- * Allocate a block of memory with a minimum of 'size' bytes.
- *
- * @param size is the minimum size of the requested block in bytes.
- *
- * @return pointer to allocated memory or NULL if no free memory was found.
- */
-void *flash_malloc(size_t size) {
-	
-    /* You can add your code under here. */
-	
-}
-
-/**
- * This function will release the previously allocated memory block by
- * flash_malloc. The released memory block is taken back to system heap.
- *
- * @param p the pointer to allocated memory which will be released
- */
-void flash_free(void *p) {
-	
-    /* You can add your code under here. */
-	
 }
 
 /**

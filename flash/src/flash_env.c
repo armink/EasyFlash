@@ -57,10 +57,8 @@ enum {
 static flash_env const *default_env_set = NULL;
 /* default ENV set size, must be initialized by user */
 static size_t default_env_set_size = NULL;
-/* flash ENV all section total size */
-static size_t env_total_size = NULL;
 /* ENV RAM cache */
-static uint32_t *env_cache = NULL;
+static uint32_t env_cache[FLASH_USER_SETTING_ENV_SIZE / 4] = { 0 };
 /* ENV start address in flash */
 static uint32_t env_start_addr = NULL;
 
@@ -82,7 +80,6 @@ static bool_t env_crc_is_ok(void);
  * Flash ENV initialize.
  *
  * @param start_addr ENV start address in flash
- * @param user_size user setting ENV bytes size (@note must be word alignment)
  * @param total_size ENV section total size (@note must be word alignment)
  * @param erase_min_size the minimum size of flash erasure. it isn't be used in normal mode.
  * @param default_env default ENV set for user
@@ -92,32 +89,24 @@ static bool_t env_crc_is_ok(void);
  *
  * @return result
  */
-FlashErrCode flash_env_init(uint32_t start_addr, size_t user_size, size_t total_size,
-        size_t erase_min_size, flash_env const *default_env, size_t default_env_size) {
+FlashErrCode flash_env_init(uint32_t start_addr, size_t total_size, size_t erase_min_size,
+        flash_env const *default_env, size_t default_env_size) {
     FlashErrCode result = FLASH_NO_ERR;
 
     FLASH_ASSERT(start_addr);
-    FLASH_ASSERT(user_size);
     FLASH_ASSERT(total_size);
     /* user_size must equal with total_size in normal mode */
-    FLASH_ASSERT(user_size == total_size);
+    FLASH_ASSERT(FLASH_USER_SETTING_ENV_SIZE == total_size);
     FLASH_ASSERT(default_env);
     FLASH_ASSERT(default_env_size < total_size);
     /* must be word alignment for ENV */
     FLASH_ASSERT(total_size % 4 == 0);
-    /* make true only be initialized once */
-    FLASH_ASSERT(!env_cache);
 
     env_start_addr = start_addr;
-    env_total_size = total_size;
     default_env_set = default_env;
     default_env_set_size = default_env_size;
 
     FLASH_DEBUG("Env start address is 0x%08X, size is %d bytes.\n", start_addr, total_size);
-
-    /* create ENV ram cache */
-    env_cache = (uint32_t *) flash_malloc(sizeof(uint8_t) * user_size);
-    FLASH_ASSERT(env_cache);
 
     flash_load_env();
 
@@ -133,7 +122,6 @@ FlashErrCode flash_env_set_default(void){
     FlashErrCode result = FLASH_NO_ERR;
     size_t i;
 
-    FLASH_ASSERT(env_cache);
     FLASH_ASSERT(default_env_set);
     FLASH_ASSERT(default_env_set_size);
 
@@ -207,9 +195,8 @@ static size_t get_env_data_size(void) {
  */
 size_t flash_get_env_total_size(void) {
     /* must be initialized */
-    FLASH_ASSERT(env_total_size);
 
-    return env_total_size;
+    return FLASH_USER_SETTING_ENV_SIZE;
 }
 
 /**
@@ -360,7 +347,6 @@ FlashErrCode flash_del_env(const char *key){
     size_t del_env_length, remain_env_length;
 
     FLASH_ASSERT(key);
-    FLASH_ASSERT(env_cache);
 
     if (*key == NULL) {
         FLASH_INFO("Flash ENV name must be not NULL!\n");
@@ -408,8 +394,6 @@ FlashErrCode flash_del_env(const char *key){
 FlashErrCode flash_set_env(const char *key, const char *value) {
     FlashErrCode result = FLASH_NO_ERR;
 
-    FLASH_ASSERT(env_cache);
-
     /* if ENV value is empty, delete it */
     if (*value == NULL) {
         result = flash_del_env(key);
@@ -436,8 +420,6 @@ char *flash_get_env(const char *key) {
     uint32_t *env_cache_addr = NULL;
     char *value = NULL;
 
-    FLASH_ASSERT(env_cache);
-
     /* find ENV */
     env_cache_addr = find_env(key);
     if (env_cache_addr == NULL) {
@@ -461,8 +443,6 @@ void flash_print_env(void) {
     uint8_t j;
     char c;
 
-    FLASH_ASSERT(env_cache);
-
     for (; env_cache_data_addr < env_cache_end_addr; env_cache_data_addr += 1) {
         for (j = 0; j < 4; j++) {
             c = (*env_cache_data_addr) >> (8 * j);
@@ -483,12 +463,11 @@ void flash_print_env(void) {
 void flash_load_env(void) {
     uint32_t *env_cache_bak, env_end_addr;
 
-    FLASH_ASSERT(env_cache);
-
     /* read ENV end address from flash */
     flash_read(get_env_system_addr() + ENV_PARAM_INDEX_END_ADDR * 4, &env_end_addr, 4);
     /* if ENV is not initialize or flash has dirty data, set default for it */
-    if ((env_end_addr == 0xFFFFFFFF) || (env_end_addr > env_start_addr + env_total_size)) {
+    if ((env_end_addr == 0xFFFFFFFF)
+            || (env_end_addr > env_start_addr + flash_get_env_total_size())) {
         flash_env_set_default();
     } else {
         /* set ENV end address */
@@ -518,8 +497,6 @@ void flash_load_env(void) {
  */
 FlashErrCode flash_save_env(void) {
     FlashErrCode result = FLASH_NO_ERR;
-
-    FLASH_ASSERT(env_cache);
 
 #ifdef FLASH_ENV_USING_CRC_CHECK
     /* calculate and cache CRC32 code */

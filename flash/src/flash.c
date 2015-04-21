@@ -50,24 +50,23 @@
  * @return result
  */
 FlashErrCode flash_init(void) {
-    extern FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_user_size,
-            size_t *env_total_size, size_t *erase_min_size, flash_env const **default_env,
-            size_t *default_env_size);
-    extern FlashErrCode flash_env_init(uint32_t start_addr, size_t user_size, size_t total_size,
+    extern FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size,
+            size_t *erase_min_size, flash_env const **default_env, size_t *default_env_size);
+    extern FlashErrCode flash_env_init(uint32_t start_addr, size_t total_size,
             size_t erase_min_size, flash_env const *default_env, size_t default_env_size);
     extern FlashErrCode flash_iap_init(uint32_t start_addr);
 
     uint32_t env_start_addr;
-    size_t env_user_size, env_total_size, erase_min_size, default_env_set_size;
+    size_t env_total_size, erase_min_size, default_env_set_size;
     const flash_env *default_env_set;
     FlashErrCode result = FLASH_NO_ERR;
 
-    result = flash_port_init(&env_start_addr, &env_user_size, &env_total_size, &erase_min_size,
-            &default_env_set, &default_env_set_size);
+    result = flash_port_init(&env_start_addr, &env_total_size, &erase_min_size, &default_env_set,
+            &default_env_set_size);
 
     if (result == FLASH_NO_ERR) {
-        result = flash_env_init(env_start_addr, env_user_size, env_total_size, erase_min_size,
-                default_env_set, default_env_set_size);
+        result = flash_env_init(env_start_addr, env_total_size, erase_min_size, default_env_set,
+                default_env_set_size);
     }
 
     if (result == FLASH_NO_ERR) {

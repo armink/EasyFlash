@@ -64,14 +64,12 @@ enum {
 static flash_env const *default_env_set = NULL;
 /* default ENV set size, must be initialized by user */
 static size_t default_env_set_size = NULL;
-/* flash user setting ENV size */
-static size_t env_user_size = NULL;
 /* flash ENV all section total size */
 static size_t env_total_size = NULL;
 /* the minimum size of flash erasure */
 static size_t flash_erase_min_size = NULL;
 /* ENV RAM cache */
-static uint32_t *env_cache = NULL;
+static uint32_t env_cache[FLASH_USER_SETTING_ENV_SIZE / 4] = { 0 };
 /* ENV start address in flash */
 static uint32_t env_start_addr = NULL;
 /* current using data section address */
@@ -86,7 +84,6 @@ static void set_env_detail_end_addr(uint32_t end_addr);
 static FlashErrCode write_env(const char *key, const char *value);
 static uint32_t *find_env(const char *key);
 static size_t get_env_detail_size(void);
-static size_t get_env_user_size(void);
 static size_t get_env_user_used_size(void);
 static FlashErrCode create_env(const char *key, const char *value);
 static FlashErrCode save_cur_using_data_addr(uint32_t cur_data_addr);
@@ -100,7 +97,6 @@ static bool_t env_crc_is_ok(void);
  * Flash ENV initialize.
  *
  * @param start_addr ENV start address in flash
- * @param user_size user setting ENV bytes size (@note must be word alignment)
  * @param total_size ENV section total size (@note must be word alignment)
  * @param erase_min_size the minimum size of flash erasure
  * @param default_env default ENV set for user
@@ -108,34 +104,26 @@ static bool_t env_crc_is_ok(void);
  *
  * @return result
  */
-FlashErrCode flash_env_init(uint32_t start_addr, size_t user_size, size_t total_size,
-        size_t erase_min_size, flash_env const *default_env, size_t default_env_size) {
+FlashErrCode flash_env_init(uint32_t start_addr, size_t total_size, size_t erase_min_size,
+        flash_env const *default_env, size_t default_env_size) {
     FlashErrCode result = FLASH_NO_ERR;
 
     FLASH_ASSERT(start_addr);
-    FLASH_ASSERT(user_size);
     FLASH_ASSERT(total_size);
     FLASH_ASSERT(erase_min_size);
     FLASH_ASSERT(default_env);
-    FLASH_ASSERT(default_env_size < user_size);
+    FLASH_ASSERT(default_env_size < FLASH_USER_SETTING_ENV_SIZE);
     /* must be word alignment for ENV */
-    FLASH_ASSERT(user_size % 4 == 0);
+    FLASH_ASSERT(FLASH_USER_SETTING_ENV_SIZE % 4 == 0);
     FLASH_ASSERT(total_size % 4 == 0);
-    /* make true only be initialized once */
-    FLASH_ASSERT(!env_cache);
 
     env_start_addr = start_addr;
-    env_user_size = user_size;
     env_total_size = total_size;
     flash_erase_min_size = erase_min_size;
     default_env_set = default_env;
     default_env_set_size = default_env_size;
 
     FLASH_DEBUG("Env start address is 0x%08X, size is %d bytes.\n", start_addr, total_size);
-
-    /* create ENV ram cache */
-    env_cache = (uint32_t *) flash_malloc(sizeof(uint8_t) * user_size);
-    FLASH_ASSERT(env_cache);
 
     flash_load_env();
 
@@ -151,7 +139,6 @@ FlashErrCode flash_env_set_default(void){
     FlashErrCode result = FLASH_NO_ERR;
     size_t i;
 
-    FLASH_ASSERT(env_cache);
     FLASH_ASSERT(default_env_set);
     FLASH_ASSERT(default_env_set_size);
 
@@ -237,27 +224,14 @@ static size_t get_env_detail_size(void) {
 }
 
 /**
- * Get current user setting ENV size.
- *
- * @return size
- */
-static size_t get_env_user_size(void) {
-    /* must be initialized */
-    FLASH_ASSERT(env_user_size);
-
-    return env_user_size;
-}
-
-/**
  * Get current user used ENV size.
  *
- * @see get_env_user_size
+ * @see FLASH_USER_SETTING_ENV_SIZE
  *
  * @return size
  */
     /* must be initialized */
 static size_t get_env_user_used_size(void) {
-    FLASH_ASSERT(env_user_size);
 
     return get_env_detail_end_addr() - get_cur_using_data_addr();
 }
@@ -304,7 +278,7 @@ static FlashErrCode write_env(const char *key, const char *value) {
         env_str_len = (env_str_len / 4 + 1) * 4;
     }
     /* check capacity of ENV  */
-    if (env_str_len + get_env_detail_size() >= get_env_user_size()) {
+    if (env_str_len + get_env_detail_size() >= FLASH_USER_SETTING_ENV_SIZE) {
         return FLASH_ENV_FULL;
     }
     /* calculate current ENV ram cache end address */
@@ -424,7 +398,6 @@ FlashErrCode flash_del_env(const char *key){
     size_t del_env_length, remain_env_length;
 
     FLASH_ASSERT(key);
-    FLASH_ASSERT(env_cache);
 
     if (*key == NULL) {
         FLASH_INFO("Flash ENV name must be not NULL!\n");
@@ -472,8 +445,6 @@ FlashErrCode flash_del_env(const char *key){
 FlashErrCode flash_set_env(const char *key, const char *value) {
     FlashErrCode result = FLASH_NO_ERR;
 
-    FLASH_ASSERT(env_cache);
-
     /* if ENV value is empty, delete it */
     if (*value == NULL) {
         result = flash_del_env(key);
@@ -500,8 +471,6 @@ char *flash_get_env(const char *key) {
     uint32_t *env_cache_addr = NULL;
     char *value = NULL;
 
-    FLASH_ASSERT(env_cache);
-
     /* find ENV */
     env_cache_addr = find_env(key);
     if (env_cache_addr == NULL) {
@@ -525,8 +494,6 @@ void flash_print_env(void) {
     uint8_t j;
     char c;
 
-    FLASH_ASSERT(env_cache);
-
     for (; env_cache_detail_addr < env_cache_end_addr; env_cache_detail_addr += 1) {
         for (j = 0; j < 4; j++) {
             c = (*env_cache_detail_addr) >> (8 * j);
@@ -538,7 +505,7 @@ void flash_print_env(void) {
         }
     }
     flash_print("\nENV size: %ld/%ld bytes, write bytes %ld/%ld, mode: wear leveling.\n",
-            get_env_user_used_size(), get_env_user_size(), flash_get_env_write_bytes(),
+            get_env_user_used_size(), FLASH_USER_SETTING_ENV_SIZE, flash_get_env_write_bytes(),
             flash_get_env_total_size());
 }
 
@@ -547,8 +514,6 @@ void flash_print_env(void) {
  */
 void flash_load_env(void) {
     uint32_t *env_cache_bak, env_end_addr, using_data_addr;
-
-    FLASH_ASSERT(env_cache);
 
     /* read current using data section address */
     flash_read(get_env_start_addr(), &using_data_addr, 4);
@@ -601,8 +566,6 @@ FlashErrCode flash_save_env(void) {
     FlashErrCode result = FLASH_NO_ERR;
     uint32_t cur_data_addr_bak = get_cur_using_data_addr(), move_offset_addr;
     size_t env_detail_size = get_env_detail_size();
-
-    FLASH_ASSERT(env_cache);
 
     /* wear leveling process, automatic move ENV to next available position */
     while (get_cur_using_data_addr() + env_detail_size
