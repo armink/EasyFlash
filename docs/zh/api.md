@@ -222,27 +222,7 @@ FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size)
 |buf                                     |源数据的缓冲区|
 |size                                    |写入数据的大小（字节）|
 
-### 2.4 分配动态内存
-
-```C
-void *flash_malloc(size_t size)
-```
-
-|参数                                    |描述|
-|:-----                                  |:----|
-|size                                    |需分配的内存大小|
-
-### 2.5 释放动态内存
-
-```C
-void flash_free(void *p)
-```
-
-|参数                                    |描述|
-|:-----                                  |:----|
-|p                                       |需释放的动态内存地址|
-
-### 2.6 打印调试日志信息
+### 2.4 打印调试日志信息
 
 在定义 `FLASH_PRINT_DEBUG` 宏后，打印调试日志信息
 
@@ -257,7 +237,7 @@ void flash_log_debug(const char *file, const long line, const char *format, ...)
 |format                                  |打印格式|
 |...                                     |不定参|
 
-### 2.7 打印普通日志信息
+### 2.5 打印普通日志信息
 
 ```C
 void flash_log_info(const char *format, ...)
@@ -268,7 +248,7 @@ void flash_log_info(const char *format, ...)
 |format                                  |打印格式|
 |...                                     |不定参|
 
-### 2.8 无格式打印信息
+### 2.6 无格式打印信息
 
 该方法输出无固定格式的打印信息，为 `flash_print_env` 方法所用。而 `flash_log_debug` 及 `flash_log_info` 可以输出带指定前缀及格式的打印日志信息。
 
@@ -283,19 +263,25 @@ void flash_print(const char *format, ...)
 
 ## 3、配置
 
-配置该库需要打开`\flash\flash.h`文件，开启、关闭对应的宏即可。
+配置该库需要打开`\flash\flash.h`文件，开启、关闭、修改对应的宏即可。
 
 ### 3.1 CRC32校验
 
 - 默认状态：开启
 - 操作方法：开启、关闭`FLASH_ENV_USING_CRC_CHECK`宏即可
 
-### 3.2 磨损平衡/常规 模式
+### 3.2 环境变量的容量
+
+- 默认容量：2K Bytes
+- 操作方法：修改 `FLASH_USER_SETTING_ENV_SIZE`宏定义即可
+
+### 3.3 磨损平衡/常规 模式
 
 - 默认状态：常规模式
 - 磨损平衡模式：打开`FLASH_ENV_USING_WEAR_LEVELING_MODE`，关闭`FLASH_ENV_USING_NORMAL_MODE`
-- 常规模式：打开`FLASH_ENV_USING_NORMAL_MODE`，关闭`FLASH_ENV_USING_WEAR_LEVELING_MODE`
-- 注意：只能选择其中一种模式，两种模式不能同时使用
+- 常规模式：打开`FLASH_ENV_USING_NORMAL_MODE`，关闭`FLASH_ENV_USING_WEAR_LEVELING_MODE
+
+> 注意：只能选择其中一种模式，两种模式不能同时使用
 
 ## 4、注意
 
@@ -303,5 +289,3 @@ void flash_print(const char *format, ...)
 - 环境变量设置完后，只有调用 `flash_save_env`才会保存在Flash中，否则开机会丢失修改的内容
 - 不要在应用程序及Bootloader中执行擦除及拷贝自身的动作
 - Flash读取和写入方法的最小单位为4个字节，擦除的最小单位则需根据用户的平台来确定
-
-
