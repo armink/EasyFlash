@@ -22,6 +22,8 @@
 
 #include "flash.h"
 
+#ifdef FLASH_USING_IAP
+
 /* IAP section backup application section start address in flash */
 static uint32_t bak_app_start_addr = NULL;
 
@@ -248,3 +250,5 @@ static uint32_t get_bak_app_start_addr(void) {
     FLASH_ASSERT(bak_app_start_addr);
     return bak_app_start_addr;
 }
+
+#endif /* FLASH_USING_IAP */

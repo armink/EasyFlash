@@ -64,14 +64,18 @@ FlashErrCode flash_init(void) {
     result = flash_port_init(&env_start_addr, &env_total_size, &erase_min_size, &default_env_set,
             &default_env_set_size);
 
+#ifdef FLASH_USING_ENV
     if (result == FLASH_NO_ERR) {
         result = flash_env_init(env_start_addr, env_total_size, erase_min_size, default_env_set,
                 default_env_set_size);
     }
+#endif
 
+#ifdef FLASH_USING_IAP
     if (result == FLASH_NO_ERR) {
         result = flash_iap_init(env_start_addr + flash_get_env_total_size());
     }
+#endif
 
     if (result == FLASH_NO_ERR) {
         FLASH_DEBUG("EasyFlash V%s is initialize success.\n", FLASH_SW_VERSION);

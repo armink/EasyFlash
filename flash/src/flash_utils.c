@@ -20,7 +20,7 @@
  * Created on: 2015-01-14
  */
 
-#include "types.h"
+#include "flash.h"
 
 static const uint32_t crc32_table[] =
 {

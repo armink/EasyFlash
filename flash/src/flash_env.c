@@ -24,6 +24,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef FLASH_USING_ENV
+
 #ifdef FLASH_ENV_USING_NORMAL_MODE
 
 /**
@@ -204,7 +206,7 @@ size_t flash_get_env_total_size(void) {
  *
  * @return write bytes
  */
-uint32_t flash_get_env_write_bytes(void) {
+size_t flash_get_env_write_bytes(void) {
     return get_env_end_addr() - env_start_addr;
 }
 
@@ -569,4 +571,6 @@ static bool_t env_crc_is_ok(void) {
 }
 #endif
 
-#endif
+#endif /* FLASH_ENV_USING_NORMAL_MODE */
+
+#endif /* FLASH_USING_ENV */

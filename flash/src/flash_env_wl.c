@@ -24,6 +24,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef FLASH_USING_ENV
+
 #ifdef FLASH_ENV_USING_WEAR_LEVELING_MODE
 
 /**
@@ -241,7 +243,7 @@ static size_t get_env_user_used_size(void) {
  *
  * @return write bytes
  */
-uint32_t flash_get_env_write_bytes(void) {
+size_t flash_get_env_write_bytes(void) {
     return get_env_detail_end_addr() - get_env_start_addr();
 }
 
@@ -700,4 +702,7 @@ static FlashErrCode save_cur_using_data_addr(uint32_t cur_data_addr) {
     }
     return result;
 }
-#endif
+
+#endif /* FLASH_ENV_USING_WEAR_LEVELING_MODE */
+
+#endif /* FLASH_USING_ENV */

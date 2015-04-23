@@ -26,6 +26,10 @@
 
 #include "types.h"
 
+/* using ENV function */
+#define FLASH_USING_ENV
+/* using IAP function */
+#define FLASH_USING_IAP
 /* using CRC32 check when load environment variable from Flash */
 #define FLASH_ENV_USING_CRC_CHECK
 /* the user setting size of ENV, must be word alignment */
@@ -46,7 +50,7 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define FLASH_SW_VERSION                "1.04.20"
+#define FLASH_SW_VERSION                "1.04.23"
 
 typedef struct _flash_env{
     char *key;
@@ -66,6 +70,7 @@ typedef enum {
 /* flash.c */
 FlashErrCode flash_init(void);
 
+#ifdef FLASH_USING_ENV
 /* flash_env.c flash_env_wl.c */
 void flash_load_env(void);
 void flash_print_env(void);
@@ -75,7 +80,9 @@ FlashErrCode flash_save_env(void);
 FlashErrCode flash_env_set_default(void);
 size_t flash_get_env_total_size(void);
 size_t flash_get_env_write_bytes(void);
+#endif
 
+#ifdef FLASH_USING_IAP
 /* flash_iap.c */
 FlashErrCode flash_erase_bak_app(size_t app_size);
 FlashErrCode flash_erase_user_app(uint32_t user_app_addr, size_t user_app_size);
@@ -84,6 +91,7 @@ FlashErrCode flash_write_data_to_bak(uint8_t *data, size_t size, size_t *cur_siz
         size_t total_size);
 FlashErrCode flash_copy_app_from_bak(uint32_t user_app_addr, size_t app_size);
 FlashErrCode flash_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size);
+#endif
 
 /* flash_port.c */
 FlashErrCode flash_read(uint32_t addr, uint32_t *buf, size_t size);
