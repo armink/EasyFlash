@@ -136,7 +136,7 @@ FlashErrCode flash_erase_bl(uint32_t bl_addr, size_t bl_size) {
  *
  * @return result
  */
-FlashErrCode flash_write_data_to_bak(uint8_t *data, size_t size, uint32_t *cur_size,
+FlashErrCode flash_write_data_to_bak(uint8_t *data, size_t size, size_t *cur_size,
         size_t total_size) {
     FlashErrCode result = FLASH_NO_ERR;
 
