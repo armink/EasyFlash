@@ -54,11 +54,11 @@ char *flash_get_env(const char *key)
 
 使用此方法可以实现对环境变量的增加、修改及删除功能。（注意：此处的环境变量指代的已加载到内存中的环境变量）
 
-**增加** ：当环境变量表中不存在该名称的环境变量时，则会执行新增操作；
+- **增加** ：当环境变量表中不存在该名称的环境变量时，则会执行新增操作；
 
-**修改** ：入参中的环境变量名称在当前环境变量表中存在，则把该环境变量值修改为入参中的值；
+- **修改** ：入参中的环境变量名称在当前环境变量表中存在，则把该环境变量值修改为入参中的值；
 
-**删除** ：当入参中的value为空时，则会删除入参名对应的环境变量。
+- **删除** ：当入参中的value为空时，则会删除入参名对应的环境变量。
 
 ```C
 FlashErrCode flash_set_env(const char *key, const char *value)
@@ -265,23 +265,35 @@ void flash_print(const char *format, ...)
 
 配置该库需要打开`\flash\flash.h`文件，开启、关闭、修改对应的宏即可。
 
-### 3.1 CRC32校验
+### 3.1 ENV功能
+
+- 默认状态：开启
+- 操作方法：开启、关闭`FLASH_USING_ENV`宏即可
+
+### 3.2 IAP功能
+
+- 默认状态：开启
+- 操作方法：开启、关闭`FLASH_USING_IAP`宏即可
+
+### 3.3 ENV的CRC32校验
 
 - 默认状态：开启
 - 操作方法：开启、关闭`FLASH_ENV_USING_CRC_CHECK`宏即可
 
-### 3.2 环境变量的容量
+### 3.4 环境变量的容量
 
 - 默认容量：2K Bytes
-- 操作方法：修改 `FLASH_USER_SETTING_ENV_SIZE`宏定义即可
+- 操作方法：修改`FLASH_USER_SETTING_ENV_SIZE`宏定义即可
 
-### 3.3 磨损平衡/常规 模式
+### 3.5 磨损平衡/常规 模式
 
 - 默认状态：常规模式
 - 磨损平衡模式：打开`FLASH_ENV_USING_WEAR_LEVELING_MODE`，关闭`FLASH_ENV_USING_NORMAL_MODE`
-- 常规模式：打开`FLASH_ENV_USING_NORMAL_MODE`，关闭`FLASH_ENV_USING_WEAR_LEVELING_MODE
+- 常规模式：打开`FLASH_ENV_USING_NORMAL_MODE`，关闭`FLASH_ENV_USING_WEAR_LEVELING_MODE`
 
 > 注意：只能选择其中一种模式，两种模式不能同时使用
+
+### 
 
 ## 4、注意
 
