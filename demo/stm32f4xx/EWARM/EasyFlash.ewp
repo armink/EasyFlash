@@ -305,7 +305,7 @@
           <state>$PROJ_DIR$\..\RT-Thread-1.2.2\components\finsh</state>
           <state>$PROJ_DIR$\..\Libraries\CMSIS\Device\ST\STM32F4xx\Include</state>
           <state>$PROJ_DIR$\..\Libraries\CMSIS\Include</state>
-          <state>$PROJ_DIR$\..\..\..\flash\inc</state>
+          <state>$PROJ_DIR$\..\..\..\easyflash\inc</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -955,25 +955,25 @@
       <group>
         <name>port</name>
         <file>
-          <name>$PROJ_DIR$\..\components\flash\port\flash_port.c</name>
+          <name>$PROJ_DIR$\..\components\easyflash\port\flash_port.c</name>
         </file>
       </group>
       <group>
         <name>src</name>
         <file>
-          <name>$PROJ_DIR$\..\..\..\flash\src\flash.c</name>
+          <name>$PROJ_DIR$\..\..\..\easyflash\src\flash.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\flash\src\flash_env.c</name>
+          <name>$PROJ_DIR$\..\..\..\easyflash\src\flash_env.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\flash\src\flash_env_wl.c</name>
+          <name>$PROJ_DIR$\..\..\..\easyflash\src\flash_env_wl.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\flash\src\flash_iap.c</name>
+          <name>$PROJ_DIR$\..\..\..\easyflash\src\flash_iap.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\flash\src\flash_utils.c</name>
+          <name>$PROJ_DIR$\..\..\..\easyflash\src\flash_utils.c</name>
         </file>
       </group>
     </group>

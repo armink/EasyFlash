@@ -18,7 +18,7 @@
 
 ## 2、文件（夹）说明
 
-`components\flash\port\flash_port.c` 移植参考文件
+`components\easyflash\port\flash_port.c` 移植参考文件
 
 `RVMDK` 下为Keil工程文件
 
