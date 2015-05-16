@@ -38,7 +38,7 @@
 #define FLASH_USER_SETTING_ENV_SIZE     (2 * 1024)                /* default 2K */
 /* using wear leveling mode or normal mode */
 /* #define FLASH_ENV_USING_WEAR_LEVELING_MODE */
-#define FLASH_ENV_USING_NORMAL_MODE */
+#define FLASH_ENV_USING_NORMAL_MODE
 
 /* Flash debug print function. Must be implement by user. */
 #define FLASH_DEBUG(...) flash_log_debug(__FILE__, __LINE__, __VA_ARGS__)
