@@ -75,7 +75,7 @@ static FlashErrCode create_env(const char *key, const char *value);
 
 #ifdef FLASH_ENV_USING_CRC_CHECK
 static uint32_t calc_env_crc(void);
-static bool_t env_crc_is_ok(void);
+static bool env_crc_is_ok(void);
 #endif
 
 /**
@@ -561,12 +561,12 @@ static uint32_t calc_env_crc(void) {
  *
  * @return true is ok
  */
-static bool_t env_crc_is_ok(void) {
+static bool env_crc_is_ok(void) {
     if (calc_env_crc() == env_cache[ENV_PARAM_INDEX_DATA_CRC]) {
         FLASH_DEBUG("Verify Env CRC32 result is OK.\n");
-        return TRUE;
+        return true;
     } else {
-        return FALSE;
+        return false;
     }
 }
 #endif
