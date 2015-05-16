@@ -28,10 +28,6 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#ifndef NULL
-    #define NULL 0
-#endif
-
 /* using ENV function */
 #define FLASH_USING_ENV
 /* using IAP function */
