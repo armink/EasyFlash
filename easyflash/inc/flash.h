@@ -28,6 +28,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* using ENV function */
 #define FLASH_USING_ENV
 /* using IAP function */
@@ -52,7 +56,7 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define FLASH_SW_VERSION                "1.05.16"
+#define FLASH_SW_VERSION                "1.05.25"
 
 typedef struct _flash_env{
     char *key;
@@ -102,5 +106,9 @@ FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size);
 void flash_log_debug(const char *file, const long line, const char *format, ...);
 void flash_log_info(const char *format, ...);
 void flash_print(const char *format, ...);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* FLASH_H_ */
