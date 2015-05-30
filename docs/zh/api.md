@@ -222,7 +222,19 @@ FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size)
 |buf                                     |源数据的缓冲区|
 |size                                    |写入数据的大小（字节）|
 
-### 2.4 打印调试日志信息
+### 2.4 对环境变量缓冲区加锁
+
+```C
+void flash_env_lock(void)
+```
+
+### 2.5 对环境变量缓冲区解锁
+
+```C
+void flash_env_unlock(void)
+```
+
+### 2.6 打印调试日志信息
 
 在定义 `FLASH_PRINT_DEBUG` 宏后，打印调试日志信息
 
@@ -237,7 +249,7 @@ void flash_log_debug(const char *file, const long line, const char *format, ...)
 |format                                  |打印格式|
 |...                                     |不定参|
 
-### 2.5 打印普通日志信息
+### 2.7 打印普通日志信息
 
 ```C
 void flash_log_info(const char *format, ...)
@@ -248,7 +260,7 @@ void flash_log_info(const char *format, ...)
 |format                                  |打印格式|
 |...                                     |不定参|
 
-### 2.6 无格式打印信息
+### 2.8 无格式打印信息
 
 该方法输出无固定格式的打印信息，为 `flash_print_env` 方法所用。而 `flash_log_debug` 及 `flash_log_info` 可以输出带指定前缀及格式的打印日志信息。
 

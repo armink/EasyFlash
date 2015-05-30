@@ -70,6 +70,7 @@ static uint32_t get_env_end_addr(void);
 static void set_env_end_addr(uint32_t end_addr);
 static FlashErrCode write_env(const char *key, const char *value);
 static uint32_t *find_env(const char *key);
+static FlashErrCode del_env(const char *key);
 static size_t get_env_data_size(void);
 static FlashErrCode create_env(const char *key, const char *value);
 
@@ -127,6 +128,9 @@ FlashErrCode flash_env_set_default(void){
     FLASH_ASSERT(default_env_set);
     FLASH_ASSERT(default_env_set_size);
 
+    /* lock the ENV cache */
+    flash_env_lock();
+
     /* set environment end address is at data section start address */
     set_env_end_addr(get_env_data_addr());
 
@@ -134,6 +138,9 @@ FlashErrCode flash_env_set_default(void){
     for (i = 0; i < default_env_set_size; i++) {
         create_env(default_env_set[i].key, default_env_set[i].value);
     }
+
+    /* unlock the ENV cache */
+    flash_env_unlock();
 
     flash_save_env();
 
@@ -196,8 +203,6 @@ static size_t get_env_data_size(void) {
  * @return size
  */
 size_t flash_get_env_total_size(void) {
-    /* must be initialized */
-
     return FLASH_USER_SETTING_ENV_SIZE;
 }
 
@@ -262,7 +267,8 @@ static FlashErrCode write_env(const char *key, const char *value) {
  */
 static uint32_t *find_env(const char *key) {
     uint32_t *env_cache_addr = NULL;
-    char *env_start, *env_end, *env, *env_bak;
+    char *env_start, *env_end, *env;
+    size_t key_len = strlen(key), env_len;
 
     FLASH_ASSERT(env_start_addr);
 
@@ -282,18 +288,18 @@ static uint32_t *find_env(const char *key) {
 
     env = env_start;
     while (env < env_end) {
-        /* storage model is key=value\0 */
-        env_bak = strstr(env, key);
-        /* the key name length must be equal */
-        if (env_bak && (env_bak[strlen(key)] == '=')) {
-            env_cache_addr = (uint32_t *) env_bak;
+        /* the key length must be equal */
+        if (!strncmp(env, key, key_len) && (env[key_len] == '=')) {
+            env_cache_addr = (uint32_t *) env;
             break;
         } else {
+            /* calculate ENV length, contain '\0'. */
+            env_len = strlen(env) + 1;
             /* next ENV and word alignment */
-            if ((strlen(env) + 1) % 4 == 0) {
-                env += strlen(env) + 1;
+            if (env_len % 4 == 0) {
+                env += env_len;
             } else {
-                env += ((strlen(env) + 1) / 4 + 1) * 4;
+                env += (env_len / 4 + 1) * 4;
             }
         }
     }
@@ -320,7 +326,7 @@ static FlashErrCode create_env(const char *key, const char *value) {
         return FLASH_ENV_NAME_ERR;
     }
 
-    if (strstr(key, "=")) {
+    if (strchr(key, '=')) {
         FLASH_INFO("Flash ENV name can't contain '='.\n");
         return FLASH_ENV_NAME_ERR;
     }
@@ -343,7 +349,7 @@ static FlashErrCode create_env(const char *key, const char *value) {
  *
  * @return result
  */
-FlashErrCode flash_del_env(const char *key){
+static FlashErrCode del_env(const char *key){
     FlashErrCode result = FLASH_NO_ERR;
     char *del_env_str = NULL;
     size_t del_env_length, remain_env_length;
@@ -355,13 +361,14 @@ FlashErrCode flash_del_env(const char *key){
         return FLASH_ENV_NAME_ERR;
     }
 
-    if (strstr(key, "=")) {
+    if (strchr(key, '=')) {
         FLASH_INFO("Flash ENV name or value can't contain '='.\n");
         return FLASH_ENV_NAME_ERR;
     }
 
     /* find ENV */
     del_env_str = (char *) find_env(key);
+
     if (!del_env_str) {
         FLASH_INFO("Not find \"%s\" in ENV.\n", key);
         return FLASH_ENV_NAME_ERR;
@@ -396,18 +403,24 @@ FlashErrCode flash_del_env(const char *key){
 FlashErrCode flash_set_env(const char *key, const char *value) {
     FlashErrCode result = FLASH_NO_ERR;
 
+    /* lock the ENV cache */
+    flash_env_lock();
+
     /* if ENV value is empty, delete it */
     if (*value == NULL) {
-        result = flash_del_env(key);
+        result = del_env(key);
     } else {
         /* if find this ENV, then delete it and recreate it  */
         if (find_env(key)) {
-            result = flash_del_env(key);
+            result = del_env(key);
         }
         if (result == FLASH_NO_ERR) {
             result = create_env(key, value);
         }
     }
+    /* unlock the ENV cache */
+    flash_env_unlock();
+
     return result;
 }
 
@@ -424,11 +437,12 @@ char *flash_get_env(const char *key) {
 
     /* find ENV */
     env_cache_addr = find_env(key);
+
     if (env_cache_addr == NULL) {
         return NULL;
     }
     /* get value address */
-    value = strstr((char *) env_cache_addr, "=");
+    value = strchr((char *) env_cache_addr, '=');
     if (value != NULL) {
         /* the equal sign next character is value */
         value++;
@@ -483,7 +497,6 @@ void flash_load_env(void) {
         /* read ENV CRC code from flash */
         flash_read(get_env_system_addr() + ENV_PARAM_INDEX_DATA_CRC * 4,
                 &env_cache[ENV_PARAM_INDEX_DATA_CRC] , 4);
-
         /* if ENV CRC32 check is fault, set default for it */
         if (!env_crc_is_ok()) {
             FLASH_INFO("Warning: ENV CRC check failed. Set it to default.\n");
