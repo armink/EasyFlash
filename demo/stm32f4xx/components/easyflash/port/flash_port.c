@@ -75,6 +75,7 @@ static const flash_env default_env_set[] = {
 };
 
 static char log_buf[RT_CONSOLEBUF_SIZE];
+static struct rt_semaphore env_cache_lock;
 
 static uint32_t stm32_get_sector(uint32_t address);
 static uint32_t stm32_get_sector_size(uint32_t sector);
@@ -102,6 +103,8 @@ FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size, size_t 
     *erase_min_size = FLASH_ERASE_MIN_SIZE;
     *default_env = default_env_set;
     *default_env_size = sizeof(default_env_set)/sizeof(default_env_set[0]);
+    
+    rt_sem_init(&env_cache_lock, "env lock", 1, RT_IPC_FLAG_PRIO);
 
     return result;
 }
@@ -200,6 +203,20 @@ FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size) {
     FLASH_Lock();
 
     return result;
+}
+
+/**
+ * lock the ENV ram cache
+ */
+void flash_env_lock(void) {
+    rt_sem_take(&env_cache_lock, RT_WAITING_FOREVER);
+}
+
+/**
+ * unlock the ENV ram cache
+ */
+void flash_env_unlock(void) {
+    rt_sem_release(&env_cache_lock);
 }
 
 /**

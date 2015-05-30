@@ -181,6 +181,21 @@ FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size) {
 }
 
 /**
+ * lock the ENV ram cache
+ */
+void flash_env_lock(void) {
+    __disable_irq();
+}
+
+/**
+ * unlock the ENV ram cache
+ */
+void flash_env_unlock(void) {
+    __enable_irq();
+}
+
+
+/**
  * This function is print flash debug info.
  *
  * @param file the file which has call this function
