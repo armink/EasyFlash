@@ -36,6 +36,8 @@ extern "C" {
 #define FLASH_USING_ENV
 /* using IAP function */
 #define FLASH_USING_IAP
+/* using save log function */
+#define FLASH_USING_LOG
 /* using CRC32 check when load environment variable from Flash */
 #define FLASH_ENV_USING_CRC_CHECK
 /* the user setting size of ENV, must be word alignment */
@@ -56,7 +58,7 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define FLASH_SW_VERSION                "1.05.30"
+#define FLASH_SW_VERSION                "1.06.09"
 
 typedef struct _flash_env{
     char *key;
@@ -72,6 +74,13 @@ typedef enum {
     FLASH_ENV_NAME_EXIST,
     FLASH_ENV_FULL,
 } FlashErrCode;
+
+/* the flash sector current status */
+typedef enum {
+    FLASH_SECTOR_EMPTY,
+    FLASH_SECTOR_USING,
+    FLASH_SECTOR_FULL,
+}FlashSecrorStatus;
 
 /* flash.c */
 FlashErrCode flash_init(void);
@@ -98,6 +107,19 @@ FlashErrCode flash_write_data_to_bak(uint8_t *data, size_t size, size_t *cur_siz
 FlashErrCode flash_copy_app_from_bak(uint32_t user_app_addr, size_t app_size);
 FlashErrCode flash_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size);
 #endif
+
+#ifdef FLASH_USING_LOG
+/* flash_log.c */
+FlashErrCode flash_log_read(size_t pos, uint32_t *log, size_t size);
+FlashErrCode flash_log_write(const uint32_t *log, size_t size);
+FlashErrCode flash_log_clean(void);
+size_t flash_log_get_used_size(void);
+#endif
+
+/* flash_utils.c */
+uint32_t calc_crc32(uint32_t crc, const void *buf, size_t size);
+FlashSecrorStatus flash_get_sector_status(uint32_t addr, size_t sec_size);
+uint32_t flash_find_sec_using_end_addr(uint32_t addr, size_t sec_size);
 
 /* flash_port.c */
 FlashErrCode flash_read(uint32_t addr, uint32_t *buf, size_t size);

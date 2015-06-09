@@ -119,6 +119,8 @@ FlashErrCode flash_env_init(uint32_t start_addr, size_t total_size, size_t erase
     /* must be word alignment for ENV */
     FLASH_ASSERT(FLASH_USER_SETTING_ENV_SIZE % 4 == 0);
     FLASH_ASSERT(total_size % 4 == 0);
+    /* the ENV total size should be an integral multiple of erase minimum size. */
+    FLASH_ASSERT(total_size % erase_min_size == 0);
 
     env_start_addr = start_addr;
     env_total_size = total_size;
@@ -668,7 +670,6 @@ FlashErrCode flash_save_env(void) {
 static uint32_t calc_env_crc(void) {
     uint32_t crc32 = 0;
 
-    extern uint32_t calc_crc32(uint32_t crc, const void *buf, size_t size);
     /* Calculate the ENV end address and all ENV data CRC32.
      * The 4 is ENV end address bytes size. */
     crc32 = calc_crc32(crc32, &env_cache[ENV_PARAM_PART_INDEX_END_ADDR], 4);

@@ -27,6 +27,8 @@
  * |      1.system section      |   FLASH_ENV_SYSTEM_SIZE
  * |      2:data section        |   FLASH_ENV_SECTION_SIZE - FLASH_ENV_SYSTEM_SIZE
  * |----------------------------|
+ * |      Saved log area        |   Storage size: @see FLASH_LOG_AREA_SIZE
+ * |----------------------------|
  * |(IAP)Downloaded application |   IAP already downloaded application size
  * |----------------------------|
  * |       Remain flash         |   All remaining
@@ -51,18 +53,20 @@
  */
 FlashErrCode flash_init(void) {
     extern FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size,
-            size_t *erase_min_size, flash_env const **default_env, size_t *default_env_size);
+            size_t *erase_min_size, flash_env const **default_env, size_t *default_env_size,
+            size_t *log_size);
     extern FlashErrCode flash_env_init(uint32_t start_addr, size_t total_size,
             size_t erase_min_size, flash_env const *default_env, size_t default_env_size);
     extern FlashErrCode flash_iap_init(uint32_t start_addr);
+    extern FlashErrCode flash_log_init(uint32_t start_addr, size_t log_size, size_t erase_min_size);
 
     uint32_t env_start_addr;
-    size_t env_total_size, erase_min_size, default_env_set_size;
+    size_t env_total_size = 0, erase_min_size = 0, default_env_set_size = 0, log_size = 0;
     const flash_env *default_env_set;
     FlashErrCode result = FLASH_NO_ERR;
 
     result = flash_port_init(&env_start_addr, &env_total_size, &erase_min_size, &default_env_set,
-            &default_env_set_size);
+            &default_env_set_size, &log_size);
 
 #ifdef FLASH_USING_ENV
     if (result == FLASH_NO_ERR) {
@@ -73,7 +77,26 @@ FlashErrCode flash_init(void) {
 
 #ifdef FLASH_USING_IAP
     if (result == FLASH_NO_ERR) {
-        result = flash_iap_init(env_start_addr + flash_get_env_total_size());
+        if (flash_get_env_total_size() < erase_min_size) {
+            result = flash_iap_init(env_start_addr + erase_min_size + log_size);
+        } else if (flash_get_env_total_size() % erase_min_size == 0) {
+            result = flash_iap_init(env_start_addr + flash_get_env_total_size() + log_size);
+        } else {
+            result = flash_iap_init((flash_get_env_total_size() / erase_min_size + 1) * erase_min_size + log_size);
+        }
+    }
+#endif
+
+#ifdef FLASH_USING_LOG
+    if (result == FLASH_NO_ERR) {
+        if (flash_get_env_total_size() < erase_min_size) {
+            result = flash_log_init(env_start_addr + erase_min_size, log_size, erase_min_size);
+        } else if (flash_get_env_total_size() % erase_min_size == 0) {
+            result = flash_log_init(env_start_addr + flash_get_env_total_size(), log_size, erase_min_size);
+        } else {
+            result = flash_log_init((flash_get_env_total_size() / erase_min_size + 1) * erase_min_size,
+                    log_size, erase_min_size);
+        }
     }
 #endif
 

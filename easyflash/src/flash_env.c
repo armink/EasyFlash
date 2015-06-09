@@ -557,7 +557,6 @@ FlashErrCode flash_save_env(void) {
 static uint32_t calc_env_crc(void) {
     uint32_t crc32 = 0;
 
-    extern uint32_t calc_crc32(uint32_t crc, const void *buf, size_t size);
     /* Calculate the ENV end address and all ENV data CRC32.
      * The 4 is ENV end address bytes size. */
     crc32 = calc_crc32(crc32, &env_cache[ENV_PARAM_INDEX_END_ADDR], 4);

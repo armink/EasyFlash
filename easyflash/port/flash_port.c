@@ -33,6 +33,8 @@
 /* ENV section total bytes size in normal mode. It's equal with FLASH_USER_SETTING_ENV_SIZE */
 #define FLASH_ENV_SECTION_SIZE          (FLASH_USER_SETTING_ENV_SIZE)
 #endif
+/* saved log section size */
+#define FLASH_LOG_AREA_SIZE               /* @note you must define it for a value */
 /* print debug information of flash */
 #define FLASH_PRINT_DEBUG
 
@@ -49,11 +51,12 @@ static const flash_env default_env_set[] = {
  * @param erase_min_size the minimum size of Flash erasure
  * @param default_env default ENV set for user
  * @param default_env_size default ENV size
+ * @param log_total_size saved log area size
  *
  * @return result
  */
 FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size, size_t *erase_min_size,
-        flash_env const **default_env, size_t *default_env_size) {
+        flash_env const **default_env, size_t *default_env_size, size_t *log_size) {
     FlashErrCode result = FLASH_NO_ERR;
 
     FLASH_ASSERT(FLASH_USER_SETTING_ENV_SIZE % 4 == 0);
@@ -64,6 +67,7 @@ FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size, size_t 
     *erase_min_size = FLASH_ERASE_MIN_SIZE;
     *default_env = default_env_set;
     *default_env_size = sizeof(default_env_set)/sizeof(default_env_set[0]);
+    *log_size = FLASH_LOG_AREA_SIZE;
 
     return result;
 }
@@ -81,7 +85,6 @@ FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size, size_t 
 FlashErrCode flash_read(uint32_t addr, uint32_t *buf, size_t size) {
     FlashErrCode result = FLASH_NO_ERR;
 	
-	FLASH_ASSERT(size >= 4);
     FLASH_ASSERT(size % 4 == 0);
 
     /* You can add your code under here. */
@@ -123,6 +126,8 @@ FlashErrCode flash_erase(uint32_t addr, size_t size) {
 FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size) {
     FlashErrCode result = FLASH_NO_ERR;
 
+	FLASH_ASSERT(size % 4 == 0);
+	
 	/* You can add your code under here. */
 
     return result;
