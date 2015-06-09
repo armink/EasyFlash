@@ -181,6 +181,43 @@ FlashErrCode flash_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size)
 |bl_addr                                 |Bootloader入口地址|
 |bl_size                                 |Bootloader大小|
 
+### 1.4 日志存储
+
+#### 1.4.1 从Flash中读取已存在的日志
+
+```C
+FlashErrCode flash_log_read(size_t pos, uint32_t *log, size_t size);
+```
+
+|参数                                    |描述|
+|:-----                                  |:----|
+|pos                                     |日志读取的起始地址|
+|log                                     |存储待读取日志的缓冲区|
+|size                                    |读取日志的大小|
+
+#### 1.4.2 往Flash中保存日志
+
+```C
+FlashErrCode flash_log_write(const uint32_t *log, size_t size);
+```
+
+|参数                                    |描述|
+|:-----                                  |:----|
+|log                                     |存储待保存的日志|
+|size                                    |待保存日志的大小|
+
+#### 1.4.3 清空存储在Flash中全部日志
+
+```C
+FlashErrCode flash_log_clean(void);
+```
+
+#### 1.4.4 获取已存储在Flash中的日志大小
+
+```C
+size_t flash_log_get_used_size(void);
+```
+
 ## 2 移植接口
 
 ### 2.1 读取Flash
@@ -287,17 +324,22 @@ void flash_print(const char *format, ...)
 - 默认状态：开启
 - 操作方法：开启、关闭`FLASH_USING_IAP`宏即可
 
-### 3.3 ENV的CRC32校验
+### 3.3 Log功能
+
+- 默认状态：开启
+- 操作方法：开启、关闭`FLASH_USING_LOG`宏即可
+
+### 3.4 ENV的CRC32校验
 
 - 默认状态：开启
 - 操作方法：开启、关闭`FLASH_ENV_USING_CRC_CHECK`宏即可
 
-### 3.4 环境变量的容量
+### 3.5 环境变量的容量
 
 - 默认容量：2K Bytes
 - 操作方法：修改`FLASH_USER_SETTING_ENV_SIZE`宏定义即可
 
-### 3.5 磨损平衡/常规 模式
+### 3.6 磨损平衡/常规 模式
 
 - 默认状态：常规模式
 - 磨损平衡模式：打开`FLASH_ENV_USING_WEAR_LEVELING_MODE`，关闭`FLASH_ENV_USING_NORMAL_MODE`

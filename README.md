@@ -4,14 +4,19 @@
 
 ## 1、介绍
 
-EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Micro Control Unit)提供便捷、通用的上层应用接口，使得开发者更加高效实现基于的Flash存储器常见应用开发。该库目前提供 **两大实用功能** ：
+EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Micro Control Unit)提供便捷、通用的上层应用接口，使得开发者更加高效实现基于的Flash存储器常见应用开发。该库目前提供 **三大实用功能** ：
 
- - **Env** 让变量轻松实现掉电保存，支持 **写平衡** 模式，无需担心变量长度、磨损平衡等问题
+- **Env** 让变量轻松实现掉电保存，支持 **写平衡** 模式，无需担心变量长度、磨损平衡等问题
  
- 使用 **键值对(key-value)** 方式将变量存储到Flash中。在产品上，能够更加简捷的实现 **设定参数** 或 **运行日志** 等信息掉电保存的功能。
- - **IAP** 在线升级再也不是难事儿
+使用 **键值对(key-value)** 方式将变量存储到Flash中。在产品上，能够更加简捷的实现 **设定参数** 或 **运行日志** 等信息掉电保存的功能。
+
+- **IAP** 在线升级再也不是难事儿
  
- 该库封装了IAP(In-Application Programming)功能常用的接口，支持CRC32校验，同时支持Bootloader及Application的升级。
+该库封装了IAP(In-Application Programming)功能常用的接口，支持CRC32校验，同时支持Bootloader及Application的升级。
+
+- **Log** 无需文件系统，日志可直接存储在Flash上
+
+非常适合应用在小型的不带文件系统的产品中。同时配合[EasyLogger](https://github.com/armink/EasyLogger)(我开源的超轻量级、高性能C日志库，它提供与EasyFlash的无缝接口)一起使用，轻松实现日志的Flash存储功能。
 
 ### 1.1、文件结构
 
@@ -20,6 +25,7 @@ EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Mi
 |\easyflash\src\flash_env.c             |Env（常规模式）相关操作接口及实现源码|
 |\easyflash\src\flash_env_wl.c          |Env（磨损平衡模式）相关操作接口及实现源码|
 |\easyflash\src\flash_iap.c             |IAP 相关操作接口及实现源码|
+|\easyflash\src\flash_log.c             |Log 相关操作接口及实现源码|
 |\easyflash\src\flash_utils.c           |EasyFlash常用小工具，例如：CRC32|
 |\easyflash\src\flash.c                 |目前只包含EasyFlash初始化方法|
 |\easyflash\port\flash_port.c           |不同平台下的EasyFlash移植接口及配置参数|
@@ -66,14 +72,19 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 ## 1 Introduction
 
-EasyFlash is an open source lightweight embedded flash memory library. It provide convenient application interface for MCU (Micro Control Unit). The developers can achieve more efficient and common application development based on Flash memory. The library currently provides **two useful features** ：
+EasyFlash is an open source lightweight embedded flash memory library. It provide convenient application interface for MCU (Micro Control Unit). The developers can achieve more efficient and common application development based on Flash memory. The library currently provides **Three useful features** ：
 
- - **Env(environment variables)** : Let variable easily achieve power down to save. Support **write balance mode** . No need to worry about variable length, wear leveling and other problems.
+- **Env(environment variables)** : Let variable easily achieve power down to save. Support **write balance mode** . No need to worry about variable length, wear leveling and other problems.
  
- Use **key-value** model to stored variables to the Flash. You can be more simple to store **setting parameters** or **running logs** and other information which you want to power down to save.
- - **IAP** : online upgrade is no longer a difficult thing.
+Use **key-value** model to stored variables to the Flash. You can be more simple to store **setting parameters** or **running logs** and other information which you want to power down to save.
+
+- **IAP** : online upgrade is no longer a difficult thing.
  
- The library encapsulates the IAP (In-Application Programming) feature common interface. Support CRC32 checksum. While supporting the bootloader and application upgrade.
+The library encapsulates the IAP (In-Application Programming) feature common interface. Support CRC32 checksum. While supporting the bootloader and application upgrade.
+
+- **Log** : The logs can store to product's flash which has no file-system.
+
+It's very suitable for small without a file system products. You can use [EasyLogger](https://github.com/armink/EasyLogger)( A super-lightweight, high-performance C log library which open source by me. It provides a seamless interface with EasyFlash) at the same time. So, it's so easy to store the logs to flash.
 
 ### 1.1 File structure
 
@@ -82,6 +93,7 @@ EasyFlash is an open source lightweight embedded flash memory library. It provid
 |\easyflash\src\flash_env.c             |Env (normal mode) interface and implementation source code.|
 |\easyflash\src\flash_env_wl.c          |Env (wear leveling mode) interface and implementation source code.|
 |\easyflash\src\flash_iap.c             |IAP interface and implementation source code.|
+|\easyflash\src\flash_log.c             |Log interface and implementation source code.|
 |\easyflash\src\flash_utils.c           |EasyFlash utils. For example CRC32.|
 |\easyflash\src\flash.c                 |Currently contains EasyFlash initialization function only. |
 |\easyflash\port\flash_port.c           |EasyFlash portable interface and configuration for different platforms.|
