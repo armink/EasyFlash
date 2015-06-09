@@ -66,11 +66,12 @@ static char log_buf[128];
  * @param erase_min_size the minimum size of Flash erasure
  * @param default_env default ENV set for user
  * @param default_env_size default ENV size
+ * @param log_total_size saved log area size
  *
  * @return result
  */
 FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size, size_t *erase_min_size,
-        flash_env const **default_env, size_t *default_env_size) {
+        flash_env const **default_env, size_t *default_env_size, size_t *log_size) {
     FlashErrCode result = FLASH_NO_ERR;
 
     FLASH_ASSERT(FLASH_USER_SETTING_ENV_SIZE % 4 == 0);
@@ -98,7 +99,6 @@ FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size, size_t 
 FlashErrCode flash_read(uint32_t addr, uint32_t *buf, size_t size) {
     FlashErrCode result = FLASH_NO_ERR;
 
-    FLASH_ASSERT(size >= 4);
     FLASH_ASSERT(size % 4 == 0);
 
     /*copy from flash to ram */
@@ -162,6 +162,8 @@ FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size) {
     FlashErrCode result = FLASH_NO_ERR;
     size_t i;
     uint32_t read_data;
+	
+	FLASH_ASSERT(size % 4 == 0);
 
     FLASH_Unlock();
     FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);

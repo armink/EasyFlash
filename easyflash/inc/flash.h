@@ -37,7 +37,7 @@ extern "C" {
 /* using IAP function */
 #define FLASH_USING_IAP
 /* using save log function */
-#define FLASH_USING_LOG
+/* #define FLASH_USING_LOG */
 /* using CRC32 check when load environment variable from Flash */
 #define FLASH_ENV_USING_CRC_CHECK
 /* the user setting size of ENV, must be word alignment */
