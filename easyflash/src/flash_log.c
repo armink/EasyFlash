@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Function: Save log to flash.
+ * Function: Save logs to flash.
  * Created on: 2015-06-04
  */
 
@@ -24,7 +24,7 @@
 
 #ifdef FLASH_USING_LOG
 
-/* the stored log start address and end address. It's like a ring buffer which implement by flash. */
+/* the stored logs start address and end address. It's like a ring buffer which implement by flash. */
 static uint32_t log_start_addr = 0, log_end_addr = 0;
 /* saved log area address for flash */
 static uint32_t log_area_start_addr = 0;
@@ -53,9 +53,9 @@ FlashErrCode flash_log_init(uint32_t start_addr, size_t log_size, size_t erase_m
     FLASH_ASSERT(start_addr);
     FLASH_ASSERT(log_size);
     FLASH_ASSERT(erase_min_size);
-    /* the log section size must be an integral multiple of erase minimum size. */
+    /* the log area size must be an integral multiple of erase minimum size. */
     FLASH_ASSERT(log_size % erase_min_size == 0);
-    /* the log section size must be more than 2 multiple of erase minimum size */
+    /* the log area size must be more than 2 multiple of erase minimum size */
     FLASH_ASSERT(log_size / erase_min_size >= 2);
 
     log_area_start_addr = start_addr;
@@ -238,21 +238,21 @@ size_t flash_log_get_used_size(void) {
 /**
  * Read log from flash.
  *
- * @param pos position on saved log section.
- *        Minimum position is 0.
- *        Maximum position is saved log section total size
+ * @param index index for saved log.
+ *        Minimum index is 0.
+ *        Maximum index is log used flash total size - 1.
  * @param log the log which will read from flash
  * @param size read bytes size
  *
  * @return result
  */
-FlashErrCode flash_log_read(size_t pos, uint32_t *log, size_t size) {
+FlashErrCode flash_log_read(size_t index, uint32_t *log, size_t size) {
     FlashErrCode result = FLASH_NO_ERR;
     size_t cur_using_size = flash_log_get_used_size();
     size_t read_size_temp = 0;
 
     FLASH_ASSERT(size % 4 == 0);
-    FLASH_ASSERT(pos + size <= cur_using_size);
+    FLASH_ASSERT(index + size <= cur_using_size);
     /* must be call this function after initialize OK */
     FLASH_ASSERT(init_ok);
 
@@ -261,9 +261,9 @@ FlashErrCode flash_log_read(size_t pos, uint32_t *log, size_t size) {
     }
 
     if (log_start_addr < log_end_addr) {
-        result = flash_read(log_area_start_addr + pos, log, size);
+        result = flash_read(log_area_start_addr + index, log, size);
     } else if (log_start_addr > log_end_addr) {
-        if (log_start_addr + pos + size <= log_area_start_addr + flash_log_size) {
+        if (log_start_addr + index + size <= log_area_start_addr + flash_log_size) {
             /*                          Flash log area
              *                         |--------------|
              * log_area_start_addr --> |##############|
@@ -279,10 +279,10 @@ FlashErrCode flash_log_read(size_t pos, uint32_t *log, size_t size) {
              *                         |##############|
              *                         |--------------|
              *
-             * read from (log_start_addr + pos) to (log_start_addr + pos + size)
+             * read from (log_start_addr + index) to (log_start_addr + index + size)
              */
-            result = flash_read(log_start_addr + pos, log, size);
-        } else if (log_start_addr + pos < log_area_start_addr + flash_log_size) {
+            result = flash_read(log_start_addr + index, log, size);
+        } else if (log_start_addr + index < log_area_start_addr + flash_log_size) {
             /*                          Flash log area
              *                         |--------------|
              * log_area_start_addr --> |**************| <-- read end
@@ -298,11 +298,11 @@ FlashErrCode flash_log_read(size_t pos, uint32_t *log, size_t size) {
              *                         |**************|
              *                         |--------------|
              * read will by 2 steps
-             * step1: read from (log_start_addr + pos) to flash log area end address
+             * step1: read from (log_start_addr + index) to flash log area end address
              * step2: read from flash log area start address to read size's end address
              */
-            read_size_temp = (log_area_start_addr + flash_log_size) - (log_start_addr + pos);
-            result = flash_read(log_start_addr + pos, log, read_size_temp);
+            read_size_temp = (log_area_start_addr + flash_log_size) - (log_start_addr + index);
+            result = flash_read(log_start_addr + index, log, read_size_temp);
             if (result == FLASH_NO_ERR) {
                 result = flash_read(log_area_start_addr, log + read_size_temp,
                         size - read_size_temp);
@@ -322,9 +322,9 @@ FlashErrCode flash_log_read(size_t pos, uint32_t *log, size_t size) {
              *                         |##############|
              *                         |##############|
              *                         |--------------|
-             * read from (log_start_addr + pos - flash_log_size) to read size's end address
+             * read from (log_start_addr + index - flash_log_size) to read size's end address
              */
-            result = flash_read(log_start_addr + pos - flash_log_size, log, size);
+            result = flash_read(log_start_addr + index - flash_log_size, log, size);
         }
     }
 

@@ -186,12 +186,12 @@ FlashErrCode flash_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size)
 #### 1.4.1 从Flash中读取已存在的日志
 
 ```C
-FlashErrCode flash_log_read(size_t pos, uint32_t *log, size_t size);
+FlashErrCode flash_log_read(size_t index, uint32_t *log, size_t size);
 ```
 
 |参数                                    |描述|
 |:-----                                  |:----|
-|pos                                     |日志读取的起始地址|
+|index                                   |日志读取的索引顺序|
 |log                                     |存储待读取日志的缓冲区|
 |size                                    |读取日志的大小|
 

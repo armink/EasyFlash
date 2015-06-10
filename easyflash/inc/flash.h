@@ -58,7 +58,7 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define FLASH_SW_VERSION                "1.06.09"
+#define FLASH_SW_VERSION                "1.06.10"
 
 typedef struct _flash_env{
     char *key;
@@ -110,7 +110,7 @@ FlashErrCode flash_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size);
 
 #ifdef FLASH_USING_LOG
 /* flash_log.c */
-FlashErrCode flash_log_read(size_t pos, uint32_t *log, size_t size);
+FlashErrCode flash_log_read(size_t index, uint32_t *log, size_t size);
 FlashErrCode flash_log_write(const uint32_t *log, size_t size);
 FlashErrCode flash_log_clean(void);
 size_t flash_log_get_used_size(void);
