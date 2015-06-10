@@ -54,13 +54,19 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 下图为通过控制台（终端）来调用环境变量的常用接口，演示了环境变量 `"temp"` 从创建到保存，再修改，最后删除的过程。这些接口都支持被应用层直接调用。
 
-![easy_flash_env](https://cloud.githubusercontent.com/assets/1734686/5886463/46ad7efa-a3db-11e4-8401-75c00a4c35ba.gif)
+![easy_flash_env](https://raw.githubusercontent.com/armink/EasyFlash/master/docs/en/images/EnvDemo.gif)
 
 ### 2.2、在线升级
 
 下图演示了通过控制台来进行IAP升级软件的过程，使用的是库中自带的IAP功能接口，演示采用的是串口+Ymodem协议的方式。你还也可以实现通过CAN、485、以太网等总线，来实现远程网络更新。
 
-![easy_flash_iap](https://cloud.githubusercontent.com/assets/1734686/5886462/40f7d62c-a3db-11e4-866a-ba827c809370.gif)
+![easy_flash_iap](https://raw.githubusercontent.com/armink/EasyFlash/master/docs/en/images/IapDemo.gif)
+
+### 2.3、日志存储
+
+下图过程为通过控制台输出日志，并将输出的日志存储到Flash中。重启再读取上次保存的日志，最后清空Flash日志。
+
+![easy_flash_log](https://raw.githubusercontent.com/armink/EasyFlash/master/docs/en/images/LogDemo.gif)
 
 ## 3、文档
 具体内容参考`\docs\`下的文件。
@@ -122,13 +128,19 @@ Welcome everyone to **fork and pull request**([Github](https://github.com/armink
 
 The figure below shows an ENV's common interface be called by the console(terminal). The ENV `"temp"` from creation to save, and then modify the final delete process. These interfaces are supported by the application layer called.
 
-![easy_flash_env](https://cloud.githubusercontent.com/assets/1734686/5886463/46ad7efa-a3db-11e4-8401-75c00a4c35ba.gif)
+![easy_flash_env](https://raw.githubusercontent.com/armink/EasyFlash/master/docs/en/images/EnvDemo.gif)
 
 ### 2.2 IAP
 
 The figure below shows the process of upgrade software through the console by IAP. It use this library comes with IAP function interface. Uses a serial port + Ymodem protocol mode. You can also be achieved through CAN, 485, Ethernet bus to online upgrade.
 
-![easy_flash_iap](https://cloud.githubusercontent.com/assets/1734686/5886462/40f7d62c-a3db-11e4-866a-ba827c809370.gif)
+![easy_flash_iap](https://raw.githubusercontent.com/armink/EasyFlash/master/docs/en/images/IapDemo.gif)
+
+### 2.3 Log
+
+The following figure is the output log process through the console. The logs will save to flash at the same time. Then reboot the and read the logs from flash. At last will clean all logs which on flash.
+
+![easy_flash_log](https://raw.githubusercontent.com/armink/EasyFlash/master/docs/en/images/LogDemo.gif)
 
 ## 3 Documents
 
