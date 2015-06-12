@@ -54,19 +54,19 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 下图为通过控制台（终端）来调用环境变量的常用接口，演示了环境变量 `"temp"` 从创建到保存，再修改，最后删除的过程。这些接口都支持被应用层直接调用。
 
-![easy_flash_env](https://raw.githubusercontent.com/armink/EasyFlash/master/docs/en/images/EnvDemo.gif)
+![easy_flash_env](http://git.oschina.net/Armink/EasyFlash/raw/master/docs/zh/images/EnvDemo.gif)
 
 ### 2.2、在线升级
 
 下图演示了通过控制台来进行IAP升级软件的过程，使用的是库中自带的IAP功能接口，演示采用的是串口+Ymodem协议的方式。你还也可以实现通过CAN、485、以太网等总线，来实现远程网络更新。
 
-![easy_flash_iap](https://raw.githubusercontent.com/armink/EasyFlash/master/docs/en/images/IapDemo.gif)
+![easy_flash_iap](http://git.oschina.net/Armink/EasyFlash/raw/master/docs/zh/images/IapDemo.gif)
 
 ### 2.3、日志存储
 
 下图过程为通过控制台输出日志，并将输出的日志存储到Flash中。重启再读取上次保存的日志，最后清空Flash日志。
 
-![easy_flash_log](https://raw.githubusercontent.com/armink/EasyFlash/master/docs/en/images/LogDemo.gif)
+![easy_flash_log](http://git.oschina.net/Armink/EasyFlash/raw/master/docs/zh/images/LogDemo.gif)
 
 ## 3、文档
 具体内容参考`\docs\`下的文件。
