@@ -16,7 +16,7 @@ EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Mi
 
 - **Log** 无需文件系统，日志可直接存储在Flash上
 
-非常适合应用在小型的不带文件系统的产品中。同时配合[EasyLogger](https://github.com/armink/EasyLogger)(我开源的超轻量级、高性能C日志库，它提供与EasyFlash的无缝接口)一起使用，轻松实现日志的Flash存储功能。
+非常适合应用在小型的不带文件系统的产品中，方便开发人员快速定位、查找系统发生崩溃或死机的原因。同时配合[EasyLogger](https://github.com/armink/EasyLogger)(我开源的超轻量级、高性能C日志库，它提供与EasyFlash的无缝接口)一起使用，轻松实现C日志的Flash存储功能。
 
 ### 1.1、文件结构
 
@@ -90,7 +90,7 @@ The library encapsulates the IAP (In-Application Programming) feature common int
 
 - **Log** : The logs can store to product's flash which has no file-system.
 
-It's very suitable for small without a file system products. You can use [EasyLogger](https://github.com/armink/EasyLogger)( A super-lightweight, high-performance C log library which open source by me. It provides a seamless interface with EasyFlash) at the same time. So, it's so easy to store the logs to flash.
+It's very suitable for small without a file system products. The developer can easy to locate and query problem when system crashes or freezes. You can use [EasyLogger](https://github.com/armink/EasyLogger)( A super-lightweight, high-performance C log library which open source by me. It provides a seamless interface with EasyFlash) at the same time. So, it's so easy to store the logs to flash.
 
 ### 1.1 File structure
 
