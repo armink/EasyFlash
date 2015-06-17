@@ -46,7 +46,7 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 目前已移植硬件平台有 `stm32f10x`与 `stm32f4xx` 系列的片内Flash，这个也是笔者产品使用的平台。其余平台的移植难度不大，在项目的设计之初就有考虑针对所有平台的适配性问题（64位除外），所以对所有移植接口都有做预留。移植只需修改 `\easyflash\port\flash_port.c` 一个文件，实现里面的擦、写、读及打印功能即可。
 
-欢迎大家 **fork and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)) 。开源软件的成功离不开所有人的努力，也希望该项目能够帮助大家降低开发周期，让产品更早的获得成功。
+欢迎大家 **star and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)) 。开源软件的成功离不开所有人的努力，也希望该项目能够帮助大家降低开发周期，让产品更早的获得成功。
 
 ## 2、流程
 
@@ -72,7 +72,7 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 具体内容参考`\docs\`下的文件。
 
 ## 4、许可
-采用 GPL v3.0 开源协议，细节请阅读项目中的 LICENSE 文件内容。
+采用 MIT 开源协议，细节请阅读项目中的 LICENSE 文件内容。
 
 ---
 
@@ -120,7 +120,7 @@ Actual  : ROM: 6K bytes     RAM: 2.6K bytes
 
 Hardware platform has been ported `stm32f10x` and `stm32f4xx` series of on-chip Flash. This is my product platform. Remaining platform porting difficulty is little. The porting just modify `\easyflash\port\flash_port.c` file. Implement erase, write, read, print feature.
 
-Welcome everyone to **fork and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)). The open source software success is inseparable from everyone efforts. I hope this project will help everyone reduce product development cycle and make product to success earlier.
+Welcome everyone to **star and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)). The open source software success is inseparable from everyone efforts. I hope this project will help everyone reduce product development cycle and make product to success earlier.
 
 ## 2 Flow
 
@@ -148,4 +148,4 @@ All documents is in the `\docs\` folder.
 
 ## 4 License
 
-Using GPL v3.0 open source license, please read the project LICENSE file.
+Using MIT open source license, please read the project LICENSE file.
