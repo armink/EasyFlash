@@ -329,17 +329,12 @@ void flash_print(const char *format, ...)
 - 默认状态：开启
 - 操作方法：开启、关闭`FLASH_USING_LOG`宏即可
 
-### 3.4 ENV的CRC32校验
-
-- 默认状态：开启
-- 操作方法：开启、关闭`FLASH_ENV_USING_CRC_CHECK`宏即可
-
-### 3.5 环境变量的容量
+### 3.4 环境变量的容量
 
 - 默认容量：2K Bytes
 - 操作方法：修改`FLASH_USER_SETTING_ENV_SIZE`宏定义即可
 
-### 3.6 磨损平衡/常规 模式
+### 3.5 磨损平衡/常规 模式
 
 - 默认状态：常规模式
 - 磨损平衡模式：打开`FLASH_ENV_USING_WEAR_LEVELING_MODE`，关闭`FLASH_ENV_USING_NORMAL_MODE`
@@ -354,4 +349,4 @@ void flash_print(const char *format, ...)
 - 写数据前务必记得先擦除
 - 环境变量设置完后，只有调用 `flash_save_env`才会保存在Flash中，否则开机会丢失修改的内容
 - 不要在应用程序及Bootloader中执行擦除及拷贝自身的动作
-- Flash读取和写入方法的最小单位为4个字节，擦除的最小单位则需根据用户的平台来确定
+- ENV及Log功能对Flash擦除和写入要求4个字节对齐，擦除的最小单位则需根据用户的平台来确定

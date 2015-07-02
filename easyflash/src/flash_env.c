@@ -49,12 +49,8 @@
 enum {
     /* data section ENV end address index in system section */
     ENV_PARAM_INDEX_END_ADDR = 0,
-
-#ifdef FLASH_ENV_USING_CRC_CHECK
     /* data section CRC32 code index in system section */
     ENV_PARAM_INDEX_DATA_CRC,
-#endif
-
     /* flash ENV parameters word size */
     ENV_PARAM_WORD_SIZE,
     /* flash ENV parameters byte size */
@@ -79,11 +75,8 @@ static uint32_t *find_env(const char *key);
 static FlashErrCode del_env(const char *key);
 static size_t get_env_data_size(void);
 static FlashErrCode create_env(const char *key, const char *value);
-
-#ifdef FLASH_ENV_USING_CRC_CHECK
 static uint32_t calc_env_crc(void);
 static bool env_crc_is_ok(void);
-#endif
 
 /**
  * Flash ENV initialize.
@@ -498,8 +491,6 @@ void flash_load_env(void) {
         env_cache_bak = env_cache + ENV_PARAM_WORD_SIZE;
         /* read all ENV from flash */
         flash_read(get_env_data_addr(), env_cache_bak, get_env_data_size());
-
-#ifdef FLASH_ENV_USING_CRC_CHECK
         /* read ENV CRC code from flash */
         flash_read(get_env_system_addr() + ENV_PARAM_INDEX_DATA_CRC * 4,
                 &env_cache[ENV_PARAM_INDEX_DATA_CRC] , 4);
@@ -508,8 +499,6 @@ void flash_load_env(void) {
             FLASH_INFO("Warning: ENV CRC check failed. Set it to default.\n");
             flash_env_set_default();
         }
-#endif
-
     }
 }
 
@@ -519,11 +508,8 @@ void flash_load_env(void) {
 FlashErrCode flash_save_env(void) {
     FlashErrCode result = FLASH_NO_ERR;
 
-#ifdef FLASH_ENV_USING_CRC_CHECK
     /* calculate and cache CRC32 code */
     env_cache[ENV_PARAM_INDEX_DATA_CRC] = calc_env_crc();
-#endif
-
     /* erase ENV */
     result = flash_erase(get_env_system_addr(), flash_get_env_write_bytes());
     switch (result) {
@@ -554,7 +540,6 @@ FlashErrCode flash_save_env(void) {
     return result;
 }
 
-#ifdef FLASH_ENV_USING_CRC_CHECK
 /**
  * Calculate the cached ENV CRC32 value.
  *
@@ -571,9 +556,7 @@ static uint32_t calc_env_crc(void) {
 
     return crc32;
 }
-#endif
 
-#ifdef FLASH_ENV_USING_CRC_CHECK
 /**
  * Check the ENV CRC32
  *
@@ -587,7 +570,6 @@ static bool env_crc_is_ok(void) {
         return false;
     }
 }
-#endif
 
 #endif /* FLASH_ENV_USING_NORMAL_MODE */
 

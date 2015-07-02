@@ -43,9 +43,7 @@ extern "C" {
 /* using IAP function */
 #define FLASH_USING_IAP
 /* using save log function */
-/* #define FLASH_USING_LOG */
-/* using CRC32 check when load environment variable from Flash */
-#define FLASH_ENV_USING_CRC_CHECK
+#define FLASH_USING_LOG
 /* the user setting size of ENV, must be word alignment */
 #define FLASH_USER_SETTING_ENV_SIZE     (2 * 1024)                /* default 2K */
 /* using wear leveling mode or normal mode */
@@ -64,7 +62,7 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define FLASH_SW_VERSION                "1.06.10"
+#define FLASH_SW_VERSION                "1.07.02"
 
 typedef struct _flash_env{
     char *key;

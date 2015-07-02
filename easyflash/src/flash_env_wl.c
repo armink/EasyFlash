@@ -56,12 +56,8 @@
 enum {
     /* data section ENV detail part end address index */
     ENV_PARAM_PART_INDEX_END_ADDR = 0,
-
-#ifdef FLASH_ENV_USING_CRC_CHECK
     /* data section CRC32 code index */
     ENV_PARAM_PART_INDEX_DATA_CRC,
-#endif
-
     /* ENV parameters part word size */
     ENV_PARAM_PART_WORD_SIZE,
     /* ENV parameters part byte size */
@@ -96,11 +92,8 @@ static size_t get_env_user_used_size(void);
 static FlashErrCode create_env(const char *key, const char *value);
 static FlashErrCode del_env(const char *key);
 static FlashErrCode save_cur_using_data_addr(uint32_t cur_data_addr);
-
-#ifdef FLASH_ENV_USING_CRC_CHECK
 static uint32_t calc_env_crc(void);
 static bool env_crc_is_ok(void);
-#endif
 
 /**
  * Flash ENV initialize.
@@ -569,8 +562,6 @@ void flash_load_env(void) {
             env_cache_bak = env_cache + ENV_PARAM_PART_WORD_SIZE;
             /* read all ENV from flash */
             flash_read(get_env_detail_addr(), env_cache_bak, get_env_detail_size());
-
-#ifdef FLASH_ENV_USING_CRC_CHECK
             /* read ENV CRC code from flash */
             flash_read(get_cur_using_data_addr() + ENV_PARAM_PART_INDEX_DATA_CRC * 4,
                     &env_cache[ENV_PARAM_PART_INDEX_DATA_CRC], 4);
@@ -579,8 +570,6 @@ void flash_load_env(void) {
                 FLASH_INFO("Warning: ENV CRC check failed. Set it to default.\n");
                 flash_env_set_default();
             }
-#endif
-
         }
 
     }
@@ -597,11 +586,8 @@ FlashErrCode flash_save_env(void) {
     /* wear leveling process, automatic move ENV to next available position */
     while (get_cur_using_data_addr() + env_detail_size
             < get_env_start_addr() + flash_get_env_total_size()) {
-
-#ifdef FLASH_ENV_USING_CRC_CHECK
-    /* calculate and cache CRC32 code */
-    env_cache[ENV_PARAM_PART_INDEX_DATA_CRC] = calc_env_crc();
-#endif
+        /* calculate and cache CRC32 code */
+        env_cache[ENV_PARAM_PART_INDEX_DATA_CRC] = calc_env_crc();
         /* erase ENV */
         result = flash_erase(get_cur_using_data_addr(), ENV_PARAM_PART_BYTE_SIZE + env_detail_size);
         switch (result) {
@@ -667,7 +653,6 @@ FlashErrCode flash_save_env(void) {
     return result;
 }
 
-#ifdef FLASH_ENV_USING_CRC_CHECK
 /**
  * Calculate the cached ENV CRC32 value.
  *
@@ -684,9 +669,7 @@ static uint32_t calc_env_crc(void) {
 
     return crc32;
 }
-#endif
 
-#ifdef FLASH_ENV_USING_CRC_CHECK
 /**
  * Check the ENV CRC32
  *
@@ -700,7 +683,6 @@ static bool env_crc_is_ok(void) {
         return false;
     }
 }
-#endif
 
 /**
  * Save current using data section address to flash.
