@@ -62,7 +62,7 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define EF_SW_VERSION                "1.07.04"
+#define EF_SW_VERSION                "1.07.06"
 
 typedef struct _eflash_env{
     char *key;
@@ -121,7 +121,7 @@ size_t ef_log_get_used_size(void);
 #endif
 
 /* utils.c */
-uint32_t calc_crc32(uint32_t crc, const void *buf, size_t size);
+uint32_t ef_calc_crc32(uint32_t crc, const void *buf, size_t size);
 FlashSecrorStatus ef_get_sector_status(uint32_t addr, size_t sec_size);
 uint32_t ef_find_sec_using_end_addr(uint32_t addr, size_t sec_size);
 

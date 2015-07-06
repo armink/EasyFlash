@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2014, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2015, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the

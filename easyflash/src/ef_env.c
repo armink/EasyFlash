@@ -550,8 +550,8 @@ static uint32_t calc_env_crc(void) {
 
     /* Calculate the ENV end address and all ENV data CRC32.
      * The 4 is ENV end address bytes size. */
-    crc32 = calc_crc32(crc32, &env_cache[ENV_PARAM_INDEX_END_ADDR], 4);
-    crc32 = calc_crc32(crc32, &env_cache[ENV_PARAM_WORD_SIZE], get_env_data_size());
+    crc32 = ef_calc_crc32(crc32, &env_cache[ENV_PARAM_INDEX_END_ADDR], 4);
+    crc32 = ef_calc_crc32(crc32, &env_cache[ENV_PARAM_WORD_SIZE], get_env_data_size());
     EF_DEBUG("Calculate Env CRC32 number is 0x%08X.\n", crc32);
 
     return crc32;
