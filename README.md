@@ -29,9 +29,11 @@ EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Mi
 |\easyflash\src\ef_utils.c              |EasyFlash常用小工具，例如：CRC32|
 |\easyflash\src\easyflash.c             |目前只包含EasyFlash初始化方法|
 |\easyflash\port\ef_port.c              |不同平台下的EasyFlash移植接口及配置参数|
-|\demo\stm32f10x\non_os                 |stm32f10x裸机的demo|
-|\demo\stm32f10x\rtt                    |stm32f10x基于[RT-Thread](http://www.rt-thread.org/)的demo|
-|\demo\stm32f4xx                        |stm32f4xx基于[RT-Thread](http://www.rt-thread.org/)的demo|
+|\demo\env\stm32f10x\non_os             |stm32f10x裸机的Env demo|
+|\demo\env\stm32f10x\rtt                |stm32f10x基于[RT-Thread](http://www.rt-thread.org/)的Env demo|
+|\demo\env\stm32f4xx                    |stm32f4xx基于[RT-Thread](http://www.rt-thread.org/)的Env demo|
+|\demo\iap\ymodem+rtt.c                 |使用[RT-Thread](http://www.rt-thread.org/)+[Ymodem](https://github.com/RT-Thread/rt-thread/tree/master/components/utilities/ymodem)的IAP Demo|
+|\demo\log\easylogger.c                 |基于[EasyLogger](https://github.com/armink/EasyLogger)的Log Demo|
 
 ### 1.2、资源占用
 
@@ -44,7 +46,7 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 ### 1.3、支持平台
 
-目前已移植硬件平台有 `stm32f10x`与 `stm32f4xx` 系列的片内Flash，这个也是笔者产品使用的平台。其余平台的移植难度不大，在项目的设计之初就有考虑针对所有平台的适配性问题（64位除外），所以对所有移植接口都有做预留。移植只需修改 `\easyflash\port\flash_port.c` 一个文件，实现里面的擦、写、读及打印功能即可。
+目前已移植硬件平台有 `stm32f10x`与 `stm32f4xx` 系列的片内Flash，这个也是笔者产品使用的平台。其余平台的移植难度不大，在项目的设计之初就有考虑针对所有平台的适配性问题（64位除外），所以对所有移植接口都有做预留。移植只需修改 `\easyflash\port\ef_port.c` 一个文件，实现里面的擦、写、读及打印功能即可。
 
 欢迎大家 **star and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)) 。开源软件的成功离不开所有人的努力，也希望该项目能够帮助大家降低开发周期，让产品更早的获得成功。
 
@@ -110,10 +112,11 @@ It's very suitable for small without a file system products. The developer can e
 |\easyflash\src\ef_utils.c              |EasyFlash utils. For example CRC32.|
 |\easyflash\src\easyflash.c             |Currently contains EasyFlash initialization function only. |
 |\easyflash\port\ef_port.c              |EasyFlash portable interface and configuration for different platforms.|
-|\demo\stm32f10x\non_os                 |stm32f10x non-os demo.|
-|\demo\stm32f10x\rtt                    |stm32f10x demo base on [RT-Thread](http://www.rt-thread.org/).|
-|\demo\stm32f4xx                        |stm32f4xx demo base on [RT-Thread](http://www.rt-thread.org/).|
-
+|\demo\env\stm32f10x\non_os             |stm32f10x non-os demo.|
+|\demo\env\stm32f10x\rtt                |stm32f10x demo base on [RT-Thread](http://www.rt-thread.org/).|
+|\demo\env\stm32f4xx                    |stm32f4xx demo base on [RT-Thread](http://www.rt-thread.org/).|
+|\demo\iap\ymodem+rtt.c                 |Using [RT-Thread](http://www.rt-thread.org/)+[Ymodem](https://github.com/RT-Thread/rt-thread/tree/master/components/utilities/ymodem) IAP Demo|
+|\demo\log\easylogger.c                 |base on [EasyLogger](https://github.com/armink/EasyLogger) Log Demo|
 ### 1.2 Resource consumption
 
 ```
@@ -125,7 +128,7 @@ Actual  : ROM: 6K bytes     RAM: 2.6K bytes
 
 ### 1.3 Supported platforms
 
-Hardware platform has been ported `stm32f10x` and `stm32f4xx` series of on-chip Flash. This is my product platform. Remaining platform porting difficulty is little. The porting just modify `\easyflash\port\flash_port.c` file. Implement erase, write, read, print feature.
+Hardware platform has been ported `stm32f10x` and `stm32f4xx` series of on-chip Flash. This is my product platform. Remaining platform porting difficulty is little. The porting just modify `\easyflash\port\ef_port.c` file. Implement erase, write, read, print feature.
 
 Welcome everyone to **star and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)). The open source software success is inseparable from everyone efforts. I hope this project will help everyone reduce product development cycle and make product to success earlier.
 
