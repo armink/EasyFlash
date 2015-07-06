@@ -955,25 +955,25 @@
       <group>
         <name>port</name>
         <file>
-          <name>$PROJ_DIR$\..\components\easyflash\port\flash_port.c</name>
+          <name>$PROJ_DIR$\..\components\easyflash\port\ef_port.c</name>
         </file>
       </group>
       <group>
         <name>src</name>
         <file>
-          <name>$PROJ_DIR$\..\..\..\easyflash\src\flash.c</name>
+          <name>$PROJ_DIR$\..\..\..\easyflash\src\easyflash.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\easyflash\src\flash_env.c</name>
+          <name>$PROJ_DIR$\..\..\..\easyflash\src\ef_env.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\easyflash\src\flash_env_wl.c</name>
+          <name>$PROJ_DIR$\..\..\..\easyflash\src\ef_env_wl.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\easyflash\src\flash_iap.c</name>
+          <name>$PROJ_DIR$\..\..\..\easyflash\src\ef_iap.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\easyflash\src\flash_utils.c</name>
+          <name>$PROJ_DIR$\..\..\..\easyflash\src\ef_utils.c</name>
         </file>
       </group>
     </group>

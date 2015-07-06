@@ -26,7 +26,7 @@
  * Created on: 2015-01-16
  */
 
-#include "flash.h"
+#include "easyflash.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -40,21 +40,21 @@
 #endif
 
 /* Environment variables start address */
-#define FLASH_ENV_START_ADDR            (FLASH_BASE + 100 * 1024) /* from the chip position: 100KB */
+#define ENV_START_ADDR            (FLASH_BASE + 100 * 1024) /* from the chip position: 100KB */
 /* the minimum size of flash erasure */
-#define FLASH_ERASE_MIN_SIZE             PAGE_SIZE                /* it is one page for STM32 */
-#ifdef FLASH_ENV_USING_WEAR_LEVELING_MODE
+#define ERASE_MIN_SIZE             PAGE_SIZE                /* it is one page for STM32 */
+#ifdef EF_ENV_USING_WL_MODE
 /* ENV section total bytes size in wear leveling mode. */
-#define FLASH_ENV_SECTION_SIZE          (4 * FLASH_ERASE_MIN_SIZE)/* 8K */
+#define ENV_SECTION_SIZE          (4 * ERASE_MIN_SIZE)     /* 8K */
 #else
 /* ENV section total bytes size in normal mode. It's equal with FLASH_USER_SETTING_ENV_SIZE */
-#define FLASH_ENV_SECTION_SIZE          (FLASH_USER_SETTING_ENV_SIZE)
+#define ENV_SECTION_SIZE          (EF_USER_SETTING_ENV_SIZE)
 #endif
 /* print debug information of flash */
-#define FLASH_PRINT_DEBUG
+#define PRINT_DEBUG
 
 /* default environment variables set for user */
-static const flash_env default_env_set[] = {
+static const ef_env default_env_set[] = {
         {"iap_need_copy_app","0"},
         {"iap_copy_app_size","0"},
         {"stop_in_bootloader","0"},
@@ -76,18 +76,18 @@ static char log_buf[128];
  *
  * @return result
  */
-FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size, size_t *erase_min_size,
-        flash_env const **default_env, size_t *default_env_size, size_t *log_size) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_port_init(uint32_t *env_addr, size_t *env_total_size, size_t *erase_min_size,
+        ef_env const **default_env, size_t *default_env_size, size_t *log_size) {
+    EfErrCode result = EF_NO_ERR;
+          
+    EF_ASSERT(EF_USER_SETTING_ENV_SIZE % 4 == 0);
+    EF_ASSERT(ENV_SECTION_SIZE % 4 == 0);
 
-    FLASH_ASSERT(FLASH_USER_SETTING_ENV_SIZE % 4 == 0);
-    FLASH_ASSERT(FLASH_ENV_SECTION_SIZE % 4 == 0);
-
-    *env_addr = FLASH_ENV_START_ADDR;
-    *env_total_size = FLASH_ENV_SECTION_SIZE;
-    *erase_min_size = FLASH_ERASE_MIN_SIZE;
+    *env_addr = ENV_START_ADDR;
+    *env_total_size = ENV_SECTION_SIZE;
+    *erase_min_size = ERASE_MIN_SIZE;
     *default_env = default_env_set;
-    *default_env_size = sizeof(default_env_set)/sizeof(default_env_set[0]);
+    *default_env_size = sizeof(default_env_set) / sizeof(default_env_set[0]);
 
     return result;
 }
@@ -102,10 +102,10 @@ FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size, size_t 
  *
  * @return result
  */
-FlashErrCode flash_read(uint32_t addr, uint32_t *buf, size_t size) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_port_read(uint32_t addr, uint32_t *buf, size_t size) {
+    EfErrCode result = EF_NO_ERR;
 
-    FLASH_ASSERT(size % 4 == 0);
+    EF_ASSERT(size % 4 == 0);
 
     /*copy from flash to ram */
     for (; size > 0; size -= 4, addr += 4, buf++) {
@@ -125,13 +125,13 @@ FlashErrCode flash_read(uint32_t addr, uint32_t *buf, size_t size) {
  *
  * @return result
  */
-FlashErrCode flash_erase(uint32_t addr, size_t size) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_port_erase(uint32_t addr, size_t size) {
+    EfErrCode result = EF_NO_ERR;
     FLASH_Status flash_status;
     size_t erase_pages, i;
     
     /* make sure the start address is a multiple of FLASH_ERASE_MIN_SIZE */
-    FLASH_ASSERT(addr % FLASH_ERASE_MIN_SIZE == 0);
+    EF_ASSERT(addr % ERASE_MIN_SIZE == 0);
     
     /* calculate pages */
     erase_pages = size / PAGE_SIZE;
@@ -145,7 +145,7 @@ FlashErrCode flash_erase(uint32_t addr, size_t size) {
     for (i = 0; i < erase_pages; i++) {
         flash_status = FLASH_ErasePage(addr + (PAGE_SIZE * i));
         if (flash_status != FLASH_COMPLETE) {
-            result = FLASH_ERASE_ERR;
+            result = EF_ERASE_ERR;
             break;
         }
     }
@@ -164,12 +164,12 @@ FlashErrCode flash_erase(uint32_t addr, size_t size) {
  *
  * @return result
  */
-FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_port_write(uint32_t addr, const uint32_t *buf, size_t size) {
+    EfErrCode result = EF_NO_ERR;
     size_t i;
     uint32_t read_data;
-	
-	FLASH_ASSERT(size % 4 == 0);
+
+    EF_ASSERT(size % 4 == 0);
 
     FLASH_Unlock();
     FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
@@ -179,7 +179,7 @@ FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size) {
         read_data = *(uint32_t *)addr;
         /* check data */
         if (read_data != *buf) {
-            result = FLASH_WRITE_ERR;
+            result = EF_WRITE_ERR;
             break;
         }
     }
@@ -191,14 +191,14 @@ FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size) {
 /**
  * lock the ENV ram cache
  */
-void flash_env_lock(void) {
+void ef_port_env_lock(void) {
     __disable_irq();
 }
 
 /**
  * unlock the ENV ram cache
  */
-void flash_env_unlock(void) {
+void ef_port_env_unlock(void) {
     __enable_irq();
 }
 
@@ -212,18 +212,18 @@ void flash_env_unlock(void) {
  * @param ... args
  *
  */
-void flash_log_debug(const char *file, const long line, const char *format, ...) {
+void ef_log_debug(const char *file, const long line, const char *format, ...) {
 
-#ifdef FLASH_PRINT_DEBUG
+#ifdef PRINT_DEBUG
 
     va_list args;
 
     /* args point to the first variable parameter */
     va_start(args, format);
-    flash_print("[Flash](%s:%ld) ", file, line);
+    ef_print("[Flash](%s:%ld) ", file, line);
     /* must use vprintf to print */
     vsprintf(log_buf, format, args);
-    flash_print("%s", log_buf);
+    ef_print("%s", log_buf);
     printf("\r");
     va_end(args);
 
@@ -237,15 +237,15 @@ void flash_log_debug(const char *file, const long line, const char *format, ...)
  * @param format output format
  * @param ... args
  */
-void flash_log_info(const char *format, ...) {
+void ef_log_info(const char *format, ...) {
     va_list args;
 
     /* args point to the first variable parameter */
     va_start(args, format);
-    flash_print("[Flash]");
+    ef_print("[Flash]");
     /* must use vprintf to print */
     vsprintf(log_buf, format, args);
-    flash_print("%s", log_buf);
+    ef_print("%s", log_buf);
     printf("\r");
     va_end(args);
 }
@@ -255,7 +255,7 @@ void flash_log_info(const char *format, ...) {
  * @param format output format
  * @param ... args
  */
-void flash_print(const char *format, ...) {
+void ef_print(const char *format, ...) {
     va_list args;
 
     /* args point to the first variable parameter */

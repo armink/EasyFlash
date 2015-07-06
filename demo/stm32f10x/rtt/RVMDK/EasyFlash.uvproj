@@ -461,34 +461,34 @@
           <GroupName>easyflash</GroupName>
           <Files>
             <File>
-              <FileName>flash_port.c</FileName>
+              <FileName>easyflash.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\components\easyflash\port\flash_port.c</FilePath>
+              <FilePath>..\..\..\..\easyflash\src\easyflash.c</FilePath>
             </File>
             <File>
-              <FileName>flash.c</FileName>
+              <FileName>ef_env.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\easyflash\src\flash.c</FilePath>
+              <FilePath>..\..\..\..\easyflash\src\ef_env.c</FilePath>
             </File>
             <File>
-              <FileName>flash_env.c</FileName>
+              <FileName>ef_env_wl.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\easyflash\src\flash_env.c</FilePath>
+              <FilePath>..\..\..\..\easyflash\src\ef_env_wl.c</FilePath>
             </File>
             <File>
-              <FileName>flash_env_wl.c</FileName>
+              <FileName>ef_iap.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\easyflash\src\flash_env_wl.c</FilePath>
+              <FilePath>..\..\..\..\easyflash\src\ef_iap.c</FilePath>
             </File>
             <File>
-              <FileName>flash_iap.c</FileName>
+              <FileName>ef_utils.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\easyflash\src\flash_iap.c</FilePath>
+              <FilePath>..\..\..\..\easyflash\src\ef_utils.c</FilePath>
             </File>
             <File>
-              <FileName>flash_utils.c</FileName>
+              <FileName>ef_port.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\easyflash\src\flash_utils.c</FilePath>
+              <FilePath>..\components\easyflash\port\ef_port.c</FilePath>
             </File>
           </Files>
         </Group>

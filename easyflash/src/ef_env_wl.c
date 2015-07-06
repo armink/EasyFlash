@@ -26,13 +26,13 @@
  * Created on: 2015-02-11
  */
 
-#include "flash.h"
+#include "easyflash.h"
 #include <string.h>
 #include <stdlib.h>
 
-#ifdef FLASH_USING_ENV
+#ifdef EF_USING_ENV
 
-#ifdef FLASH_ENV_USING_WEAR_LEVELING_MODE
+#ifdef EF_ENV_USING_WL_MODE
 
 /**
  * ENV area has 2 sections
@@ -65,7 +65,7 @@ enum {
 };
 
 /* default ENV set, must be initialized by user */
-static flash_env const *default_env_set = NULL;
+static ef_env const *default_env_set = NULL;
 /* default ENV set size, must be initialized by user */
 static size_t default_env_set_size = NULL;
 /* flash ENV all section total size */
@@ -73,7 +73,7 @@ static size_t env_total_size = NULL;
 /* the minimum size of flash erasure */
 static size_t flash_erase_min_size = NULL;
 /* ENV RAM cache */
-static uint32_t env_cache[FLASH_USER_SETTING_ENV_SIZE / 4] = { 0 };
+static uint32_t env_cache[EF_USER_SETTING_ENV_SIZE / 4] = { 0 };
 /* ENV start address in flash */
 static uint32_t env_start_addr = NULL;
 /* current using data section address */
@@ -85,13 +85,13 @@ static uint32_t get_env_detail_addr(void);
 static uint32_t get_env_detail_end_addr(void);
 static void set_cur_using_data_addr(uint32_t using_data_addr);
 static void set_env_detail_end_addr(uint32_t end_addr);
-static FlashErrCode write_env(const char *key, const char *value);
+static EfErrCode write_env(const char *key, const char *value);
 static uint32_t *find_env(const char *key);
 static size_t get_env_detail_size(void);
 static size_t get_env_user_used_size(void);
-static FlashErrCode create_env(const char *key, const char *value);
-static FlashErrCode del_env(const char *key);
-static FlashErrCode save_cur_using_data_addr(uint32_t cur_data_addr);
+static EfErrCode create_env(const char *key, const char *value);
+static EfErrCode del_env(const char *key);
+static EfErrCode save_cur_using_data_addr(uint32_t cur_data_addr);
 static uint32_t calc_env_crc(void);
 static bool env_crc_is_ok(void);
 
@@ -106,20 +106,20 @@ static bool env_crc_is_ok(void);
  *
  * @return result
  */
-FlashErrCode flash_env_init(uint32_t start_addr, size_t total_size, size_t erase_min_size,
-        flash_env const *default_env, size_t default_env_size) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_env_init(uint32_t start_addr, size_t total_size, size_t erase_min_size,
+        ef_env const *default_env, size_t default_env_size) {
+    EfErrCode result = EF_NO_ERR;
 
-    FLASH_ASSERT(start_addr);
-    FLASH_ASSERT(total_size);
-    FLASH_ASSERT(erase_min_size);
-    FLASH_ASSERT(default_env);
-    FLASH_ASSERT(default_env_size < FLASH_USER_SETTING_ENV_SIZE);
+    EF_ASSERT(start_addr);
+    EF_ASSERT(total_size);
+    EF_ASSERT(erase_min_size);
+    EF_ASSERT(default_env);
+    EF_ASSERT(default_env_size < EF_USER_SETTING_ENV_SIZE);
     /* must be word alignment for ENV */
-    FLASH_ASSERT(FLASH_USER_SETTING_ENV_SIZE % 4 == 0);
-    FLASH_ASSERT(total_size % 4 == 0);
+    EF_ASSERT(EF_USER_SETTING_ENV_SIZE % 4 == 0);
+    EF_ASSERT(total_size % 4 == 0);
     /* the ENV total size should be an integral multiple of erase minimum size. */
-    FLASH_ASSERT(total_size % erase_min_size == 0);
+    EF_ASSERT(total_size % erase_min_size == 0);
 
     env_start_addr = start_addr;
     env_total_size = total_size;
@@ -127,9 +127,9 @@ FlashErrCode flash_env_init(uint32_t start_addr, size_t total_size, size_t erase
     default_env_set = default_env;
     default_env_set_size = default_env_size;
 
-    FLASH_DEBUG("Env start address is 0x%08X, size is %d bytes.\n", start_addr, total_size);
+    EF_DEBUG("Env start address is 0x%08X, size is %d bytes.\n", start_addr, total_size);
 
-    flash_load_env();
+    ef_load_env();
 
     return result;
 }
@@ -139,15 +139,15 @@ FlashErrCode flash_env_init(uint32_t start_addr, size_t total_size, size_t erase
  *
  * @return result
  */
-FlashErrCode flash_env_set_default(void){
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_env_set_default(void){
+    EfErrCode result = EF_NO_ERR;
     size_t i;
 
-    FLASH_ASSERT(default_env_set);
-    FLASH_ASSERT(default_env_set_size);
+    EF_ASSERT(default_env_set);
+    EF_ASSERT(default_env_set_size);
 
     /* lock the ENV cache */
-    flash_env_lock();
+    ef_port_env_lock();
 
     /* set ENV detail part end address is at ENV detail part start address */
     set_env_detail_end_addr(get_env_detail_addr());
@@ -158,9 +158,9 @@ FlashErrCode flash_env_set_default(void){
     }
 
     /* unlock the ENV cache */
-    flash_env_unlock();
+    ef_port_env_unlock();
 
-    flash_save_env();
+    ef_save_env();
 
     return result;
 }
@@ -171,7 +171,7 @@ FlashErrCode flash_env_set_default(void){
  * @return ENV start address in flash
  */
 static uint32_t get_env_start_addr(void) {
-    FLASH_ASSERT(env_start_addr);
+    EF_ASSERT(env_start_addr);
     return env_start_addr;
 }
 /**
@@ -180,7 +180,7 @@ static uint32_t get_env_start_addr(void) {
  * @return current using data section address
  */
 static uint32_t get_cur_using_data_addr(void) {
-    FLASH_ASSERT(cur_using_data_addr);
+    EF_ASSERT(cur_using_data_addr);
     return cur_using_data_addr;
 }
 
@@ -199,7 +199,7 @@ static void set_cur_using_data_addr(uint32_t using_data_addr) {
  * @return detail part start address
  */
 static uint32_t get_env_detail_addr(void) {
-    FLASH_ASSERT(cur_using_data_addr);
+    EF_ASSERT(cur_using_data_addr);
     return get_cur_using_data_addr() + ENV_PARAM_PART_BYTE_SIZE;
 }
 
@@ -236,7 +236,7 @@ static size_t get_env_detail_size(void) {
 /**
  * Get current user used ENV size.
  *
- * @see FLASH_USER_SETTING_ENV_SIZE
+ * @see EF_USER_SETTING_ENV_SIZE
  *
  * @return size
  */
@@ -251,7 +251,7 @@ static size_t get_env_user_used_size(void) {
  *
  * @return write bytes
  */
-size_t flash_get_env_write_bytes(void) {
+size_t ef_get_env_write_bytes(void) {
     return get_env_detail_end_addr() - get_env_start_addr();
 }
 
@@ -262,9 +262,9 @@ size_t flash_get_env_write_bytes(void) {
  *
  * @return size
  */
-size_t flash_get_env_total_size(void) {
+size_t ef_get_env_total_size(void) {
     /* must be initialized */
-    FLASH_ASSERT(env_total_size);
+    EF_ASSERT(env_total_size);
 
     return env_total_size;
 }
@@ -277,8 +277,8 @@ size_t flash_get_env_total_size(void) {
  *
  * @return result
  */
-static FlashErrCode write_env(const char *key, const char *value) {
-    FlashErrCode result = FLASH_NO_ERR;
+static EfErrCode write_env(const char *key, const char *value) {
+    EfErrCode result = EF_NO_ERR;
     size_t ker_len = strlen(key), value_len = strlen(value), env_str_len;
     char *env_cache_bak = (char *)env_cache;
 
@@ -288,8 +288,8 @@ static FlashErrCode write_env(const char *key, const char *value) {
         env_str_len = (env_str_len / 4 + 1) * 4;
     }
     /* check capacity of ENV  */
-    if (env_str_len + get_env_detail_size() >= FLASH_USER_SETTING_ENV_SIZE) {
-        return FLASH_ENV_FULL;
+    if (env_str_len + get_env_detail_size() >= EF_USER_SETTING_ENV_SIZE) {
+        return EF_ENV_FULL;
     }
     /* calculate current ENV ram cache end address */
     env_cache_bak += ENV_PARAM_PART_BYTE_SIZE + get_env_detail_size();
@@ -324,10 +324,10 @@ static uint32_t *find_env(const char *key) {
     char *env_start, *env_end, *env;
     size_t key_len = strlen(key), env_len;
 
-    FLASH_ASSERT(cur_using_data_addr);
+    EF_ASSERT(cur_using_data_addr);
 
     if (*key == NULL) {
-        FLASH_INFO("Flash ENV name must be not empty!\n");
+        EF_INFO("Flash ENV name must be not empty!\n");
         return NULL;
     }
 
@@ -370,26 +370,26 @@ static uint32_t *find_env(const char *key) {
  *
  * @return result
  */
-static FlashErrCode create_env(const char *key, const char *value) {
-    FlashErrCode result = FLASH_NO_ERR;
+static EfErrCode create_env(const char *key, const char *value) {
+    EfErrCode result = EF_NO_ERR;
 
-    FLASH_ASSERT(key);
-    FLASH_ASSERT(value);
+    EF_ASSERT(key);
+    EF_ASSERT(value);
 
     if (*key == NULL) {
-        FLASH_INFO("Flash ENV name must be not empty!\n");
-        return FLASH_ENV_NAME_ERR;
+        EF_INFO("Flash ENV name must be not empty!\n");
+        return EF_ENV_NAME_ERR;
     }
 
     if (strchr(key, '=')) {
-        FLASH_INFO("Flash ENV name can't contain '='.\n");
-        return FLASH_ENV_NAME_ERR;
+        EF_INFO("Flash ENV name can't contain '='.\n");
+        return EF_ENV_NAME_ERR;
     }
 
     /* find ENV */
     if (find_env(key)) {
-        FLASH_INFO("The name of \"%s\" is already exist.\n", key);
-        return FLASH_ENV_NAME_EXIST;
+        EF_INFO("The name of \"%s\" is already exist.\n", key);
+        return EF_ENV_NAME_EXIST;
     }
     /* write ENV at the end of cache */
     result = write_env(key, value);
@@ -404,29 +404,29 @@ static FlashErrCode create_env(const char *key, const char *value) {
  *
  * @return result
  */
-static FlashErrCode del_env(const char *key) {
-    FlashErrCode result = FLASH_NO_ERR;
+static EfErrCode del_env(const char *key) {
+    EfErrCode result = EF_NO_ERR;
     char *del_env_str = NULL;
     size_t del_env_length, remain_env_length;
 
-    FLASH_ASSERT(key);
+    EF_ASSERT(key);
 
     if (*key == NULL) {
-        FLASH_INFO("Flash ENV name must be not NULL!\n");
-        return FLASH_ENV_NAME_ERR;
+        EF_INFO("Flash ENV name must be not NULL!\n");
+        return EF_ENV_NAME_ERR;
     }
 
     if (strchr(key, '=')) {
-        FLASH_INFO("Flash ENV name or value can't contain '='.\n");
-        return FLASH_ENV_NAME_ERR;
+        EF_INFO("Flash ENV name or value can't contain '='.\n");
+        return EF_ENV_NAME_ERR;
     }
 
     /* find ENV */
     del_env_str = (char *) find_env(key);
 
     if (!del_env_str) {
-        FLASH_INFO("Not find \"%s\" in ENV.\n", key);
-        return FLASH_ENV_NAME_ERR;
+        EF_INFO("Not find \"%s\" in ENV.\n", key);
+        return EF_ENV_NAME_ERR;
     }
     del_env_length = strlen(del_env_str);
     /* '\0' also must be as ENV length */
@@ -455,11 +455,11 @@ static FlashErrCode del_env(const char *key) {
  *
  * @return result
  */
-FlashErrCode flash_set_env(const char *key, const char *value) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_set_env(const char *key, const char *value) {
+    EfErrCode result = EF_NO_ERR;
 
     /* lock the ENV cache */
-    flash_env_lock();
+    ef_port_env_lock();
 
     /* if ENV value is empty, delete it */
     if (*value == NULL) {
@@ -469,12 +469,12 @@ FlashErrCode flash_set_env(const char *key, const char *value) {
         if (find_env(key)) {
             result = del_env(key);
         }
-        if (result == FLASH_NO_ERR) {
+        if (result == EF_NO_ERR) {
             result = create_env(key, value);
         }
     }
     /* unlock the ENV cache */
-    flash_env_unlock();
+    ef_port_env_unlock();
 
     return result;
 }
@@ -486,7 +486,7 @@ FlashErrCode flash_set_env(const char *key, const char *value) {
  *
  * @return value
  */
-char *flash_get_env(const char *key) {
+char *ef_get_env(const char *key) {
     uint32_t *env_cache_addr = NULL;
     char *value = NULL;
 
@@ -507,9 +507,8 @@ char *flash_get_env(const char *key) {
 /**
  * Print ENV.
  */
-void flash_print_env(void) {
-    uint32_t *env_cache_detail_addr = env_cache + ENV_PARAM_PART_WORD_SIZE,
-            *env_cache_end_addr =
+void ef_print_env(void) {
+    uint32_t *env_cache_detail_addr = env_cache + ENV_PARAM_PART_WORD_SIZE, *env_cache_end_addr =
             (uint32_t *) (env_cache + ENV_PARAM_PART_WORD_SIZE + get_env_detail_size() / 4);
     uint8_t j;
     char c;
@@ -517,58 +516,58 @@ void flash_print_env(void) {
     for (; env_cache_detail_addr < env_cache_end_addr; env_cache_detail_addr += 1) {
         for (j = 0; j < 4; j++) {
             c = (*env_cache_detail_addr) >> (8 * j);
-            flash_print("%c", c);
+            ef_print("%c", c);
             if (c == NULL) {
-                flash_print("\n");
+                ef_print("\n");
                 break;
             }
         }
     }
-    flash_print("\nENV size: %ld/%ld bytes, write bytes %ld/%ld, mode: wear leveling.\n",
-            get_env_user_used_size(), FLASH_USER_SETTING_ENV_SIZE, flash_get_env_write_bytes(),
-            flash_get_env_total_size());
+    ef_print("\nENV size: %ld/%ld bytes, write bytes %ld/%ld, mode: wear leveling.\n",
+            get_env_user_used_size(), EF_USER_SETTING_ENV_SIZE, ef_get_env_write_bytes(),
+            ef_get_env_total_size());
 }
 
 /**
  * Load flash ENV to ram.
  */
-void flash_load_env(void) {
+void ef_load_env(void) {
     uint32_t *env_cache_bak, env_end_addr, using_data_addr;
 
     /* read current using data section address */
-    flash_read(get_env_start_addr(), &using_data_addr, 4);
+    ef_port_read(get_env_start_addr(), &using_data_addr, 4);
     /* if ENV is not initialize or flash has dirty data, set default for it */
     if ((using_data_addr == 0xFFFFFFFF)
-            || (using_data_addr > get_env_start_addr() + flash_get_env_total_size())
+            || (using_data_addr > get_env_start_addr() + ef_get_env_total_size())
             || (using_data_addr < get_env_start_addr() + flash_erase_min_size)) {
         /* initialize current using data section address */
         set_cur_using_data_addr(get_env_start_addr() + flash_erase_min_size);
         /* save current using data section address to flash*/
         save_cur_using_data_addr(get_cur_using_data_addr());
         /* set default ENV */
-        flash_env_set_default();
+        ef_env_set_default();
     } else {
         /* set current using data section address */
         set_cur_using_data_addr(using_data_addr);
         /* read ENV detail part end address from flash */
-        flash_read(get_cur_using_data_addr() + ENV_PARAM_PART_INDEX_END_ADDR * 4, &env_end_addr, 4);
+        ef_port_read(get_cur_using_data_addr() + ENV_PARAM_PART_INDEX_END_ADDR * 4, &env_end_addr, 4);
         /* if ENV end address has error, set default for ENV */
-        if (env_end_addr > get_env_start_addr() + flash_get_env_total_size()) {
-            flash_env_set_default();
+        if (env_end_addr > get_env_start_addr() + ef_get_env_total_size()) {
+            ef_env_set_default();
         } else {
             /* set ENV detail part end address */
             set_env_detail_end_addr(env_end_addr);
 
             env_cache_bak = env_cache + ENV_PARAM_PART_WORD_SIZE;
             /* read all ENV from flash */
-            flash_read(get_env_detail_addr(), env_cache_bak, get_env_detail_size());
+            ef_port_read(get_env_detail_addr(), env_cache_bak, get_env_detail_size());
             /* read ENV CRC code from flash */
-            flash_read(get_cur_using_data_addr() + ENV_PARAM_PART_INDEX_DATA_CRC * 4,
+            ef_port_read(get_cur_using_data_addr() + ENV_PARAM_PART_INDEX_DATA_CRC * 4,
                     &env_cache[ENV_PARAM_PART_INDEX_DATA_CRC], 4);
             /* if ENV CRC32 check is fault, set default for it */
             if (!env_crc_is_ok()) {
-                FLASH_INFO("Warning: ENV CRC check failed. Set it to default.\n");
-                flash_env_set_default();
+                EF_INFO("Warning: ENV CRC check failed. Set it to default.\n");
+                ef_env_set_default();
             }
         }
 
@@ -578,26 +577,26 @@ void flash_load_env(void) {
 /**
  * Save ENV to flash.
  */
-FlashErrCode flash_save_env(void) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_save_env(void) {
+    EfErrCode result = EF_NO_ERR;
     uint32_t cur_data_addr_bak = get_cur_using_data_addr(), move_offset_addr;
     size_t env_detail_size = get_env_detail_size();
 
     /* wear leveling process, automatic move ENV to next available position */
     while (get_cur_using_data_addr() + env_detail_size
-            < get_env_start_addr() + flash_get_env_total_size()) {
+            < get_env_start_addr() + ef_get_env_total_size()) {
         /* calculate and cache CRC32 code */
         env_cache[ENV_PARAM_PART_INDEX_DATA_CRC] = calc_env_crc();
         /* erase ENV */
-        result = flash_erase(get_cur_using_data_addr(), ENV_PARAM_PART_BYTE_SIZE + env_detail_size);
+        result = ef_port_erase(get_cur_using_data_addr(), ENV_PARAM_PART_BYTE_SIZE + env_detail_size);
         switch (result) {
-        case FLASH_NO_ERR: {
-            FLASH_INFO("Erased ENV OK.\n");
+        case EF_NO_ERR: {
+            EF_INFO("Erased ENV OK.\n");
             break;
         }
-        case FLASH_ERASE_ERR: {
-            FLASH_INFO("Warning: Erased ENV fault!\n");
-            FLASH_INFO("Moving ENV to next available position.\n");
+        case EF_ERASE_ERR: {
+            EF_INFO("Warning: Erased ENV fault!\n");
+            EF_INFO("Moving ENV to next available position.\n");
             /* Calculate move offset address.
              * Current strategy is optimistic. It will offset the flash erasure minimum size.
              */
@@ -610,16 +609,16 @@ FlashErrCode flash_save_env(void) {
         }
         }
         /* write ENV to flash */
-        result = flash_write(get_cur_using_data_addr(), env_cache,
+        result = ef_port_write(get_cur_using_data_addr(), env_cache,
                 ENV_PARAM_PART_BYTE_SIZE + env_detail_size);
         switch (result) {
-        case FLASH_NO_ERR: {
-            FLASH_INFO("Saved ENV OK.\n");
+        case EF_NO_ERR: {
+            EF_INFO("Saved ENV OK.\n");
             break;
         }
-        case FLASH_WRITE_ERR: {
-            FLASH_INFO("Warning: Saved ENV fault!\n");
-            FLASH_INFO("Moving ENV to next available position.\n");
+        case EF_WRITE_ERR: {
+            EF_INFO("Warning: Saved ENV fault!\n");
+            EF_INFO("Moving ENV to next available position.\n");
             /* Calculate move offset address.
              * Current strategy is optimistic. It will offset the flash erasure minimum size.
              */
@@ -632,20 +631,20 @@ FlashErrCode flash_save_env(void) {
         }
         }
         /* save ENV success */
-        if (result == FLASH_NO_ERR) {
+        if (result == EF_NO_ERR) {
             break;
         }
     }
 
     if (get_cur_using_data_addr() + env_detail_size
-            < get_env_start_addr() + flash_get_env_total_size()) {
+            < get_env_start_addr() + ef_get_env_total_size()) {
         /* current using data section address has changed, save it */
         if (get_cur_using_data_addr() != cur_data_addr_bak) {
             save_cur_using_data_addr(get_cur_using_data_addr());
         }
     } else {
-        result = FLASH_ENV_FULL;
-        FLASH_INFO("Error: The flash has no available space to save ENV.\n");
+        result = EF_ENV_FULL;
+        EF_INFO("Error: The flash has no available space to save ENV.\n");
         /* clear current using data section address on flash */
         save_cur_using_data_addr(0xFFFFFFFF);
     }
@@ -665,7 +664,7 @@ static uint32_t calc_env_crc(void) {
      * The 4 is ENV end address bytes size. */
     crc32 = calc_crc32(crc32, &env_cache[ENV_PARAM_PART_INDEX_END_ADDR], 4);
     crc32 = calc_crc32(crc32, &env_cache[ENV_PARAM_PART_WORD_SIZE], get_env_detail_size());
-    FLASH_DEBUG("Calculate Env CRC32 number is 0x%08X.\n", crc32);
+    EF_DEBUG("Calculate Env CRC32 number is 0x%08X.\n", crc32);
 
     return crc32;
 }
@@ -677,7 +676,7 @@ static uint32_t calc_env_crc(void) {
  */
 static bool env_crc_is_ok(void) {
     if (calc_env_crc() == env_cache[ENV_PARAM_PART_INDEX_DATA_CRC]) {
-        FLASH_DEBUG("Verify Env CRC32 result is OK.\n");
+        EF_DEBUG("Verify Env CRC32 result is OK.\n");
         return true;
     } else {
         return false;
@@ -691,24 +690,24 @@ static bool env_crc_is_ok(void) {
  *
  * @return result
  */
-static FlashErrCode save_cur_using_data_addr(uint32_t cur_data_addr) {
-    FlashErrCode result = FLASH_NO_ERR;
+static EfErrCode save_cur_using_data_addr(uint32_t cur_data_addr) {
+    EfErrCode result = EF_NO_ERR;
     /* erase ENV system section */
-    result = flash_erase(get_env_start_addr(), 4);
-    if (result == FLASH_NO_ERR) {
+    result = ef_port_erase(get_env_start_addr(), 4);
+    if (result == EF_NO_ERR) {
         /* write current using data section address to flash */
-        result = flash_write(get_env_start_addr(), &cur_data_addr, 4);
-        if (result == FLASH_WRITE_ERR) {
-            FLASH_INFO("Error: Write system section fault!\n");
-            FLASH_INFO("Note: The ENV can not be used.\n");
+        result = ef_port_write(get_env_start_addr(), &cur_data_addr, 4);
+        if (result == EF_WRITE_ERR) {
+            EF_INFO("Error: Write system section fault!\n");
+            EF_INFO("Note: The ENV can not be used.\n");
         }
     } else {
-        FLASH_INFO("Error: Erased system section fault!\n");
-        FLASH_INFO("Note: The ENV can not be used\n");
+        EF_INFO("Error: Erased system section fault!\n");
+        EF_INFO("Note: The ENV can not be used\n");
     }
     return result;
 }
 
-#endif /* FLASH_ENV_USING_WEAR_LEVELING_MODE */
+#endif /* EF_ENV_USING_WL_MODE */
 
-#endif /* FLASH_USING_ENV */
+#endif /* EF_USING_ENV */

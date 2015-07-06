@@ -26,23 +26,23 @@
  * Created on: 2015-01-16
  */
 
-#include "flash.h"
+#include "easyflash.h"
 
 /* environment variables start address */
-#define FLASH_ENV_START_ADDR               /* @note you must define it for a value */
+#define ENV_START_ADDR               /* @note you must define it for a value */
 /* the minimum size of flash erasure */
-#define FLASH_ERASE_MIN_SIZE               /* @note you must define it for a value */
-#ifdef FLASH_ENV_USING_WEAR_LEVELING_MODE
+#define ERASE_MIN_SIZE               /* @note you must define it for a value */
+#ifdef EF_ENV_USING_WL_MODE
 /* ENV section total bytes size in wear leveling mode. */
-#define FLASH_ENV_SECTION_SIZE             /* @note you must define it for a value */
+#define ENV_SECTION_SIZE             /* @note you must define it for a value */
 #else
 /* ENV section total bytes size in normal mode. It's equal with FLASH_USER_SETTING_ENV_SIZE */
-#define FLASH_ENV_SECTION_SIZE          (FLASH_USER_SETTING_ENV_SIZE)
+#define ENV_SECTION_SIZE          (EF_USER_SETTING_ENV_SIZE)
 #endif
 /* saved log section size */
-#define FLASH_LOG_AREA_SIZE               /* @note you must define it for a value */
+#define LOG_AREA_SIZE               /* @note you must define it for a value */
 /* print debug information of flash */
-#define FLASH_PRINT_DEBUG
+#define PRINT_DEBUG
 
 /* default environment variables set for user */
 static const flash_env default_env_set[] = {
@@ -61,19 +61,19 @@ static const flash_env default_env_set[] = {
  *
  * @return result
  */
-FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size, size_t *erase_min_size,
-        flash_env const **default_env, size_t *default_env_size, size_t *log_size) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_port_init(uint32_t *env_addr, size_t *env_total_size, size_t *erase_min_size,
+        ef_env const **default_env, size_t *default_env_size, size_t *log_size) {
+    EfErrCode result = EF_NO_ERR;
 
-    FLASH_ASSERT(FLASH_USER_SETTING_ENV_SIZE % 4 == 0);
-    FLASH_ASSERT(FLASH_ENV_SECTION_SIZE % 4 == 0);
+    EF_ASSERT(EF_USER_SETTING_ENV_SIZE % 4 == 0);
+    EF_ASSERT(ENV_SECTION_SIZE % 4 == 0);
 
-    *env_addr = FLASH_ENV_START_ADDR;
-    *env_total_size = FLASH_ENV_SECTION_SIZE;
-    *erase_min_size = FLASH_ERASE_MIN_SIZE;
+    *env_addr = ENV_START_ADDR;
+    *env_total_size = ENV_SECTION_SIZE;
+    *erase_min_size = ERASE_MIN_SIZE;
     *default_env = default_env_set;
-    *default_env_size = sizeof(default_env_set)/sizeof(default_env_set[0]);
-    *log_size = FLASH_LOG_AREA_SIZE;
+    *default_env_size = sizeof(default_env_set) / sizeof(default_env_set[0]);
+    *log_size = LOG_AREA_SIZE;
 
     return result;
 }
@@ -88,10 +88,10 @@ FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size, size_t 
  *
  * @return result
  */
-FlashErrCode flash_read(uint32_t addr, uint32_t *buf, size_t size) {
-    FlashErrCode result = FLASH_NO_ERR;
-	
-    FLASH_ASSERT(size % 4 == 0);
+EfErrCode ef_port_read(uint32_t addr, uint32_t *buf, size_t size) {
+    EfErrCode result = EF_NO_ERR;
+
+    EF_ASSERT(size % 4 == 0);
 
     /* You can add your code under here. */
 
@@ -108,11 +108,11 @@ FlashErrCode flash_read(uint32_t addr, uint32_t *buf, size_t size) {
  *
  * @return result
  */
-FlashErrCode flash_erase(uint32_t addr, size_t size) {
-    FlashErrCode result = FLASH_NO_ERR;
-	
-	/* make sure the start address is a multiple of FLASH_ERASE_MIN_SIZE */
-    FLASH_ASSERT(addr % FLASH_ERASE_MIN_SIZE == 0);
+EfErrCode ef_port_erase(uint32_t addr, size_t size) {
+    EfErrCode result = EF_NO_ERR;
+
+    /* make sure the start address is a multiple of ERASE_MIN_SIZE */
+    EF_ASSERT(addr % ERASE_MIN_SIZE == 0);
 
 	/* You can add your code under here. */
 
@@ -129,10 +129,10 @@ FlashErrCode flash_erase(uint32_t addr, size_t size) {
  *
  * @return result
  */
-FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_port_write(uint32_t addr, const uint32_t *buf, size_t size) {
+    EfErrCode result = EF_NO_ERR;
 
-	FLASH_ASSERT(size % 4 == 0);
+    EF_ASSERT(size % 4 == 0);
 	
 	/* You can add your code under here. */
 
@@ -142,7 +142,7 @@ FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size) {
 /**
  * lock the ENV ram cache
  */
-void flash_env_lock(void) {
+void ef_port_env_lock(void) {
 	
     /* You can add your code under here. */
 	
@@ -151,7 +151,7 @@ void flash_env_lock(void) {
 /**
  * unlock the ENV ram cache
  */
-void flash_env_unlock(void) {
+void ef_port_env_unlock(void) {
 	
     /* You can add your code under here. */
 	
@@ -167,9 +167,9 @@ void flash_env_unlock(void) {
  * @param ... args
  *
  */
-void flash_log_debug(const char *file, const long line, const char *format, ...) {
+void ef_log_debug(const char *file, const long line, const char *format, ...) {
 
-#ifdef FLASH_PRINT_DEBUG
+#ifdef PRINT_DEBUG
 
     va_list args;
 
@@ -190,7 +190,7 @@ void flash_log_debug(const char *file, const long line, const char *format, ...)
  * @param format output format
  * @param ... args
  */
-void flash_log_info(const char *format, ...) {
+void ef_log_info(const char *format, ...) {
     va_list args;
 
     /* args point to the first variable parameter */
@@ -206,7 +206,7 @@ void flash_log_info(const char *format, ...) {
  * @param format output format
  * @param ... args
  */
-void flash_print(const char *format, ...) {
+void ef_print(const char *format, ...) {
     va_list args;
 
     /* args point to the first variable parameter */

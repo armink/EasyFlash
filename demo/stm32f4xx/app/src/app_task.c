@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "bsp.h"
-#include "flash.h"
+#include "easyflash.h"
 #include "finsh.h"
 #include "shell.h"
 #include "delay_conf.h"
@@ -56,7 +56,7 @@ void test_env(void) {
     char *c_old_boot_times, c_new_boot_times[11] = {0};
 
     /* get the boot count number from Env */
-    c_old_boot_times = flash_get_env("boot_times");
+    c_old_boot_times = ef_get_env("boot_times");
     RT_ASSERT(c_old_boot_times);
     i_boot_times = atol(c_old_boot_times);
     /* boot count +1 */
@@ -65,8 +65,8 @@ void test_env(void) {
     /* interger to string */
     sprintf(c_new_boot_times,"%ld", i_boot_times);
     /* set and store the boot count number to Env */
-    flash_set_env("boot_times", c_new_boot_times);
-    flash_save_env();
+    ef_set_env("boot_times", c_new_boot_times);
+    ef_save_env();
 }
 
 /**
@@ -78,7 +78,7 @@ void sys_init_thread(void* parameter){
 	set_system_status(SYSTEM_STATUS_INIT);
 
     /* EasyFlash initialization */
-    if (flash_init() == FLASH_NO_ERR) {
+    if (easyflash_init() == EF_NO_ERR) {
         /* initialize OK and switch to running status */
         set_system_status(SYSTEM_STATUS_RUN);
 		/* test Env demo */

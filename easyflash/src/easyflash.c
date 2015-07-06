@@ -50,66 +50,66 @@
  * 2.data section.(storage all environment variables)
  *
  */
-#include "flash.h"
+#include "easyflash.h"
 
 /**
- * Flash system initialize.
+ * EasyFlash system initialize.
  *
  * @return result
  */
-FlashErrCode flash_init(void) {
-    extern FlashErrCode flash_port_init(uint32_t *env_addr, size_t *env_total_size,
-            size_t *erase_min_size, flash_env const **default_env, size_t *default_env_size,
+EfErrCode easyflash_init(void) {
+    extern EfErrCode ef_port_init(uint32_t *env_addr, size_t *env_total_size,
+            size_t *erase_min_size, ef_env const **default_env, size_t *default_env_size,
             size_t *log_size);
-    extern FlashErrCode flash_env_init(uint32_t start_addr, size_t total_size,
-            size_t erase_min_size, flash_env const *default_env, size_t default_env_size);
-    extern FlashErrCode flash_iap_init(uint32_t start_addr);
-    extern FlashErrCode flash_log_init(uint32_t start_addr, size_t log_size, size_t erase_min_size);
+    extern EfErrCode ef_env_init(uint32_t start_addr, size_t total_size, size_t erase_min_size,
+            ef_env const *default_env, size_t default_env_size);
+    extern EfErrCode ef_iap_init(uint32_t start_addr);
+    extern EfErrCode ef_log_init(uint32_t start_addr, size_t log_size, size_t erase_min_size);
 
     uint32_t env_start_addr;
     size_t env_total_size = 0, erase_min_size = 0, default_env_set_size = 0, log_size = 0;
-    const flash_env *default_env_set;
-    FlashErrCode result = FLASH_NO_ERR;
+    const ef_env *default_env_set;
+    EfErrCode result = EF_NO_ERR;
 
-    result = flash_port_init(&env_start_addr, &env_total_size, &erase_min_size, &default_env_set,
+    result = ef_port_init(&env_start_addr, &env_total_size, &erase_min_size, &default_env_set,
             &default_env_set_size, &log_size);
 
-#ifdef FLASH_USING_ENV
-    if (result == FLASH_NO_ERR) {
-        result = flash_env_init(env_start_addr, env_total_size, erase_min_size, default_env_set,
+#ifdef EF_USING_ENV
+    if (result == EF_NO_ERR) {
+        result = ef_env_init(env_start_addr, env_total_size, erase_min_size, default_env_set,
                 default_env_set_size);
     }
 #endif
 
-#ifdef FLASH_USING_IAP
-    if (result == FLASH_NO_ERR) {
-        if (flash_get_env_total_size() < erase_min_size) {
-            result = flash_iap_init(env_start_addr + erase_min_size + log_size);
-        } else if (flash_get_env_total_size() % erase_min_size == 0) {
-            result = flash_iap_init(env_start_addr + flash_get_env_total_size() + log_size);
+#ifdef EF_USING_IAP
+    if (result == EF_NO_ERR) {
+        if (ef_get_env_total_size() < erase_min_size) {
+            result = ef_iap_init(env_start_addr + erase_min_size + log_size);
+        } else if (ef_get_env_total_size() % erase_min_size == 0) {
+            result = ef_iap_init(env_start_addr + ef_get_env_total_size() + log_size);
         } else {
-            result = flash_iap_init((flash_get_env_total_size() / erase_min_size + 1) * erase_min_size + log_size);
+            result = ef_iap_init((ef_get_env_total_size() / erase_min_size + 1) * erase_min_size + log_size);
         }
     }
 #endif
 
-#ifdef FLASH_USING_LOG
-    if (result == FLASH_NO_ERR) {
-        if (flash_get_env_total_size() < erase_min_size) {
-            result = flash_log_init(env_start_addr + erase_min_size, log_size, erase_min_size);
-        } else if (flash_get_env_total_size() % erase_min_size == 0) {
-            result = flash_log_init(env_start_addr + flash_get_env_total_size(), log_size, erase_min_size);
+#ifdef EF_USING_LOG
+    if (result == EF_NO_ERR) {
+        if (ef_get_env_total_size() < erase_min_size) {
+            result = ef_log_init(env_start_addr + erase_min_size, log_size, erase_min_size);
+        } else if (ef_get_env_total_size() % erase_min_size == 0) {
+            result = ef_log_init(env_start_addr + ef_get_env_total_size(), log_size, erase_min_size);
         } else {
-            result = flash_log_init((flash_get_env_total_size() / erase_min_size + 1) * erase_min_size,
+            result = ef_log_init((ef_get_env_total_size() / erase_min_size + 1) * erase_min_size,
                     log_size, erase_min_size);
         }
     }
 #endif
 
-    if (result == FLASH_NO_ERR) {
-        FLASH_DEBUG("EasyFlash V%s is initialize success.\n", FLASH_SW_VERSION);
+    if (result == EF_NO_ERR) {
+        EF_DEBUG("EasyFlash V%s is initialize success.\n", EF_SW_VERSION);
     } else {
-        FLASH_DEBUG("EasyFlash V%s is initialize fail.\n", FLASH_SW_VERSION);
+        EF_DEBUG("EasyFlash V%s is initialize fail.\n", EF_SW_VERSION);
     }
 
     return result;

@@ -22,13 +22,13 @@ EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Mi
 
 |源文件                                 |描述   |
 |:------------------------------        |:----- |
-|\easyflash\src\flash_env.c             |Env（常规模式）相关操作接口及实现源码|
-|\easyflash\src\flash_env_wl.c          |Env（磨损平衡模式）相关操作接口及实现源码|
-|\easyflash\src\flash_iap.c             |IAP 相关操作接口及实现源码|
-|\easyflash\src\flash_log.c             |Log 相关操作接口及实现源码|
-|\easyflash\src\flash_utils.c           |EasyFlash常用小工具，例如：CRC32|
-|\easyflash\src\flash.c                 |目前只包含EasyFlash初始化方法|
-|\easyflash\port\flash_port.c           |不同平台下的EasyFlash移植接口及配置参数|
+|\easyflash\src\ef_env.c                |Env（常规模式）相关操作接口及实现源码|
+|\easyflash\src\ef_env_wl.c             |Env（磨损平衡模式）相关操作接口及实现源码|
+|\easyflash\src\ef_iap.c                |IAP 相关操作接口及实现源码|
+|\easyflash\src\ef_log.c                |Log 相关操作接口及实现源码|
+|\easyflash\src\ef_utils.c              |EasyFlash常用小工具，例如：CRC32|
+|\easyflash\src\easyflash.c             |目前只包含EasyFlash初始化方法|
+|\easyflash\port\ef_port.c              |不同平台下的EasyFlash移植接口及配置参数|
 |\demo\stm32f10x\non_os                 |stm32f10x裸机的demo|
 |\demo\stm32f10x\rtt                    |stm32f10x基于[RT-Thread](http://www.rt-thread.org/)的demo|
 |\demo\stm32f4xx                        |stm32f4xx基于[RT-Thread](http://www.rt-thread.org/)的demo|
@@ -50,19 +50,26 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 ## 2、流程
 
-### 2.1、环境变量
+### 2.1、Env：环境变量（KV数据库）
 
-下图为通过控制台（终端）来调用环境变量的常用接口，演示了环境变量 `"temp"` 从创建到保存，再修改，最后删除的过程。这些接口都支持被应用层直接调用。
+下图为通过控制台（终端）来调用环境变量的常用接口，演示了以下过程，这些接口都支持被应用层直接调用。
+
+- 1、创建“温度”的环境变量，名为 `temp`，并且赋值为 `123`；
+- 2、保存“温度”到Flash中并重启；
+- 3、检查“温度”是否被成功保存；
+- 4、修改“温度”值为 `456` 并保存、重启；
+- 5、检查“温度”是否被成功修改；
+- 6、删除“温度”的环境变量。
 
 ![easy_flash_env](http://git.oschina.net/Armink/EasyFlash/raw/master/docs/zh/images/EnvDemo.gif)
 
-### 2.2、在线升级
+### 2.2、IAP：在线升级
 
 下图演示了通过控制台来进行IAP升级软件的过程，使用的是库中自带的IAP功能接口，演示采用的是串口+Ymodem协议的方式。你还也可以实现通过CAN、485、以太网等总线，来实现远程网络更新。
 
 ![easy_flash_iap](http://git.oschina.net/Armink/EasyFlash/raw/master/docs/zh/images/IapDemo.gif)
 
-### 2.3、日志存储
+### 2.3、Log：日志存储
 
 下图过程为通过控制台输出日志，并将输出的日志存储到Flash中。重启再读取上次保存的日志，最后清空Flash日志。
 
@@ -96,13 +103,13 @@ It's very suitable for small without a file system products. The developer can e
 
 |Source file                            |Description   |
 |:------------------------------        |:----- |
-|\easyflash\src\flash_env.c             |Env (normal mode) interface and implementation source code.|
-|\easyflash\src\flash_env_wl.c          |Env (wear leveling mode) interface and implementation source code.|
-|\easyflash\src\flash_iap.c             |IAP interface and implementation source code.|
-|\easyflash\src\flash_log.c             |Log interface and implementation source code.|
-|\easyflash\src\flash_utils.c           |EasyFlash utils. For example CRC32.|
-|\easyflash\src\flash.c                 |Currently contains EasyFlash initialization function only. |
-|\easyflash\port\flash_port.c           |EasyFlash portable interface and configuration for different platforms.|
+|\easyflash\src\ef_env.c                |Env (normal mode) interface and implementation source code.|
+|\easyflash\src\ef_env_wl.c             |Env (wear leveling mode) interface and implementation source code.|
+|\easyflash\src\ef_iap.c                |IAP interface and implementation source code.|
+|\easyflash\src\ef_log.c                |Log interface and implementation source code.|
+|\easyflash\src\ef_utils.c              |EasyFlash utils. For example CRC32.|
+|\easyflash\src\easyflash.c             |Currently contains EasyFlash initialization function only. |
+|\easyflash\port\ef_port.c              |EasyFlash portable interface and configuration for different platforms.|
 |\demo\stm32f10x\non_os                 |stm32f10x non-os demo.|
 |\demo\stm32f10x\rtt                    |stm32f10x demo base on [RT-Thread](http://www.rt-thread.org/).|
 |\demo\stm32f4xx                        |stm32f4xx demo base on [RT-Thread](http://www.rt-thread.org/).|
@@ -124,9 +131,16 @@ Welcome everyone to **star and pull request**([Github](https://github.com/armink
 
 ## 2 Flow
 
-### 2.1 Env
+### 2.1 Env(KV database)
 
-The figure below shows an ENV's common interface be called by the console(terminal). The ENV `"temp"` from creation to save, and then modify the final delete process. These interfaces are supported by the application layer called.
+The figure below shows an ENV's common interface be called by the console(terminal). These interfaces are supported by the application layer called.
+
+- 1.Create temperature environment variable. It's name is `temp` and value is `123`;
+- 2.Save temperature to flash and reboot;
+- 3.Check the temperature has saved successfully;
+- 4.Change the temperature value to `456` and save, reboot;
+- 5.Check the temperature has changed successfully;
+- 6.Delete temperature environment variable.
 
 ![easy_flash_env](https://raw.githubusercontent.com/armink/EasyFlash/master/docs/en/images/EnvDemo.gif)
 

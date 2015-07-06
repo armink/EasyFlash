@@ -7,7 +7,7 @@
 #include <rthw.h>
 #include <rtthread.h>
 #include <stm32f10x_conf.h>
-#include "flash.h"
+#include "easyflash.h"
 #include "finsh.h"
 
 void reboot(uint8_t argc, char **argv) {
@@ -32,28 +32,28 @@ void setenv(uint8_t argc, char **argv) {
         }
     }
     if (argc == 1) {
-        flash_set_env(value, value);
+        ef_set_env(value, value);
     } else if (argc == 2) {
-        flash_set_env(argv[1], value);
+        ef_set_env(argv[1], value);
     } else {
-        flash_set_env(argv[1], argv[2]);
+        ef_set_env(argv[1], argv[2]);
     }
 }
 MSH_CMD_EXPORT(setenv, Set an envrionment variable.);
 
 void printenv(uint8_t argc, char **argv) {
-    flash_print_env();
+    ef_print_env();
 }
 MSH_CMD_EXPORT(printenv, Print all envrionment variables.);
 
 void saveenv(uint8_t argc, char **argv) {
-    flash_save_env();
+    ef_save_env();
 }
 MSH_CMD_EXPORT(saveenv, Save all envrionment variables to flash.);
 
 void getvalue(uint8_t argc, char **argv) {
     char *value = NULL;
-    value = flash_get_env(argv[1]);
+    value = ef_get_env(argv[1]);
     if (value) {
         rt_kprintf("The %s value is %s.\n", argv[1], value);
     } else {

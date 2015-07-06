@@ -2,11 +2,11 @@
 
 ---
 
-所有支持的API接口都在 `\flash\inc\flash.h` 中声明。以下内容较多，建议使用 **CTRL+F** 搜索。
+所有支持的API接口都在 `\easyflash\inc\easyflash.h` 中声明。以下内容较多，建议使用 **CTRL+F** 搜索。
 
 名词介绍：
 
-**备份区** ：是EasyFlash定义的一个存放环境变量及已下载程序的Flash区域，详细存储架构可以参考 `\flash\src\flash.c` 文件头位置的注释说明。
+**备份区** ：是EasyFlash定义的一个存放环境变量及已下载程序的Flash区域，详细存储架构可以参考 `\easyflash\src\easyflash.c` 文件头位置的注释说明。
 
 **环境变量表** ：负责存放所有的环境变量，该表在Flash及RAM中均存在，上电后需从Flash加载到RAM中，修改后，则需要保存其至Flash中。。
 
@@ -14,10 +14,10 @@
 
 ### 1.1 初始化
 
-初始化EasyFlash。在初始化的过程中会使用 `\flash\port\flash_port.c` 中的用户自定义参数。
+初始化EasyFlash。在初始化的过程中会使用 `\easyflash\port\ef_port.c` 中的用户自定义参数。
 
 ```C
-FlashErrCode flash_init(void)
+EfErrCode easyflash_init(void)
 ```
 
 ### 1.2 环境变量
@@ -27,15 +27,15 @@ FlashErrCode flash_init(void)
 加载Flash中的所有环境变量到系统内存中。
 
 ```C
-void flash_load_env(void)
+void ef_load_env(void)
 ```
 
 #### 1.2.2 打印环境变量
 
-通过在移植接口( `\flash\port\flash_port.c` )中定义的 `flash_print` 打印方法，来将Flash中的所有环境变量输出出来。
+通过在移植接口( `\easyflash\port\ef_port.c` )中定义的 `ef_print` 打印方法，来将Flash中的所有环境变量输出出来。
 
 ```C
-void flash_print_env(void)
+void ef_print_env(void)
 ```
 
 #### 1.2.3 获取环境变量
@@ -43,7 +43,7 @@ void flash_print_env(void)
 通过环境变量的名字来获取其对应的值。（注意：此处的环境变量指代的已加载到内存中的环境变量）
 
 ```C
-char *flash_get_env(const char *key)
+char *ef_get_env(const char *key)
 ```
 
 |参数                                    |描述|
@@ -61,7 +61,7 @@ char *flash_get_env(const char *key)
 - **删除** ：当入参中的value为空时，则会删除入参名对应的环境变量。
 
 ```C
-FlashErrCode flash_set_env(const char *key, const char *value)
+EfErrCode ef_set_env(const char *key, const char *value)
 ```
 
 |参数                                    |描述|
@@ -74,26 +74,26 @@ FlashErrCode flash_set_env(const char *key, const char *value)
 保存内存中的环境变量表到Flash中。
 
 ```C
-FlashErrCode flash_save_env(void)
+EfErrCode ef_save_env(void)
 ```
 
 #### 1.2.6 重置环境变量
 将内存中的环境变量表重置为默认值。
 
 ```C
-FlashErrCode flash_env_set_default(void)
+EfErrCode ef_env_set_default(void)
 ```
 
 #### 1.2.7 获取环境变量分区的总容量
 
 ```C
-size_t flash_get_env_total_size(void)
+size_t ef_get_env_total_size(void)
 ```
 
 #### 1.2.8 获取当前环境变量写入到Flash的字节大小
 
 ```C
-size_t flash_get_env_write_bytes(void)
+size_t ef_get_env_write_bytes(void)
 ```
 
 ### 1.3 在线升级
@@ -101,7 +101,7 @@ size_t flash_get_env_write_bytes(void)
 #### 1.3.1 擦除备份区中的应用程序
 
 ```C
-FlashErrCode flash_erase_bak_app(size_t app_size)
+EfErrCode ef_erase_bak_app(size_t app_size)
 ```
 
 #### 1.3.2 擦除用户的应用程序
@@ -109,7 +109,7 @@ FlashErrCode flash_erase_bak_app(size_t app_size)
 注意：请不要在应用程序中调用该方法
 
 ```C
-FlashErrCode flash_erase_user_app(uint32_t user_app_addr, size_t user_app_size)
+EfErrCode ef_erase_user_app(uint32_t user_app_addr, size_t user_app_size)
 ```
 
 |参数                                    |描述|
@@ -122,7 +122,7 @@ FlashErrCode flash_erase_user_app(uint32_t user_app_addr, size_t user_app_size)
 注意：请不要在Bootloader中调用该方法
 
 ```C
-FlashErrCode flash_erase_bl(uint32_t bl_addr, size_t bl_size)
+EfErrCode ef_erase_bl(uint32_t bl_addr, size_t bl_size)
 ```
 
 |参数                                    |描述|
@@ -136,10 +136,10 @@ FlashErrCode flash_erase_bl(uint32_t bl_addr, size_t bl_size)
 注意：写之前请先确认Flash已进行擦除。
 
 ```C
-FlashErrCode flash_write_data_to_bak(uint8_t *data,
-                                     size_t size,
-                                     size_t *cur_size,
-                                     size_t total_size)
+EfErrCode ef_write_data_to_bak(uint8_t *data,
+                               size_t size,
+                               size_t *cur_size,
+                               size_t total_size)
 ```
 
 |参数                                    |描述|
@@ -157,7 +157,7 @@ FlashErrCode flash_write_data_to_bak(uint8_t *data,
 2、不要在应用程序中调用该方法
 
 ```C
-FlashErrCode flash_copy_app_from_bak(uint32_t user_app_addr, size_t app_size)
+EfErrCode ef_copy_app_from_bak(uint32_t user_app_addr, size_t app_size)
 ```
 
 |参数                                    |描述|
@@ -173,7 +173,7 @@ FlashErrCode flash_copy_app_from_bak(uint32_t user_app_addr, size_t app_size)
 2、不要在Bootloader中调用该方法
 
 ```C
-FlashErrCode flash_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size)
+EfErrCode ef_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size)
 ```
 
 |参数                                    |描述|
@@ -186,7 +186,7 @@ FlashErrCode flash_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size)
 #### 1.4.1 从Flash中读取已存在的日志
 
 ```C
-FlashErrCode flash_log_read(size_t index, uint32_t *log, size_t size);
+EfErrCode ef_log_read(size_t index, uint32_t *log, size_t size);
 ```
 
 |参数                                    |描述|
@@ -198,7 +198,7 @@ FlashErrCode flash_log_read(size_t index, uint32_t *log, size_t size);
 #### 1.4.2 往Flash中保存日志
 
 ```C
-FlashErrCode flash_log_write(const uint32_t *log, size_t size);
+EfErrCode ef_log_write(const uint32_t *log, size_t size);
 ```
 
 |参数                                    |描述|
@@ -209,13 +209,13 @@ FlashErrCode flash_log_write(const uint32_t *log, size_t size);
 #### 1.4.3 清空存储在Flash中全部日志
 
 ```C
-FlashErrCode flash_log_clean(void);
+EfErrCode ef_log_clean(void);
 ```
 
 #### 1.4.4 获取已存储在Flash中的日志大小
 
 ```C
-size_t flash_log_get_used_size(void);
+size_t ef_log_get_used_size(void);
 ```
 
 ## 2 移植接口
@@ -225,7 +225,7 @@ size_t flash_log_get_used_size(void);
 最小单位为4个字节
 
 ```C
-FlashErrCode flash_read(uint32_t addr, uint32_t *buf, size_t size)
+EfErrCode ef_port_read(uint32_t addr, uint32_t *buf, size_t size)
 ```
 
 |参数                                    |描述|
@@ -237,7 +237,7 @@ FlashErrCode flash_read(uint32_t addr, uint32_t *buf, size_t size)
 ### 2.2 擦除Flash
 
 ```C
-FlashErrCode flash_erase(uint32_t addr, size_t size)
+EfErrCode ef_port_erase(uint32_t addr, size_t size)
 ```
 
 |参数                                    |描述|
@@ -250,7 +250,7 @@ FlashErrCode flash_erase(uint32_t addr, size_t size)
 最小单位为4个字节
 
 ```C
-FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size)
+EfErrCode ef_port_write(uint32_t addr, const uint32_t *buf, size_t size)
 ```
 
 |参数                                    |描述|
@@ -262,21 +262,21 @@ FlashErrCode flash_write(uint32_t addr, const uint32_t *buf, size_t size)
 ### 2.4 对环境变量缓冲区加锁
 
 ```C
-void flash_env_lock(void)
+void ef_port_env_lock(void)
 ```
 
 ### 2.5 对环境变量缓冲区解锁
 
 ```C
-void flash_env_unlock(void)
+void ef_port_env_unlock(void)
 ```
 
 ### 2.6 打印调试日志信息
 
-在定义 `FLASH_PRINT_DEBUG` 宏后，打印调试日志信息
+在定义 `PRINT_DEBUG` 宏后，打印调试日志信息
 
 ```C
-void flash_log_debug(const char *file, const long line, const char *format, ...)
+void ef_log_debug(const char *file, const long line, const char *format, ...)
 ```
 
 |参数                                    |描述|
@@ -289,7 +289,7 @@ void flash_log_debug(const char *file, const long line, const char *format, ...)
 ### 2.7 打印普通日志信息
 
 ```C
-void flash_log_info(const char *format, ...)
+void ef_log_info(const char *format, ...)
 ```
 
 |参数                                    |描述|
@@ -299,10 +299,10 @@ void flash_log_info(const char *format, ...)
 
 ### 2.8 无格式打印信息
 
-该方法输出无固定格式的打印信息，为 `flash_print_env` 方法所用。而 `flash_log_debug` 及 `flash_log_info` 可以输出带指定前缀及格式的打印日志信息。
+该方法输出无固定格式的打印信息，为 `ef_print_env` 方法所用。而 `ef_log_debug` 及 `ef_log_info` 可以输出带指定前缀及格式的打印日志信息。
 
 ```C
-void flash_print(const char *format, ...)
+void ef_print(const char *format, ...)
 ```
 
 |参数                                    |描述|
@@ -312,33 +312,35 @@ void flash_print(const char *format, ...)
 
 ## 3、配置
 
-配置该库需要打开`\flash\flash.h`文件，开启、关闭、修改对应的宏即可。
+配置该库需要打开`\easyflash\easyflash.h`文件，开启、关闭、修改对应的宏即可。
 
 ### 3.1 ENV功能
 
 - 默认状态：开启
-- 操作方法：开启、关闭`FLASH_USING_ENV`宏即可
+- 操作方法：开启、关闭`EF_USING_ENV`宏即可
 
 ### 3.2 IAP功能
 
 - 默认状态：开启
-- 操作方法：开启、关闭`FLASH_USING_IAP`宏即可
+- 操作方法：开启、关闭`EF_USING_IAP`宏即可
 
 ### 3.3 Log功能
 
 - 默认状态：开启
-- 操作方法：开启、关闭`FLASH_USING_LOG`宏即可
+- 操作方法：开启、关闭`EF_USING_LOG`宏即可
 
 ### 3.4 环境变量的容量
 
 - 默认容量：2K Bytes
-- 操作方法：修改`FLASH_USER_SETTING_ENV_SIZE`宏定义即可
+- 操作方法：修改`EF_USER_SETTING_ENV_SIZE`宏定义即可
 
 ### 3.5 磨损平衡/常规 模式
 
+> 磨损平衡：由于flash在写操作之前需要擦除且使用寿命有限，所以需要设计合理的磨损平衡（写平衡）机制，来保证数据被安全的保存在未到擦写寿命的Flash区中。
+
 - 默认状态：常规模式
-- 磨损平衡模式：打开`FLASH_ENV_USING_WEAR_LEVELING_MODE`，关闭`FLASH_ENV_USING_NORMAL_MODE`
-- 常规模式：打开`FLASH_ENV_USING_NORMAL_MODE`，关闭`FLASH_ENV_USING_WEAR_LEVELING_MODE`
+- 磨损平衡模式：打开`EF_ENV_USING_WL_MODE`，关闭`EF_ENV_USING_NORMAL_MODE`
+- 常规模式：打开`EF_ENV_USING_NORMAL_MODE`，关闭`FLASH_ENV_USING_WL_MODE`
 
 > 注意：只能选择其中一种模式，两种模式不能同时使用
 
@@ -347,6 +349,6 @@ void flash_print(const char *format, ...)
 ## 4、注意
 
 - 写数据前务必记得先擦除
-- 环境变量设置完后，只有调用 `flash_save_env`才会保存在Flash中，否则开机会丢失修改的内容
+- 环境变量设置完后，只有调用 `ef_save_env`才会保存在Flash中，否则开机会丢失修改的内容
 - 不要在应用程序及Bootloader中执行擦除及拷贝自身的动作
 - ENV及Log功能对Flash擦除和写入要求4个字节对齐，擦除的最小单位则需根据用户的平台来确定

@@ -26,7 +26,7 @@
  * Created on: 2015-01-14
  */
 
-#include "flash.h"
+#include "easyflash.h"
 
 static const uint32_t crc32_table[] =
 {
@@ -106,8 +106,8 @@ uint32_t calc_crc32(uint32_t crc, const void *buf, size_t size)
  *
  * @return the flash sector current status
  */
-FlashSecrorStatus flash_get_sector_status(uint32_t addr, size_t sec_size) {
-    uint32_t cur_using_addr = flash_find_sec_using_end_addr(addr, sec_size);
+FlashSecrorStatus ef_get_sector_status(uint32_t addr, size_t sec_size) {
+    uint32_t cur_using_addr = ef_find_sec_using_end_addr(addr, sec_size);
     /* get current status by current using address */
     if (cur_using_addr == addr) {
         return FLASH_SECTOR_EMPTY;
@@ -126,7 +126,7 @@ FlashSecrorStatus flash_get_sector_status(uint32_t addr, size_t sec_size) {
  *
  * @return current flash sector using end address
  */
-uint32_t flash_find_sec_using_end_addr(uint32_t addr, size_t sec_size) {
+uint32_t ef_find_sec_using_end_addr(uint32_t addr, size_t sec_size) {
     size_t start, continue_ff;
     /* counts continuous 0xFF */
     for (start = 0; start < sec_size; start++) {

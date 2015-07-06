@@ -26,9 +26,9 @@
  * Created on: 2015-06-04
  */
 
-#include "flash.h"
+#include "easyflash.h"
 
-#ifdef FLASH_USING_LOG
+#ifdef EF_USING_LOG
 
 /* the stored logs start address and end address. It's like a ring buffer which implement by flash. */
 static uint32_t log_start_addr = 0, log_end_addr = 0;
@@ -53,16 +53,16 @@ static uint32_t get_next_flash_sec_addr(uint32_t cur_addr);
  *
  * @return result
  */
-FlashErrCode flash_log_init(uint32_t start_addr, size_t log_size, size_t erase_min_size) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_log_init(uint32_t start_addr, size_t log_size, size_t erase_min_size) {
+    EfErrCode result = EF_NO_ERR;
 
-    FLASH_ASSERT(start_addr);
-    FLASH_ASSERT(log_size);
-    FLASH_ASSERT(erase_min_size);
+    EF_ASSERT(start_addr);
+    EF_ASSERT(log_size);
+    EF_ASSERT(erase_min_size);
     /* the log area size must be an integral multiple of erase minimum size. */
-    FLASH_ASSERT(log_size % erase_min_size == 0);
+    EF_ASSERT(log_size % erase_min_size == 0);
     /* the log area size must be more than 2 multiple of erase minimum size */
-    FLASH_ASSERT(log_size / erase_min_size >= 2);
+    EF_ASSERT(log_size / erase_min_size >= 2);
 
     log_area_start_addr = start_addr;
     flash_log_size = log_size;
@@ -111,12 +111,12 @@ static void find_start_and_end_addr(void) {
     uint8_t cur_log_sec_state = 0;
 
     /* get the first sector status */
-    cur_sec_status = flash_get_sector_status(log_area_start_addr, flash_erase_min_size);
+    cur_sec_status = ef_get_sector_status(log_area_start_addr, flash_erase_min_size);
     last_sec_status = cur_sec_status;
 
     for (cur_size = flash_erase_min_size; cur_size < flash_log_size; cur_size += flash_erase_min_size) {
         /* get current sector status */
-        cur_sec_status = flash_get_sector_status(log_area_start_addr + cur_size, flash_erase_min_size);
+        cur_sec_status = ef_get_sector_status(log_area_start_addr + cur_size, flash_erase_min_size);
         /* compare last and current status */
         switch (last_sec_status) {
         case FLASH_SECTOR_EMPTY: {
@@ -124,12 +124,12 @@ static void find_start_and_end_addr(void) {
             case FLASH_SECTOR_EMPTY:
                 break;
             case FLASH_SECTOR_USING:
-                FLASH_DEBUG("Error: Log area error! Now will clean all log area.\n");
-                flash_log_clean();
+                EF_DEBUG("Error: Log area error! Now will clean all log area.\n");
+                ef_log_clean();
                 return;
             case FLASH_SECTOR_FULL:
-                FLASH_DEBUG("Error: Log area error! Now will clean all log area.\n");
-                flash_log_clean();
+                EF_DEBUG("Error: Log area error! Now will clean all log area.\n");
+                ef_log_clean();
                 return;
             }
             empty_sec_counts++;
@@ -144,8 +144,8 @@ static void find_start_and_end_addr(void) {
                 cur_using_sec_addr = log_area_start_addr + cur_size - flash_erase_min_size;
                 break;
             case FLASH_SECTOR_USING:
-                FLASH_DEBUG("Error: Log area error! Now will clean all log area.\n");
-                flash_log_clean();
+                EF_DEBUG("Error: Log area error! Now will clean all log area.\n");
+                ef_log_clean();
                 return;
             case FLASH_SECTOR_FULL:
                 /* like state 2 */
@@ -162,8 +162,8 @@ static void find_start_and_end_addr(void) {
             case FLASH_SECTOR_EMPTY:
                 /* like state 1 */
                 if (cur_log_sec_state == 2) {
-                    FLASH_DEBUG("Error: Log area error! Now will clean all log area.\n");
-                    flash_log_clean();
+                    EF_DEBUG("Error: Log area error! Now will clean all log area.\n");
+                    ef_log_clean();
                     return;
                 } else {
                     cur_log_sec_state = 1;
@@ -203,20 +203,20 @@ static void find_start_and_end_addr(void) {
     }
 
     if (using_sec_counts > 1) {
-        FLASH_DEBUG("Error: Log area error! Now will clean all log area.\n");
-        flash_log_clean();
+        EF_DEBUG("Error: Log area error! Now will clean all log area.\n");
+        ef_log_clean();
         return;
     } else if (empty_sec_counts == total_sec_num) {
         log_start_addr = log_end_addr = log_area_start_addr;
     } else if (full_sector_counts == total_sec_num) {
         /* this state is almost impossible */
-        FLASH_DEBUG("Error: Log area error! Now will clean all log area.\n");
-        flash_log_clean();
+        EF_DEBUG("Error: Log area error! Now will clean all log area.\n");
+        ef_log_clean();
         return;
     } else if (((cur_log_sec_state == 1) && (cur_using_sec_addr != 0))
             || (cur_log_sec_state == 2)) {
         /* find the end address */
-        log_end_addr = flash_find_sec_using_end_addr(cur_using_sec_addr, flash_erase_min_size);
+        log_end_addr = ef_find_sec_using_end_addr(cur_using_sec_addr, flash_erase_min_size);
     }
 }
 
@@ -225,12 +225,12 @@ static void find_start_and_end_addr(void) {
  *
  * @return log used flash total size
  */
-size_t flash_log_get_used_size(void) {
-    FLASH_ASSERT(log_start_addr);
-    FLASH_ASSERT(log_end_addr);
+size_t ef_log_get_used_size(void) {
+    EF_ASSERT(log_start_addr);
+    EF_ASSERT(log_end_addr);
 
     /* must be call this function after initialize OK */
-    FLASH_ASSERT(init_ok);
+    EF_ASSERT(init_ok);
 
     if (log_start_addr < log_end_addr) {
         return log_end_addr - log_start_addr + 4;
@@ -252,22 +252,22 @@ size_t flash_log_get_used_size(void) {
  *
  * @return result
  */
-FlashErrCode flash_log_read(size_t index, uint32_t *log, size_t size) {
-    FlashErrCode result = FLASH_NO_ERR;
-    size_t cur_using_size = flash_log_get_used_size();
+EfErrCode ef_log_read(size_t index, uint32_t *log, size_t size) {
+    EfErrCode result = EF_NO_ERR;
+    size_t cur_using_size = ef_log_get_used_size();
     size_t read_size_temp = 0;
 
-    FLASH_ASSERT(size % 4 == 0);
-    FLASH_ASSERT(index + size <= cur_using_size);
+    EF_ASSERT(size % 4 == 0);
+    EF_ASSERT(index + size <= cur_using_size);
     /* must be call this function after initialize OK */
-    FLASH_ASSERT(init_ok);
+    EF_ASSERT(init_ok);
 
     if (!size) {
         return result;
     }
 
     if (log_start_addr < log_end_addr) {
-        result = flash_read(log_area_start_addr + index, log, size);
+        result = ef_port_read(log_area_start_addr + index, log, size);
     } else if (log_start_addr > log_end_addr) {
         if (log_start_addr + index + size <= log_area_start_addr + flash_log_size) {
             /*                          Flash log area
@@ -287,7 +287,7 @@ FlashErrCode flash_log_read(size_t index, uint32_t *log, size_t size) {
              *
              * read from (log_start_addr + index) to (log_start_addr + index + size)
              */
-            result = flash_read(log_start_addr + index, log, size);
+            result = ef_port_read(log_start_addr + index, log, size);
         } else if (log_start_addr + index < log_area_start_addr + flash_log_size) {
             /*                          Flash log area
              *                         |--------------|
@@ -308,9 +308,9 @@ FlashErrCode flash_log_read(size_t index, uint32_t *log, size_t size) {
              * step2: read from flash log area start address to read size's end address
              */
             read_size_temp = (log_area_start_addr + flash_log_size) - (log_start_addr + index);
-            result = flash_read(log_start_addr + index, log, read_size_temp);
-            if (result == FLASH_NO_ERR) {
-                result = flash_read(log_area_start_addr, log + read_size_temp,
+            result = ef_port_read(log_start_addr + index, log, read_size_temp);
+            if (result == EF_NO_ERR) {
+                result = ef_port_read(log_area_start_addr, log + read_size_temp,
                         size - read_size_temp);
             }
         } else {
@@ -330,7 +330,7 @@ FlashErrCode flash_log_read(size_t index, uint32_t *log, size_t size) {
              *                         |--------------|
              * read from (log_start_addr + index - flash_log_size) to read size's end address
              */
-            result = flash_read(log_start_addr + index - flash_log_size, log, size);
+            result = ef_port_read(log_start_addr + index - flash_log_size, log, size);
         }
     }
 
@@ -345,14 +345,14 @@ FlashErrCode flash_log_read(size_t index, uint32_t *log, size_t size) {
  *
  * @return result
  */
-FlashErrCode flash_log_write(const uint32_t *log, size_t size) {
-    FlashErrCode result = FLASH_NO_ERR;
-    size_t cur_using_size = flash_log_get_used_size(), write_size = 0, writable_size = 0;
+EfErrCode ef_log_write(const uint32_t *log, size_t size) {
+    EfErrCode result = EF_NO_ERR;
+    size_t cur_using_size = ef_log_get_used_size(), write_size = 0, writable_size = 0;
     uint32_t write_addr, erase_addr;
 
-    FLASH_ASSERT(size % 4 == 0);
+    EF_ASSERT(size % 4 == 0);
     /* must be call this function after initialize OK */
-    FLASH_ASSERT(init_ok);
+    EF_ASSERT(init_ok);
 
     /* write address is after log end address  */
     write_addr = log_end_addr + 4;
@@ -360,13 +360,13 @@ FlashErrCode flash_log_write(const uint32_t *log, size_t size) {
     writable_size = flash_erase_min_size - ((write_addr - log_area_start_addr) % flash_erase_min_size);
     if (writable_size != flash_erase_min_size) {
         if (size > writable_size) {
-            result = flash_write(write_addr, log, writable_size);
-            if (result != FLASH_NO_ERR) {
+            result = ef_port_write(write_addr, log, writable_size);
+            if (result != EF_NO_ERR) {
                 goto exit;
             }
             write_size += writable_size;
         } else {
-            result = flash_write(write_addr, log, size);
+            result = ef_port_write(write_addr, log, size);
             log_end_addr = write_addr + size - 4;
             goto exit;
         }
@@ -380,19 +380,19 @@ FlashErrCode flash_log_write(const uint32_t *log, size_t size) {
             log_start_addr = get_next_flash_sec_addr(log_start_addr);
         }
         /* erase sector */
-        result = flash_erase(erase_addr, flash_erase_min_size);
-        if (result == FLASH_NO_ERR) {
+        result = ef_port_erase(erase_addr, flash_erase_min_size);
+        if (result == EF_NO_ERR) {
             if (size - write_size > flash_erase_min_size) {
-                result = flash_write(write_addr, log + write_size / 4, flash_erase_min_size);
-                if (result != FLASH_NO_ERR) {
+                result = ef_port_write(write_addr, log + write_size / 4, flash_erase_min_size);
+                if (result != EF_NO_ERR) {
                     goto exit;
                 }
                 log_end_addr = write_addr + flash_erase_min_size - 4;
                 write_size += flash_erase_min_size;
                 write_addr += flash_erase_min_size;
             } else {
-                result = flash_write(write_addr, log + write_size / 4, size - write_size);
-                if (result != FLASH_NO_ERR) {
+                result = ef_port_write(write_addr, log + write_size / 4, size - write_size);
+                if (result != EF_NO_ERR) {
                     goto exit;
                 }
                 log_end_addr = write_addr + (size - write_size) - 4;
@@ -430,18 +430,18 @@ static uint32_t get_next_flash_sec_addr(uint32_t cur_addr) {
  *
  * @return result
  */
-FlashErrCode flash_log_clean(void) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_log_clean(void) {
+    EfErrCode result = EF_NO_ERR;
 
-    FLASH_ASSERT(log_area_start_addr);
-    FLASH_ASSERT(flash_log_size);
+    EF_ASSERT(log_area_start_addr);
+    EF_ASSERT(flash_log_size);
 
     /* clean address */
     log_start_addr = log_end_addr = log_area_start_addr;
     /* erase log flash area */
-    result = flash_erase(log_area_start_addr, flash_log_size);
+    result = ef_port_erase(log_area_start_addr, flash_log_size);
 
     return result;
 }
 
-#endif
+#endif /* EF_USING_LOG */

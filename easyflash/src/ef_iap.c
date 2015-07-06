@@ -26,9 +26,9 @@
  * Created on: 2015-01-05
  */
 
-#include "flash.h"
+#include "easyflash.h"
 
-#ifdef FLASH_USING_IAP
+#ifdef EF_USING_IAP
 
 /* IAP section backup application section start address in flash */
 static uint32_t bak_app_start_addr = NULL;
@@ -42,10 +42,10 @@ static uint32_t get_bak_app_start_addr(void);
  *
  * @return result
  */
-FlashErrCode flash_iap_init(uint32_t start_addr) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_iap_init(uint32_t start_addr) {
+    EfErrCode result = EF_NO_ERR;
 
-    FLASH_ASSERT(start_addr);
+    EF_ASSERT(start_addr);
 
     bak_app_start_addr = start_addr;
     return result;
@@ -58,17 +58,17 @@ FlashErrCode flash_iap_init(uint32_t start_addr) {
  *
  * @return result
  */
-FlashErrCode flash_erase_bak_app(size_t app_size) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_erase_bak_app(size_t app_size) {
+    EfErrCode result = EF_NO_ERR;
 
-    result = flash_erase(get_bak_app_start_addr(), app_size);
+    result = ef_port_erase(get_bak_app_start_addr(), app_size);
     switch (result) {
-    case FLASH_NO_ERR: {
-        FLASH_INFO("Erased backup area application OK.\n");
+    case EF_NO_ERR: {
+        EF_INFO("Erased backup area application OK.\n");
         break;
     }
-    case FLASH_ERASE_ERR: {
-        FLASH_INFO("Warning: Erase backup area application fault!\n");
+    case EF_ERASE_ERR: {
+        EF_INFO("Warning: Erase backup area application fault!\n");
         /* will return when erase fault */
         return result;
     }
@@ -86,17 +86,17 @@ FlashErrCode flash_erase_bak_app(size_t app_size) {
  *
  * @return result
  */
-FlashErrCode flash_erase_user_app(uint32_t user_app_addr, size_t app_size) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_erase_user_app(uint32_t user_app_addr, size_t app_size) {
+    EfErrCode result = EF_NO_ERR;
 
-    result = flash_erase(user_app_addr, app_size);
+    result = ef_port_erase(user_app_addr, app_size);
     switch (result) {
-    case FLASH_NO_ERR: {
-        FLASH_INFO("Erased user application OK.\n");
+    case EF_NO_ERR: {
+        EF_INFO("Erased user application OK.\n");
         break;
     }
-    case FLASH_ERASE_ERR: {
-        FLASH_INFO("Warning: Erase user application fault!\n");
+    case EF_ERASE_ERR: {
+        EF_INFO("Warning: Erase user application fault!\n");
         /* will return when erase fault */
         return result;
     }
@@ -113,17 +113,17 @@ FlashErrCode flash_erase_user_app(uint32_t user_app_addr, size_t app_size) {
  *
  * @return result
  */
-FlashErrCode flash_erase_bl(uint32_t bl_addr, size_t bl_size) {
-    FlashErrCode result = FLASH_NO_ERR;
+EfErrCode ef_erase_bl(uint32_t bl_addr, size_t bl_size) {
+    EfErrCode result = EF_NO_ERR;
 
-    result = flash_erase(bl_addr, bl_size);
+    result = ef_port_erase(bl_addr, bl_size);
     switch (result) {
-    case FLASH_NO_ERR: {
-        FLASH_INFO("Erased bootloader OK.\n");
+    case EF_NO_ERR: {
+        EF_INFO("Erased bootloader OK.\n");
         break;
     }
-    case FLASH_ERASE_ERR: {
-        FLASH_INFO("Warning: Erase bootloader fault!\n");
+    case EF_ERASE_ERR: {
+        EF_INFO("Warning: Erase bootloader fault!\n");
         /* will return when erase fault */
         return result;
     }
@@ -142,24 +142,24 @@ FlashErrCode flash_erase_bl(uint32_t bl_addr, size_t bl_size) {
  *
  * @return result
  */
-FlashErrCode flash_write_data_to_bak(uint8_t *data, size_t size, size_t *cur_size,
+EfErrCode ef_write_data_to_bak(uint8_t *data, size_t size, size_t *cur_size,
         size_t total_size) {
-    FlashErrCode result = FLASH_NO_ERR;
+    EfErrCode result = EF_NO_ERR;
 
     /* make sure don't write excess data */
     if (*cur_size + size > total_size) {
         size = total_size - *cur_size;
     }
 
-    result = flash_write(get_bak_app_start_addr() + *cur_size, (uint32_t *) data, size);
+    result = ef_port_write(get_bak_app_start_addr() + *cur_size, (uint32_t *) data, size);
     switch (result) {
-    case FLASH_NO_ERR: {
+    case EF_NO_ERR: {
         *cur_size += size;
-        FLASH_INFO("Write data to backup area OK.\n");
+        EF_INFO("Write data to backup area OK.\n");
         break;
     }
-    case FLASH_WRITE_ERR: {
-        FLASH_INFO("Warning: Write data to backup area fault!\n");
+    case EF_WRITE_ERR: {
+        EF_INFO("Warning: Write data to backup area fault!\n");
         break;
     }
     }
@@ -175,10 +175,10 @@ FlashErrCode flash_write_data_to_bak(uint8_t *data, size_t size, size_t *cur_siz
  *
  * @return result
  */
-FlashErrCode flash_copy_app_from_bak(uint32_t user_app_addr, size_t app_size) {
+EfErrCode ef_copy_app_from_bak(uint32_t user_app_addr, size_t app_size) {
     size_t cur_size;
     uint32_t app_cur_addr, bak_cur_addr;
-    FlashErrCode result = FLASH_NO_ERR;
+    EfErrCode result = EF_NO_ERR;
     /* 32 words size buffer */
     uint32_t buff[32];
 
@@ -186,20 +186,20 @@ FlashErrCode flash_copy_app_from_bak(uint32_t user_app_addr, size_t app_size) {
     for (cur_size = 0; cur_size < app_size; cur_size += sizeof(buff)) {
         app_cur_addr = user_app_addr + cur_size;
         bak_cur_addr = get_bak_app_start_addr() + cur_size;
-        flash_read(bak_cur_addr, buff, sizeof(buff));
-        result = flash_write(app_cur_addr, buff, sizeof(buff));
-        if (result != FLASH_NO_ERR) {
+        ef_port_read(bak_cur_addr, buff, sizeof(buff));
+        result = ef_port_write(app_cur_addr, buff, sizeof(buff));
+        if (result != EF_NO_ERR) {
             break;
         }
     }
 
     switch (result) {
-    case FLASH_NO_ERR: {
-        FLASH_INFO("Write data to application entry OK.\n");
+    case EF_NO_ERR: {
+        EF_INFO("Write data to application entry OK.\n");
         break;
     }
-    case FLASH_WRITE_ERR: {
-        FLASH_INFO("Warning: Write data to application entry fault!\n");
+    case EF_WRITE_ERR: {
+        EF_INFO("Warning: Write data to application entry fault!\n");
         break;
     }
     }
@@ -215,10 +215,10 @@ FlashErrCode flash_copy_app_from_bak(uint32_t user_app_addr, size_t app_size) {
  *
  * @return result
  */
-FlashErrCode flash_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size) {
+EfErrCode ef_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size) {
     size_t cur_size;
     uint32_t bl_cur_addr, bak_cur_addr;
-    FlashErrCode result = FLASH_NO_ERR;
+    EfErrCode result = EF_NO_ERR;
     /* 32 words buffer */
     uint32_t buff[32];
 
@@ -226,20 +226,20 @@ FlashErrCode flash_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size) {
     for (cur_size = 0; cur_size < bl_size; cur_size += sizeof(buff)) {
         bl_cur_addr = bl_addr + cur_size;
         bak_cur_addr = get_bak_app_start_addr() + cur_size;
-        flash_read(bak_cur_addr, buff, sizeof(buff));
-        result = flash_write(bl_cur_addr, buff, sizeof(buff));
-        if (result != FLASH_NO_ERR) {
+        ef_port_read(bak_cur_addr, buff, sizeof(buff));
+        result = ef_port_write(bl_cur_addr, buff, sizeof(buff));
+        if (result != EF_NO_ERR) {
             break;
         }
     }
 
     switch (result) {
-    case FLASH_NO_ERR: {
-        FLASH_INFO("Write data to bootloader entry OK.\n");
+    case EF_NO_ERR: {
+        EF_INFO("Write data to bootloader entry OK.\n");
         break;
     }
-    case FLASH_WRITE_ERR: {
-        FLASH_INFO("Warning: Write data to bootloader entry fault!\n");
+    case EF_WRITE_ERR: {
+        EF_INFO("Warning: Write data to bootloader entry fault!\n");
         break;
     }
     }
@@ -253,8 +253,8 @@ FlashErrCode flash_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size) {
  * @return size
  */
 static uint32_t get_bak_app_start_addr(void) {
-    FLASH_ASSERT(bak_app_start_addr);
+    EF_ASSERT(bak_app_start_addr);
     return bak_app_start_addr;
 }
 
-#endif /* FLASH_USING_IAP */
+#endif /* EF_USING_IAP */
