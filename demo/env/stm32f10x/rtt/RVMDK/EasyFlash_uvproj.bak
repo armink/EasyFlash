@@ -466,24 +466,24 @@
               <FilePath>..\..\..\..\easyflash\src\easyflash.c</FilePath>
             </File>
             <File>
+              <FileName>ef_env.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\easyflash\src\ef_env.c</FilePath>
+            </File>
+            <File>
+              <FileName>ef_env_wl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\easyflash\src\ef_env_wl.c</FilePath>
+            </File>
+            <File>
+              <FileName>ef_iap.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\easyflash\src\ef_iap.c</FilePath>
+            </File>
+            <File>
               <FileName>ef_utils.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\easyflash\src\ef_utils.c</FilePath>
-            </File>
-            <File>
-              <FileName>env.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\easyflash\src\env.c</FilePath>
-            </File>
-            <File>
-              <FileName>env_wl.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\easyflash\src\env_wl.c</FilePath>
-            </File>
-            <File>
-              <FileName>iap.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\easyflash\src\iap.c</FilePath>
             </File>
             <File>
               <FileName>ef_port.c</FileName>

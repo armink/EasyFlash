@@ -55,6 +55,14 @@ ShowSource=1
 [SfrWindow]
 Show=1 1
 Sort=4 0
+[CallStackLog]
+Enabled=0
+[DriverProfiling]
+Enabled=0
+Mode=3
+Graph=0
+Symbiont=0
+Exclusions=
 [PowerLog]
 LogEnabled=0
 GraphEnabled=0
@@ -119,14 +127,6 @@ EventSLEEP=0
 Frequency=10000
 Probe0=I0
 ProbeSetup0=2 1 1 2 0 0
-[CallStackLog]
-Enabled=0
-[DriverProfiling]
-Enabled=0
-Mode=3
-Graph=0
-Symbiont=0
-Exclusions=
 [Disassemble mode]
 mode=0
 [Breakpoints2]
