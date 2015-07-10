@@ -46,9 +46,11 @@ extern "C" {
 /* #define EF_USING_LOG */
 /* the user setting size of ENV, must be word alignment */
 #define EF_USER_SETTING_ENV_SIZE     (2 * 1024)                /* default 2K */
-/* using wear leveling mode or normal mode */
+/* using wear leveling mode or normal mode for ENV */
 /* #define EF_ENV_USING_WL_MODE */
 #define EF_ENV_USING_NORMAL_MODE
+/* using power fail safeguard mode for ENV */
+/* #define EF_ENV_USING_PFS_MODE */
 
 /* EasyFlash debug print function. Must be implement by user. */
 #define EF_DEBUG(...) ef_log_debug(__FILE__, __LINE__, __VA_ARGS__)
@@ -62,7 +64,7 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define EF_SW_VERSION                "1.07.06"
+#define EF_SW_VERSION                "1.07.10"
 
 typedef struct _eflash_env{
     char *key;
@@ -90,7 +92,7 @@ typedef enum {
 EfErrCode easyflash_init(void);
 
 #ifdef EF_USING_ENV
-/* env.c env_wl.c */
+/* ef_env.c ef_env_wl.c */
 void ef_load_env(void);
 void ef_print_env(void);
 char *ef_get_env(const char *key);
@@ -102,7 +104,7 @@ size_t ef_get_env_write_bytes(void);
 #endif
 
 #ifdef EF_USING_IAP
-/* iap.c */
+/* ef_iap.c */
 EfErrCode ef_erase_bak_app(size_t app_size);
 EfErrCode ef_erase_user_app(uint32_t user_app_addr, size_t user_app_size);
 EfErrCode ef_erase_bl(uint32_t bl_addr, size_t bl_size);
@@ -113,19 +115,19 @@ EfErrCode ef_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size);
 #endif
 
 #ifdef EF_USING_LOG
-/* log.c */
+/* ef_log.c */
 EfErrCode ef_log_read(size_t index, uint32_t *log, size_t size);
 EfErrCode ef_log_write(const uint32_t *log, size_t size);
 EfErrCode ef_log_clean(void);
 size_t ef_log_get_used_size(void);
 #endif
 
-/* utils.c */
+/* ef_utils.c */
 uint32_t ef_calc_crc32(uint32_t crc, const void *buf, size_t size);
 FlashSecrorStatus ef_get_sector_status(uint32_t addr, size_t sec_size);
 uint32_t ef_find_sec_using_end_addr(uint32_t addr, size_t sec_size);
 
-/* port.c */
+/* ef_port.c */
 EfErrCode ef_port_read(uint32_t addr, uint32_t *buf, size_t size);
 EfErrCode ef_port_erase(uint32_t addr, size_t size);
 EfErrCode ef_port_write(uint32_t addr, const uint32_t *buf, size_t size);

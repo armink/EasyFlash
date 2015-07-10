@@ -42,7 +42,7 @@
  * 2. Data section
  *    The data section storage ENV's parameters and detail.
  *    When an exception has occurred on flash erase or write. The current using data section
- *    address will move to next available position. This position depends on FLASH_MIN_ERASE_SIZE.
+ *    address will move to next available position. This position depends on flash_erase_min_size.
  *    2.1 ENV parameters part
  *        It storage ENV's parameters.
  *    2.2 ENV detail part
@@ -50,12 +50,19 @@
  *        All ENV must be 4 bytes alignment. The remaining part must fill '\0'.
  *
  * @note Word = 4 Bytes in this file
+ * @note It will has two ENV areas(Area0, Area1) in data section when used power fail safeguard mode.
  */
 
 /* flash ENV parameters part index and size */
 enum {
     /* data section ENV detail part end address index */
     ENV_PARAM_PART_INDEX_END_ADDR = 0,
+
+#ifdef EF_ENV_USING_PFS_MODE
+    /* saved count for ENV area */
+    ENV_PARAM_PART_INDEX_SAVED_COUNT,
+#endif
+
     /* data section CRC32 code index */
     ENV_PARAM_PART_INDEX_DATA_CRC,
     /* ENV parameters part word size */
@@ -68,8 +75,10 @@ enum {
 static ef_env const *default_env_set = NULL;
 /* default ENV set size, must be initialized by user */
 static size_t default_env_set_size = NULL;
-/* flash ENV all section total size */
+/* flash ENV all section(system section and data section) total size */
 static size_t env_total_size = NULL;
+/* flash ENV data section size */
+static size_t env_data_section_size = NULL;
 /* the minimum size of flash erasure */
 static size_t flash_erase_min_size = NULL;
 /* ENV RAM cache */
@@ -78,6 +87,11 @@ static uint32_t env_cache[EF_USER_SETTING_ENV_SIZE / 4] = { 0 };
 static uint32_t env_start_addr = NULL;
 /* current using data section address */
 static uint32_t cur_using_data_addr = NULL;
+
+#ifdef EF_ENV_USING_PFS_MODE
+/* next save ENV area address */
+static uint32_t next_save_area_addr = NULL;
+#endif
 
 static uint32_t get_env_start_addr(void);
 static uint32_t get_cur_using_data_addr(void);
@@ -116,10 +130,21 @@ EfErrCode ef_env_init(uint32_t start_addr, size_t total_size, size_t erase_min_s
     EF_ASSERT(default_env);
     EF_ASSERT(default_env_size < EF_USER_SETTING_ENV_SIZE);
     /* must be word alignment for ENV */
-    EF_ASSERT(EF_USER_SETTING_ENV_SIZE % 4 == 0);
     EF_ASSERT(total_size % 4 == 0);
-    /* the ENV total size should be an integral multiple of erase minimum size. */
-    EF_ASSERT(total_size % erase_min_size == 0);
+    EF_ASSERT(EF_USER_SETTING_ENV_SIZE % 4 == 0);
+    /* system section size is erase_min_size, so last part is data section */
+    env_data_section_size = total_size - erase_min_size;
+    /* the ENV data section size should be an integral multiple of erase minimum size. */
+    EF_ASSERT(env_data_section_size % erase_min_size == 0);
+
+#ifndef EF_ENV_USING_PFS_MODE
+    EF_ASSERT(env_data_section_size >= EF_USER_SETTING_ENV_SIZE);
+#else
+    /* it has double area when used power fail safeguard mode */
+    EF_ASSERT(env_data_section_size >= 2*EF_USER_SETTING_ENV_SIZE);
+    EF_ASSERT((env_data_section_size / erase_min_size) % 2 == 0);
+#endif
+
 
     env_start_addr = start_addr;
     env_total_size = total_size;
@@ -127,7 +152,7 @@ EfErrCode ef_env_init(uint32_t start_addr, size_t total_size, size_t erase_min_s
     default_env_set = default_env;
     default_env_set_size = default_env_size;
 
-    EF_DEBUG("Env start address is 0x%08X, size is %d bytes.\n", start_addr, total_size);
+    EF_DEBUG("ENV start address is 0x%08X, size is %d bytes.\n", start_addr, total_size);
 
     ef_load_env();
 
@@ -151,6 +176,11 @@ EfErrCode ef_env_set_default(void){
 
     /* set ENV detail part end address is at ENV detail part start address */
     set_env_detail_end_addr(get_env_detail_addr());
+
+#ifdef EF_ENV_USING_PFS_MODE
+    /* set saved count to default 0 */
+    env_cache[ENV_PARAM_PART_INDEX_SAVED_COUNT] = 0;
+#endif
 
     /* create default ENV */
     for (i = 0; i < default_env_set_size; i++) {
@@ -242,7 +272,6 @@ static size_t get_env_detail_size(void) {
  */
     /* must be initialized */
 static size_t get_env_user_used_size(void) {
-
     return get_env_detail_end_addr() - get_cur_using_data_addr();
 }
 
@@ -252,7 +281,20 @@ static size_t get_env_user_used_size(void) {
  * @return write bytes
  */
 size_t ef_get_env_write_bytes(void) {
+#ifndef EF_ENV_USING_PFS_MODE
     return get_env_detail_end_addr() - get_env_start_addr();
+#else
+    if (get_cur_using_data_addr()
+            < get_env_start_addr() + flash_erase_min_size + env_data_section_size / 2) {
+        /* current using is ENV area0 */
+        return flash_erase_min_size + 2 * (get_env_detail_end_addr() - (get_env_start_addr()
+                +flash_erase_min_size));
+    } else {
+        /* current using is ENV area1 */
+        return flash_erase_min_size + 2 * (get_env_detail_end_addr() - (get_env_start_addr()
+                + flash_erase_min_size + env_data_section_size / 2));
+    }
+#endif
 }
 
 /**
@@ -523,14 +565,22 @@ void ef_print_env(void) {
             }
         }
     }
+
+#ifndef EF_ENV_USING_PFS_MODE
     ef_print("\nENV size: %ld/%ld bytes, write bytes %ld/%ld, mode: wear leveling.\n",
             get_env_user_used_size(), EF_USER_SETTING_ENV_SIZE, ef_get_env_write_bytes(),
             ef_get_env_total_size());
+#else
+    ef_print("\nENV size: %ld/%ld bytes, write bytes %ld/%ld, saved count: %ld, mode: wear leveling and power fail safeguard.\n",
+            get_env_user_used_size(), EF_USER_SETTING_ENV_SIZE, ef_get_env_write_bytes(),
+            ef_get_env_total_size(), env_cache[ENV_PARAM_PART_INDEX_SAVED_COUNT]);
+#endif
 }
 
 /**
  * Load flash ENV to ram.
  */
+#ifndef EF_ENV_USING_PFS_MODE
 void ef_load_env(void) {
     uint32_t *env_cache_bak, env_end_addr, using_data_addr;
 
@@ -573,22 +623,138 @@ void ef_load_env(void) {
 
     }
 }
+#else
+void ef_load_env(void) {
+    /* ENV area0 current using address default value */
+    uint32_t area0_default_cur_using_addr = get_env_start_addr() + flash_erase_min_size;
+    /* ENV area1 current using address default value */
+    uint32_t area1_default_cur_using_addr = area0_default_cur_using_addr + env_data_section_size / 2;
+    uint32_t area0_cur_using_addr, area1_cur_using_addr, area0_end_addr, area1_end_addr;
+    uint32_t area0_crc, area1_crc, area0_saved_count, area1_saved_count;
+    bool area0_is_valid = true, area1_is_valid = true;
+
+    /* read ENV area0 and area1 current using address */
+    ef_port_read(get_env_start_addr(), &area0_cur_using_addr, 4);
+    ef_port_read(get_env_start_addr() + 4, &area1_cur_using_addr, 4);
+    /* if ENV is not initialize or flash has dirty data, set it isn't valid */
+    if ((area0_cur_using_addr == 0xFFFFFFFF)
+            || (area0_cur_using_addr > get_env_start_addr() + ef_get_env_total_size())
+            || (area0_cur_using_addr < get_env_start_addr() + flash_erase_min_size)) {
+        area0_is_valid = false;
+    }
+    if ((area1_cur_using_addr == 0xFFFFFFFF)
+            || (area1_cur_using_addr > get_env_start_addr() + ef_get_env_total_size())
+            || (area1_cur_using_addr < get_env_start_addr() + flash_erase_min_size)) {
+        area1_is_valid = false;
+    }
+    /* check area0 end address when it is valid */
+    if (area0_is_valid) {
+        /* read ENV area end address from flash */
+        ef_port_read(area0_cur_using_addr + ENV_PARAM_PART_INDEX_END_ADDR * 4, &area0_end_addr, 4);
+        if ((area0_end_addr == 0xFFFFFFFF) || (area0_end_addr < area0_cur_using_addr)
+                || (area0_end_addr > area0_cur_using_addr + EF_USER_SETTING_ENV_SIZE)) {
+            area0_is_valid = false;
+        }
+    }
+    /* check area1 end address when it is valid */
+    if (area1_is_valid) {
+        /* read ENV area end address from flash */
+        ef_port_read(area1_cur_using_addr + ENV_PARAM_PART_INDEX_END_ADDR * 4, &area1_end_addr, 4);
+        if ((area1_end_addr == 0xFFFFFFFF) || (area1_end_addr < area1_cur_using_addr)
+                || (area1_end_addr > area1_cur_using_addr + EF_USER_SETTING_ENV_SIZE)) {
+            area1_is_valid = false;
+        }
+    }
+    /* check area0 CRC when it is valid */
+    if (area0_is_valid) {
+        /* read ENV area0 crc32 code from flash */
+        ef_port_read(area0_cur_using_addr + ENV_PARAM_PART_INDEX_DATA_CRC * 4, &area0_crc, 4);
+        /* read ENV from ENV area0 */
+        ef_port_read(area0_cur_using_addr, env_cache, area0_end_addr - area0_cur_using_addr);
+        /* current using data section address is area0 current using data section address */
+        set_cur_using_data_addr(area0_cur_using_addr);
+        if (!env_crc_is_ok()) {
+            area0_is_valid = false;
+        }
+    }
+    /* check area1 CRC when it is valid */
+    if (area1_is_valid) {
+        /* read ENV area1 crc32 code from flash */
+        ef_port_read(area1_cur_using_addr + ENV_PARAM_PART_INDEX_DATA_CRC * 4, &area1_crc, 4);
+        /* read ENV from ENV area1 */
+        ef_port_read(area1_cur_using_addr, env_cache, area1_end_addr - area1_cur_using_addr);
+        /* current using data section address is area1 current using data section address */
+        set_cur_using_data_addr(area1_cur_using_addr);
+        if (!env_crc_is_ok()) {
+            area1_is_valid = false;
+        }
+    }
+    /* all ENV area CRC is OK then compare saved count */
+    if (area0_is_valid && area1_is_valid) {
+        /* read ENV area saved count from flash */
+        ef_port_read(area0_cur_using_addr + ENV_PARAM_PART_INDEX_SAVED_COUNT * 4,
+                &area0_saved_count, 4);
+        ef_port_read(area1_cur_using_addr + ENV_PARAM_PART_INDEX_SAVED_COUNT * 4,
+                &area1_saved_count, 4);
+        /* the bigger saved count area is valid */
+        if ((area0_saved_count > area1_saved_count)||((area0_saved_count == 0)&&(area1_saved_count == 0xFFFFFFFF))) {
+            area1_is_valid = false;
+        } else {
+            area0_is_valid = false;
+        }
+    }
+    if (area0_is_valid) {
+        /* current using data section address is area0 current using data section address */
+        set_cur_using_data_addr(area0_cur_using_addr);
+        /* next save ENV area address is area1 current using address default value */
+        next_save_area_addr = area1_default_cur_using_addr;
+        /* read all ENV from area0 */
+        ef_port_read(area0_cur_using_addr, env_cache, area0_end_addr - area0_cur_using_addr);
+    } else if (area1_is_valid) {
+        /* next save ENV area address is area0 current using address default value */
+        next_save_area_addr = area0_default_cur_using_addr;
+    } else {
+        /* current using data section address is area1 current using address default value */
+        set_cur_using_data_addr(area1_default_cur_using_addr);
+        /* next save ENV area address default is area0 current using address default value */
+        next_save_area_addr = area0_default_cur_using_addr;
+        /* save current using data section address to flash*/
+        save_cur_using_data_addr(area0_default_cur_using_addr);
+        save_cur_using_data_addr(area1_default_cur_using_addr);
+        /* set the ENV to default */
+        ef_env_set_default();
+    }
+}
+#endif
 
 /**
  * Save ENV to flash.
  */
 EfErrCode ef_save_env(void) {
     EfErrCode result = EF_NO_ERR;
-    uint32_t cur_data_addr_bak = get_cur_using_data_addr(), move_offset_addr;
-    size_t env_detail_size = get_env_detail_size();
+    uint32_t cur_using_addr_bak, move_offset_addr;
+    size_t env_used_size = get_env_user_used_size();
+
+#ifndef EF_ENV_USING_PFS_MODE
+    cur_using_addr_bak = get_cur_using_data_addr();
+#else
+    cur_using_addr_bak = next_save_area_addr;
+    /* replace next_save_area_addr with cur_using_data_addr */
+    next_save_area_addr = get_cur_using_data_addr();
+    set_cur_using_data_addr(cur_using_addr_bak);
+    /* change the ENV detail end address to next save area address */
+    set_env_detail_end_addr(get_cur_using_data_addr() + env_used_size);
+    /* ENV area saved count +1 */
+    env_cache[ENV_PARAM_PART_INDEX_SAVED_COUNT]++;
+#endif
 
     /* wear leveling process, automatic move ENV to next available position */
-    while (get_cur_using_data_addr() + env_detail_size
+    while (get_cur_using_data_addr() + env_used_size
             < get_env_start_addr() + ef_get_env_total_size()) {
         /* calculate and cache CRC32 code */
         env_cache[ENV_PARAM_PART_INDEX_DATA_CRC] = calc_env_crc();
         /* erase ENV */
-        result = ef_port_erase(get_cur_using_data_addr(), ENV_PARAM_PART_BYTE_SIZE + env_detail_size);
+        result = ef_port_erase(get_cur_using_data_addr(), env_used_size);
         switch (result) {
         case EF_NO_ERR: {
             EF_INFO("Erased ENV OK.\n");
@@ -609,8 +775,7 @@ EfErrCode ef_save_env(void) {
         }
         }
         /* write ENV to flash */
-        result = ef_port_write(get_cur_using_data_addr(), env_cache,
-                ENV_PARAM_PART_BYTE_SIZE + env_detail_size);
+        result = ef_port_write(get_cur_using_data_addr(), env_cache, env_used_size);
         switch (result) {
         case EF_NO_ERR: {
             EF_INFO("Saved ENV OK.\n");
@@ -636,10 +801,10 @@ EfErrCode ef_save_env(void) {
         }
     }
 
-    if (get_cur_using_data_addr() + env_detail_size
+    if (get_cur_using_data_addr() + env_used_size
             < get_env_start_addr() + ef_get_env_total_size()) {
         /* current using data section address has changed, save it */
-        if (get_cur_using_data_addr() != cur_data_addr_bak) {
+        if (get_cur_using_data_addr() != cur_using_addr_bak) {
             save_cur_using_data_addr(get_cur_using_data_addr());
         }
     } else {
@@ -664,7 +829,7 @@ static uint32_t calc_env_crc(void) {
      * The 4 is ENV end address bytes size. */
     crc32 = ef_calc_crc32(crc32, &env_cache[ENV_PARAM_PART_INDEX_END_ADDR], 4);
     crc32 = ef_calc_crc32(crc32, &env_cache[ENV_PARAM_PART_WORD_SIZE], get_env_detail_size());
-    EF_DEBUG("Calculate Env CRC32 number is 0x%08X.\n", crc32);
+    EF_DEBUG("Calculate ENV CRC32 number is 0x%08X.\n", crc32);
 
     return crc32;
 }
@@ -676,7 +841,7 @@ static uint32_t calc_env_crc(void) {
  */
 static bool env_crc_is_ok(void) {
     if (calc_env_crc() == env_cache[ENV_PARAM_PART_INDEX_DATA_CRC]) {
-        EF_DEBUG("Verify Env CRC32 result is OK.\n");
+        EF_DEBUG("Verify ENV CRC32 result is OK.\n");
         return true;
     } else {
         return false;
@@ -690,8 +855,10 @@ static bool env_crc_is_ok(void) {
  *
  * @return result
  */
+#ifndef EF_ENV_USING_PFS_MODE
 static EfErrCode save_cur_using_data_addr(uint32_t cur_data_addr) {
     EfErrCode result = EF_NO_ERR;
+
     /* erase ENV system section */
     result = ef_port_erase(get_env_start_addr(), 4);
     if (result == EF_NO_ERR) {
@@ -707,6 +874,38 @@ static EfErrCode save_cur_using_data_addr(uint32_t cur_data_addr) {
     }
     return result;
 }
+#else
+static EfErrCode save_cur_using_data_addr(uint32_t cur_data_addr) {
+    EfErrCode result = EF_NO_ERR;
+    uint32_t cur_using_addr[2];
+
+    /* read area0 and area1 current using data section address for backup */
+    ef_port_read(get_env_start_addr(), &cur_using_addr[0], 4);
+    ef_port_read(get_env_start_addr() + 4, &cur_using_addr[1], 4);
+
+    if (cur_data_addr < get_env_start_addr() + flash_erase_min_size + env_data_section_size / 2){
+        /* current using data section is in ENV area0 */
+        cur_using_addr[0] = cur_data_addr;
+    } else {
+        /* current using data section is in ENV area1 */
+        cur_using_addr[1] = cur_data_addr;
+    }
+    /* erase ENV system section */
+    result = ef_port_erase(get_env_start_addr(), 8);
+    if (result == EF_NO_ERR) {
+        /* write area0 and area1 current using data section address to flash */
+        result = ef_port_write(get_env_start_addr(), cur_using_addr, 8);
+        if (result == EF_WRITE_ERR) {
+            EF_INFO("Error: Write system section fault!\n");
+            EF_INFO("Note: The ENV can not be used.\n");
+        }
+    } else {
+        EF_INFO("Error: Erased system section fault!\n");
+        EF_INFO("Note: The ENV can not be used\n");
+    }
+    return result;
+}
+#endif
 
 #endif /* EF_ENV_USING_WL_MODE */
 

@@ -32,15 +32,10 @@
 #define ENV_START_ADDR               /* @note you must define it for a value */
 /* the minimum size of flash erasure */
 #define ERASE_MIN_SIZE               /* @note you must define it for a value */
-#ifdef EF_ENV_USING_WL_MODE
-/* ENV section total bytes size in wear leveling mode. */
+/* ENV section total bytes size. */
 #define ENV_SECTION_SIZE             /* @note you must define it for a value */
-#else
-/* ENV section total bytes size in normal mode. It's equal with FLASH_USER_SETTING_ENV_SIZE */
-#define ENV_SECTION_SIZE          (EF_USER_SETTING_ENV_SIZE)
-#endif
 /* saved log section size */
-#define LOG_AREA_SIZE               /* @note you must define it for a value */
+#define LOG_AREA_SIZE                /* @note you must define it for a value */
 /* print debug information of flash */
 #define PRINT_DEBUG
 

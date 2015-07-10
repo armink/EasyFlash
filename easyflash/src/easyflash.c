@@ -83,26 +83,13 @@ EfErrCode easyflash_init(void) {
 
 #ifdef EF_USING_IAP
     if (result == EF_NO_ERR) {
-        if (ef_get_env_total_size() < erase_min_size) {
-            result = ef_iap_init(env_start_addr + erase_min_size + log_size);
-        } else if (ef_get_env_total_size() % erase_min_size == 0) {
-            result = ef_iap_init(env_start_addr + ef_get_env_total_size() + log_size);
-        } else {
-            result = ef_iap_init((ef_get_env_total_size() / erase_min_size + 1) * erase_min_size + log_size);
-        }
+        result = ef_iap_init(env_start_addr + env_total_size + log_size);
     }
 #endif
 
 #ifdef EF_USING_LOG
     if (result == EF_NO_ERR) {
-        if (ef_get_env_total_size() < erase_min_size) {
-            result = ef_log_init(env_start_addr + erase_min_size, log_size, erase_min_size);
-        } else if (ef_get_env_total_size() % erase_min_size == 0) {
-            result = ef_log_init(env_start_addr + ef_get_env_total_size(), log_size, erase_min_size);
-        } else {
-            result = ef_log_init((ef_get_env_total_size() / erase_min_size + 1) * erase_min_size,
-                    log_size, erase_min_size);
-        }
+        result = ef_log_init(env_start_addr + env_total_size, log_size, erase_min_size);
     }
 #endif
 
