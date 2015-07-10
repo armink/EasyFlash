@@ -6,9 +6,9 @@
 
 EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Micro Control Unit)提供便捷、通用的上层应用接口，使得开发者更加高效实现基于的Flash存储器常见应用开发。该库目前提供 **三大实用功能** ：
 
-- **Env** 小型KV数据库，支持 **写平衡（磨损平衡）** 模式
+- **Env** 小型KV数据库，支持 **写平衡（磨损平衡）** 及 **掉电保护** 模式
  
-让Flash变为NoSQL（非关系型数据库）模型的小型键值（Key-Value）存储数据库。在产品上，能够更加简捷的实现 **设定参数** 或 **运行日志** 等信息掉电保存的功能。
+让Flash变为NoSQL（非关系型数据库）模型的小型键值（Key-Value）存储数据库。在产品上，能够更加简捷的实现 **设定参数** 或 **运行日志** 等信息掉电保存功能。
 
 - **IAP** 在线升级再也不是难事儿
  
@@ -89,7 +89,7 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 EasyFlash is an open source lightweight embedded flash memory library. It provide convenient application interface for MCU (Micro Control Unit). The developers can achieve more efficient and common application development based on Flash memory. The library currently provides **Three useful features** ：
 
-- **Env(environment variables)** : A small KV database. Support **write balance mode(wear leveling)** .
+- **Env(environment variables)** : A small KV database. Support **write balance mode(wear leveling)** and **power fail safeguard**.
 
 Let Flash becomes a small NoSQL (non-relational databases) model and Key-Value stores database. You can be more simple to store **setting parameters** or **running logs** and other information which you want to power down to save.
 
