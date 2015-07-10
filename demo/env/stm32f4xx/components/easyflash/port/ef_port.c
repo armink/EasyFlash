@@ -32,15 +32,25 @@
 #include <stm32f4xx_conf.h>
 
 /* ENV start address */
-#define ENV_START_ADDR            (FLASH_BASE + 256 * 1024) /* on the chip position: 256KB */
+#define ENV_START_ADDR            (FLASH_BASE + 128 * 1024) /* on the chip position: 128KB */
 /* the minimum size of flash erasure */
 #define ERASE_MIN_SIZE            (128 * 1024)              /* it is 128K for compatibility */
-#ifdef EF_ENV_USING_WL_MODE
+#ifndef EF_ENV_USING_PFS_MODE
+#ifndef EF_ENV_USING_WL_MODE
+/* ENV section total bytes size in normal mode. */
+#define ENV_SECTION_SIZE          (ERASE_MIN_SIZE)          /* 128K */
+#else
 /* ENV section total bytes size in wear leveling mode. */
 #define ENV_SECTION_SIZE          (4 * ERASE_MIN_SIZE)      /* 512K */
+#endif
 #else
-/* ENV section total bytes size in normal mode. It's equal with EF_USER_SETTING_ENV_SIZE */
-#define ENV_SECTION_SIZE          (EF_USER_SETTING_ENV_SIZE)
+#ifndef EF_ENV_USING_WL_MODE
+/* ENV section total bytes size in normal and power fail safeguard mode. */
+#define ENV_SECTION_SIZE          (2 * ERASE_MIN_SIZE)      /* 256K */
+#else
+/* ENV section total bytes size in wear leveling and power fail safeguard mode. */
+#define ENV_SECTION_SIZE          (5 * ERASE_MIN_SIZE)      /* 640K */
+#endif
 #endif
 /* print debug information of flash */
 #define PRINT_DEBUG
