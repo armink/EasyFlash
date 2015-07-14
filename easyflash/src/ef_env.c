@@ -26,13 +26,13 @@
  * Created on: 2014-10-06
  */
 
-#include "easyflash.h"
+#include <easyflash.h>
 #include <string.h>
 #include <stdlib.h>
 
 #ifdef EF_USING_ENV
 
-#ifdef EF_ENV_USING_NORMAL_MODE
+#ifndef EF_ENV_USING_WL_MODE
 
 /**
  * ENV area has 2 sections
@@ -68,10 +68,8 @@ enum {
 static ef_env const *default_env_set = NULL;
 /* default ENV set size, must be initialized by user */
 static size_t default_env_set_size = NULL;
-/* flash ENV all section total size */
-static size_t env_total_size = NULL;
 /* ENV RAM cache */
-static uint32_t env_cache[EF_USER_SETTING_ENV_SIZE / 4] = { 0 };
+static uint32_t env_cache[ENV_USER_SETTING_SIZE / 4] = { 0 };
 /* ENV start address in flash */
 static uint32_t env_start_addr = NULL;
 
@@ -97,9 +95,6 @@ static bool env_crc_is_ok(void);
 /**
  * Flash ENV initialize.
  *
- * @param start_addr ENV start address in flash
- * @param total_size ENV section total size (@note must be word alignment)
- * @param erase_min_size the minimum size of flash erasure. it isn't be used in normal mode.
  * @param default_env default ENV set for user
  * @param default_env_size default ENV set size
  *
@@ -107,41 +102,41 @@ static bool env_crc_is_ok(void);
  *
  * @return result
  */
-EfErrCode ef_env_init(uint32_t start_addr, size_t total_size, size_t erase_min_size,
-        ef_env const *default_env, size_t default_env_size) {
+EfErrCode ef_env_init(ef_env const *default_env, size_t default_env_size) {
     EfErrCode result = EF_NO_ERR;
 
-    EF_ASSERT(start_addr);
-    EF_ASSERT(total_size);
-    EF_ASSERT(default_env);
-    EF_ASSERT(default_env_size < total_size);
+    EF_ASSERT(ENV_AREA_SIZE);
+    EF_ASSERT(ENV_USER_SETTING_SIZE);
+    EF_ASSERT(EF_ERASE_MIN_SIZE);
     /* must be word alignment for ENV */
-    EF_ASSERT(total_size % 4 == 0);
+    EF_ASSERT(ENV_USER_SETTING_SIZE % 4 == 0);
+    EF_ASSERT(ENV_AREA_SIZE % 4 == 0);
+    EF_ASSERT(default_env);
+    EF_ASSERT(default_env_size < ENV_USER_SETTING_SIZE);
 
 #ifndef EF_ENV_USING_PFS_MODE
     /* total_size must be aligned with erase_min_size */
-    if (EF_USER_SETTING_ENV_SIZE % erase_min_size == 0) {
-        EF_ASSERT(EF_USER_SETTING_ENV_SIZE == total_size);
+    if (ENV_USER_SETTING_SIZE % EF_ERASE_MIN_SIZE == 0) {
+        EF_ASSERT(ENV_USER_SETTING_SIZE == ENV_AREA_SIZE);
     } else {
-        EF_ASSERT((EF_USER_SETTING_ENV_SIZE/erase_min_size + 1)*erase_min_size == total_size);
+        EF_ASSERT((ENV_USER_SETTING_SIZE/EF_ERASE_MIN_SIZE + 1)*EF_ERASE_MIN_SIZE == ENV_AREA_SIZE);
     }
 #else
     /* total_size must be aligned with erase_min_size */
-    if (EF_USER_SETTING_ENV_SIZE % erase_min_size == 0) {
+    if (ENV_USER_SETTING_SIZE % EF_ERASE_MIN_SIZE == 0) {
         /* it has double area when used power fail safeguard mode */
-        EF_ASSERT(2*EF_USER_SETTING_ENV_SIZE == total_size);
+        EF_ASSERT(2*ENV_USER_SETTING_SIZE == ENV_AREA_SIZE);
     } else {
         /* it has double area when used power fail safeguard mode */
-        EF_ASSERT(2*(EF_USER_SETTING_ENV_SIZE/erase_min_size + 1)*erase_min_size == total_size);
+        EF_ASSERT(2*(ENV_USER_SETTING_SIZE/EF_ERASE_MIN_SIZE + 1)*EF_ERASE_MIN_SIZE == ENV_AREA_SIZE);
     }
 #endif
 
-    env_start_addr = start_addr;
-    env_total_size = total_size;
+    env_start_addr = EF_START_ADDR;
     default_env_set = default_env;
     default_env_set_size = default_env_size;
 
-    EF_DEBUG("ENV start address is 0x%08X, size is %d bytes.\n", start_addr, total_size);
+    EF_DEBUG("ENV start address is 0x%08X, size is %d bytes.\n", EF_START_ADDR, ENV_AREA_SIZE);
 
     ef_load_env();
 
@@ -239,15 +234,6 @@ static size_t get_env_data_size(void) {
 }
 
 /**
- * Get current ENV section total size.
- *
- * @return size
- */
-size_t ef_get_env_total_size(void) {
-    return env_total_size;
-}
-
-/**
  * Get current ENV already write bytes.
  *
  * @return write bytes
@@ -280,7 +266,7 @@ static EfErrCode write_env(const char *key, const char *value) {
         env_str_len = (env_str_len / 4 + 1) * 4;
     }
     /* check capacity of ENV  */
-    if (env_str_len + get_env_data_size() >= EF_USER_SETTING_ENV_SIZE) {
+    if (env_str_len + get_env_data_size() >= ENV_USER_SETTING_SIZE) {
         return EF_ENV_FULL;
     }
 
@@ -519,11 +505,10 @@ void ef_print_env(void) {
     }
 
 #ifndef EF_ENV_USING_PFS_MODE
-    ef_print("\nENV size: %ld/%ld bytes.\n",
-            ef_get_env_write_bytes(), ef_get_env_total_size());
+    ef_print("\nENV size: %ld/%ld bytes.\n", ef_get_env_write_bytes(), ENV_AREA_SIZE);
 #else
     ef_print("\nENV size: %ld/%ld bytes, saved count: %ld, mode: power fail safeguard.\n",
-            ef_get_env_write_bytes(), ef_get_env_total_size(), env_cache[ENV_PARAM_INDEX_SAVED_COUNT]);
+            ef_get_env_write_bytes(), ENV_AREA_SIZE, env_cache[ENV_PARAM_INDEX_SAVED_COUNT]);
 
 #endif
 }
@@ -539,7 +524,7 @@ void ef_load_env(void) {
     ef_port_read(get_env_system_addr() + ENV_PARAM_INDEX_END_ADDR * 4, &env_end_addr, 4);
     /* if ENV is not initialize or flash has dirty data, set default for it */
     if ((env_end_addr == 0xFFFFFFFF) || (env_end_addr < env_start_addr)
-            || (env_end_addr > env_start_addr + EF_USER_SETTING_ENV_SIZE)) {
+            || (env_end_addr > env_start_addr + ENV_USER_SETTING_SIZE)) {
         ef_env_set_default();
     } else {
         /* set ENV end address */
@@ -561,18 +546,18 @@ void ef_load_env(void) {
 #else
 void ef_load_env(void) {
     uint32_t area0_start_address = env_start_addr, area1_start_address = env_start_addr
-            + env_total_size / 2;
+            + ENV_AREA_SIZE / 2;
     uint32_t area0_end_addr, area1_end_addr, area0_crc, area1_crc, area0_saved_count, area1_saved_count;
     bool area0_is_valid = true, area1_is_valid = true;
     /* read ENV area end address from flash */
     ef_port_read(area0_start_address + ENV_PARAM_INDEX_END_ADDR * 4, &area0_end_addr, 4);
     ef_port_read(area1_start_address + ENV_PARAM_INDEX_END_ADDR * 4, &area1_end_addr, 4);
     if ((area0_end_addr == 0xFFFFFFFF) || (area0_end_addr < area0_start_address)
-            || (area0_end_addr > area0_start_address + EF_USER_SETTING_ENV_SIZE)) {
+            || (area0_end_addr > area0_start_address + ENV_USER_SETTING_SIZE)) {
         area0_is_valid = false;
     }
     if ((area1_end_addr == 0xFFFFFFFF) || (area1_end_addr < area1_start_address)
-            || (area1_end_addr > area1_start_address + EF_USER_SETTING_ENV_SIZE)) {
+            || (area1_end_addr > area1_start_address + ENV_USER_SETTING_SIZE)) {
         area1_is_valid = false;
     }
     /* check area0 CRC when it is valid */
@@ -728,6 +713,6 @@ static bool env_crc_is_ok(void) {
     }
 }
 
-#endif /* EF_ENV_USING_NORMAL_MODE */
+#endif /* EF_ENV_USING_WL_MODE */
 
 #endif /* EF_USING_ENV */

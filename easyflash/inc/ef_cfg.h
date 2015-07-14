@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2014, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2015, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -22,9 +22,29 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * Function: Initialize interface for this library.
- * Created on: 2014-09-09
+ * Function: Is is the configure head file for this library.
+ * Created on: 2015-07-14
  */
+
+
+#ifndef EF_CFG_H_
+#define EF_CFG_H_
+
+/* using ENV function */
+#define EF_USING_ENV
+/* using wear leveling mode for ENV */
+/* #define EF_ENV_USING_WL_MODE */
+/* using power fail safeguard mode for ENV */
+/* #define EF_ENV_USING_PFS_MODE */
+
+/* using IAP function */
+#define EF_USING_IAP
+
+/* using save log function */
+/* #define EF_USING_LOG */
+
+/* the minimum size of flash erasure */
+#define EF_ERASE_MIN_SIZE         /* @note you must define it for a value */
 
 /**
  *
@@ -56,48 +76,16 @@
  *       4.Wear leveling and power fail safeguard mode: 5*EF_ERASE_MIN_SIZE
  * @note the log area size must be more than twice of EF_ERASE_MIN_SIZE
  */
-#include <easyflash.h>
+/* backup area start address */
+#define EF_START_ADDR             /* @note you must define it for a value */
+/* the user setting size of ENV, must be word alignment */
+#define ENV_USER_SETTING_SIZE     /* @note you must define it for a value if you used ENV */
+/* ENV area total bytes size in normal mode. */
+#define ENV_AREA_SIZE             /* @note you must define it for a value if you used ENV */
+/* saved log area size */
+#define LOG_AREA_SIZE             /* @note you must define it for a value if you used log */
 
-/**
- * EasyFlash system initialize.
- *
- * @return result
- */
-EfErrCode easyflash_init(void) {
-    extern EfErrCode ef_port_init(ef_env const **default_env, size_t *default_env_size);
-    extern EfErrCode ef_env_init(ef_env const *default_env, size_t default_env_size);
-    extern EfErrCode ef_iap_init(void);
-    extern EfErrCode ef_log_init(void);
+/* print debug information of flash */
+#define PRINT_DEBUG
 
-    size_t default_env_set_size = 0;
-    const ef_env *default_env_set;
-    EfErrCode result = EF_NO_ERR;
-
-    result = ef_port_init(&default_env_set, &default_env_set_size);
-
-#ifdef EF_USING_ENV
-    if (result == EF_NO_ERR) {
-        result = ef_env_init(default_env_set, default_env_set_size);
-    }
-#endif
-
-#ifdef EF_USING_IAP
-    if (result == EF_NO_ERR) {
-        result = ef_iap_init();
-    }
-#endif
-
-#ifdef EF_USING_LOG
-    if (result == EF_NO_ERR) {
-        result = ef_log_init();
-    }
-#endif
-
-    if (result == EF_NO_ERR) {
-        EF_DEBUG("EasyFlash V%s is initialize success.\n", EF_SW_VERSION);
-    } else {
-        EF_DEBUG("EasyFlash V%s is initialize fail.\n", EF_SW_VERSION);
-    }
-
-    return result;
-}
+#endif /* EF_CFG_H_ */

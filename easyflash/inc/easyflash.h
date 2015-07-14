@@ -30,6 +30,7 @@
 #ifndef EASYFLASH_H_
 #define EASYFLASH_H_
 
+#include <ef_cfg.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -38,19 +39,21 @@
 extern "C" {
 #endif
 
-/* using ENV function */
-#define EF_USING_ENV
-/* using IAP function */
-#define EF_USING_IAP
-/* using save log function */
-/* #define EF_USING_LOG */
-/* the user setting size of ENV, must be word alignment */
-#define EF_USER_SETTING_ENV_SIZE     (2 * 1024)                /* default 2K */
-/* using wear leveling mode or normal mode for ENV */
-/* #define EF_ENV_USING_WL_MODE */
-#define EF_ENV_USING_NORMAL_MODE
-/* using power fail safeguard mode for ENV */
-/* #define EF_ENV_USING_PFS_MODE */
+#if defined(EF_USING_ENV) && (!defined(ENV_USER_SETTING_SIZE) || !defined(ENV_AREA_SIZE))
+    #error "Please configure user setting ENV size or ENV area size (in ef_cfg.h)"
+#endif
+
+#if defined(EF_USING_LOG) && !defined(LOG_AREA_SIZE)
+    #error "Please configure log area size (in ef_cfg.h)"
+#endif
+
+#if !defined(EF_START_ADDR)
+    #error "Please configure backup area start address (in ef_cfg.h)"
+#endif
+
+#if !defined(EF_USING_ENV)
+    #error "Please configure minimum size of flash erasure (in ef_cfg.h)"
+#endif
 
 /* EasyFlash debug print function. Must be implement by user. */
 #define EF_DEBUG(...) ef_log_debug(__FILE__, __LINE__, __VA_ARGS__)
@@ -64,7 +67,7 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define EF_SW_VERSION                "1.07.10"
+#define EF_SW_VERSION                "1.07.14"
 
 typedef struct _eflash_env{
     char *key;
@@ -99,7 +102,6 @@ char *ef_get_env(const char *key);
 EfErrCode ef_set_env(const char *key, const char *value);
 EfErrCode ef_save_env(void);
 EfErrCode ef_env_set_default(void);
-size_t ef_get_env_total_size(void);
 size_t ef_get_env_write_bytes(void);
 #endif
 

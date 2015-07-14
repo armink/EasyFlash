@@ -2,386 +2,242 @@
 
 <project>
   <fileVersion>2</fileVersion>
-  <fileChecksum>3830155777</fileChecksum>
+  <fileChecksum>1212500239</fileChecksum>
   <configuration>
     <name>stm32f103xE</name>
     <outputs>
-      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_env_wl.c</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_adc.o</file>
-      <file>$PROJ_DIR$\..\components\others\stm32f103xE.icf</file>
-      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_env.c</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_dbgmcu.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_can.pbi</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rcc.h</file>
-      <file>$PROJ_DIR$\..\components\easyflash\port\flash_port.c</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_cec.o</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\misc.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_fsmc.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_utils.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_iap.o</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\app.o</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\env_wl.pbi</file>
       <file>$TOOLKIT_DIR$\lib\m7M_tl.a</file>
-      <file>$PROJ_DIR$\..\components\easyflash\port\port.c</file>
       <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_spi.h</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\flash_utils.o</file>
-      <file>$PROJ_DIR$\..\..\..\..\easyflash\inc\flash.h</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_pwr.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\flash.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\utils.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dac.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_utils.c</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\easyflash.pbi</file>
-      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\easyflash.c</file>
-      <file>$TOOLKIT_DIR$\inc\c\stdarg.h</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_usart.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_iwdg.o</file>
-      <file>$TOOLKIT_DIR$\inc\c\DLib_Product_string.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_rtc.pbi</file>
-      <file>$TOOLKIT_DIR$\inc\c\stdint.h</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_can.h</file>
-      <file>$PROJ_DIR$\..\app\inc\stm32f10x_conf.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\system_stm32f10x.pbi</file>
-      <file>$TOOLKIT_DIR$\inc\c\cmsis_iar.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_gpio.o</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_cec.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_cec.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_fsmc.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\bsp.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_exti.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_tim.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_spi.o</file>
-      <file>$PROJ_DIR$\..\app\inc\stm32f10x_it.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdio.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\flash_utils.c</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_dbgmcu.pbi</file>
-      <file>$TOOLKIT_DIR$\inc\c\string.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_tim.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_sdio.pbi</file>
-      <file>$TOOLKIT_DIR$\inc\c\stdlib.h</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\misc.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\EasyFlash.pbd</file>
-      <file>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\Include\core_cm3.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\easyflash\inc\easyflash.h</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_it.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_port.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\env_wl.o</file>
       <file>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\Include\core_cmInstr.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\env.c</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\port.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_port.pbi</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_sdio.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_flash.pbi</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_iwdg.h</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\utils.o</file>
       <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_bkp.h</file>
       <file>$TOOLKIT_DIR$\inc\c\DLib_Config_Normal.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_gpio.pbi</file>
+      <file>$PROJ_DIR$\..\app\inc\stm32f10x_it.h</file>
+      <file>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\Include\core_cm3.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\easyflash\inc\easyflash.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\EasyFlash.pbd</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdlib.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_port.o</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_sdio.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\string.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_flash.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_port.pbi</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_iwdg.h</file>
       <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\flash_utils.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\flash_env.c</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_pwr.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Exe\EasyFlash.bin</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_it.o</file>
-      <file>$TOOLKIT_DIR$\inc\c\xencoding_limits.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_flash.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\startup_stm32f10x_hd.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_wwdg.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_bkp.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_i2c.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_rcc.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_env.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_port.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_spi.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_tim.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\env_wl.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_tim.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_sdio.pbi</file>
+      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\env.c</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\port.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_gpio.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_cec.pbi</file>
+      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_utils.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dac.h</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_usart.h</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_can.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_gpio.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_fsmc.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\bsp.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdint.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\system_stm32f10x.pbi</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_pwr.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\easyflash.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_exti.pbi</file>
+      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\flash.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\easyflash.c</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_iwdg.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdarg.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Product_string.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\utils.c</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_rtc.pbi</file>
+      <file>$PROJ_DIR$\..\app\inc\stm32f10x_conf.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\cmsis_iar.h</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_cec.h</file>
+      <file>$PROJ_DIR$\..\app\src\stm32f10x_it.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\easyflash\src\easyflash.c</file>
+      <file>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\CM3\DeviceSupport\ST\STM32F10x\startup\iar\startup_stm32f10x_hd.s</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_adc.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_cec.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_crc.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dbgmcu.c</file>
+      <file>$PROJ_DIR$\..\components\others\bsp.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_env.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dma.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_env_wl.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\misc.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_can.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dac.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_exti.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_iap.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_flash.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_fsmc.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_gpio.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_utils.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_i2c.c</file>
+      <file>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\CM3\DeviceSupport\ST\STM32F10x\system_stm32f10x.c</file>
+      <file>$PROJ_DIR$\..\components\easyflash\port\ef_port.c</file>
+      <file>$PROJ_DIR$\..\app\src\app.c</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_fsmc.h</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_tim.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_pwr.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_iwdg.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_sdio.c</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_adc.o</file>
+      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_env.c</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_iap.o</file>
+      <file>$PROJ_DIR$\..\components\easyflash\port\port.c</file>
+      <file>$PROJ_DIR$\..\components\easyflash\port\flash_port.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\misc.h</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_usart.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\easyflash\inc\flash.h</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_utils.pbi</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_rcc.c</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_dbgmcu.o</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_spi.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_wwdg.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_env_wl.c</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_can.pbi</file>
+      <file>$PROJ_DIR$\..\components\others\stm32f103xE.icf</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rcc.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_cec.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_bkp.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_env_wl.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_pwr.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\utils.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\env.pbi</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_adc.h</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_gpio.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_can.o</file>
+      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\env_wl.c</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_iap.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_usart.pbi</file>
+      <file>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\CM3\DeviceSupport\ST\STM32F10x\stm32f10x.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_sdio.o</file>
+      <file>$PROJ_DIR$\..\components\others\bsp.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_dac.o</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_i2c.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_dma.o</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\easyflash\inc\easyflash.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\easyflash.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_crc.o</file>
+      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\iap.c</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rtc.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
+      <file>$TOOLKIT_DIR$\lib\shb_l.a</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_env.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_dma.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_env_wl.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_env.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\app.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_exti.o</file>
       <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_wwdg.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\system_stm32f10x.o</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\env.o</file>
       <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_exti.h</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_rtc.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\iap.o</file>
       <file>$PROJ_DIR$\..\..\..\..\easyflash\src\flash_env_wl.c</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\flash.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_bkp.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\startup_stm32f10x_hd.o</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\iap.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_env.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_dac.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\env.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_dma.o</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_gpio.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_adc.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\app.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_exti.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\easyflash.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_sdio.o</file>
-      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\iap.c</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_bkp.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_can.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_dma.pbi</file>
-      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\env_wl.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_i2c.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_crc.o</file>
-      <file>$PROJ_DIR$\..\components\others\bsp.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_iap.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_env_wl.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_env_wl.o</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\easyflash\inc\easyflash.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_usart.pbi</file>
-      <file>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\CM3\DeviceSupport\ST\STM32F10x\stm32f10x.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rtc.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_pwr.pbi</file>
-      <file>$TOOLKIT_DIR$\lib\shb_l.a</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\utils.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_env.o</file>
-      <file>$TOOLKIT_DIR$\inc\c\stdio.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\system_stm32f10x.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_flash.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\iap.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_it.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Exe\EasyFlash.bin</file>
+      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\flash_env.c</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_i2c.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\xencoding_limits.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_pwr.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_wwdg.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_rcc.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_env.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_port.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_env_wl.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_utils.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\flash.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_crc.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_utils.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\ystdio.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_wwdg.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\misc.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Exe\EasyFlash.out</file>
+      <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_adc.pbi</file>
+      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_iap.c</file>
+      <file>$TOOLKIT_DIR$\inc\c\stddef.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_dac.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_rcc.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_port.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_i2c.o</file>
       <file>$TOOLKIT_DIR$\lib\rt7M_tl.a</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_env.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_iap.o</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_spi.pbi</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_flash.h</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_tim.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\List\EasyFlash.map</file>
+      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_crc.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_usart.o</file>
       <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dma.h</file>
-      <file>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\Include\core_cmFunc.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_iap.pbi</file>
       <file>$TOOLKIT_DIR$\inc\c\intrinsics.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_iap.o</file>
+      <file>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\Include\core_cmFunc.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_env.pbi</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_iap.pbi</file>
       <file>$TOOLKIT_DIR$\inc\c\stdbool.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\port.pbi</file>
       <file>$TOOLKIT_DIR$\lib\dl7M_tlf.a</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\bsp.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_port.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_usart.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\List\EasyFlash.map</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_spi.pbi</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_tim.h</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_fsmc.pbi</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_crc.h</file>
+      <file>$PROJ_DIR$\stm32f103xE\Obj\port.pbi</file>
       <file>$PROJ_DIR$\..\..\..\..\easyflash\src\flash_iap.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_flash.h</file>
       <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dbgmcu.h</file>
       <file>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\CM3\DeviceSupport\ST\STM32F10x\system_stm32f10x.h</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_iwdg.pbi</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_wwdg.c</file>
       <file>$PROJ_DIR$\stm32f103xE\Obj\flash_env_wl.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_i2c.o</file>
-      <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_iwdg.c</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\flash_env_wl.o</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_utils.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_crc.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\flash.pbi</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_adc.pbi</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_rcc.c</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_dac.pbi</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_tim.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_iap.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_spi.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_flash.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_usart.c</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_rcc.pbi</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_sdio.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_i2c.c</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\ef_utils.o</file>
-      <file>$TOOLKIT_DIR$\inc\c\ystdio.h</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_exti.c</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\stm32f10x_wwdg.pbi</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_pwr.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_fsmc.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_gpio.c</file>
-      <file>$PROJ_DIR$\stm32f103xE\Obj\misc.pbi</file>
-      <file>$TOOLKIT_DIR$\inc\c\stddef.h</file>
-      <file>$PROJ_DIR$\stm32f103xE\Exe\EasyFlash.out</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_can.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_cec.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_utils.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_adc.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_env_wl.c</file>
-      <file>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\CM3\DeviceSupport\ST\STM32F10x\startup\iar\startup_stm32f10x_hd.s</file>
-      <file>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\CM3\DeviceSupport\ST\STM32F10x\system_stm32f10x.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\easyflash\src\easyflash.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_crc.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dac.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dbgmcu.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dma.c</file>
-      <file>$PROJ_DIR$\..\components\easyflash\port\ef_port.c</file>
-      <file>$PROJ_DIR$\..\app\src\app.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_env.c</file>
-      <file>$PROJ_DIR$\..\components\others\bsp.c</file>
-      <file>$PROJ_DIR$\..\app\src\stm32f10x_it.c</file>
-      <file>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\misc.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_iap.c</file>
+      <file>$PROJ_DIR$\..\components\easyflash\inc\ef_cfg.h</file>
     </outputs>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_env_wl.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 114</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 115</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134 48 31 51</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_env.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 128</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 125</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134 48 31 51</file>
-        </tool>
-      </inputs>
-    </file>
     <file>
       <name>[ROOT_NODE]</name>
       <outputs>
         <tool>
           <name>ILINK</name>
-          <file> 180 140</file>
+          <file> 169 182</file>
         </tool>
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\components\easyflash\port\flash_port.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\flash_utils.c</name>
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 84</file>
+          <file> 97</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 57</file>
+          <file> 4</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 20 33 70 99 121 68 119 76 10 179 153 134 126 171 51 28 35 100 118 54 59 37 133 131 148 34 88 146 11 98 65 6 142 29 85 9</file>
+          <file> 95 42 25 136 130 13 123 155 82 173 170 191</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 20 33 70 99 121 68 119 76 10 179 153 134 126 171 51 28 35 100 118 54 59 37 133 131 148 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\components\easyflash\port\port.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 135</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 61</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134 126 171 51 28 35 100 118 54 59 37 133 131 148 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134 126 171 51 28 35 100 118 54 59 37 133 131 148 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\flash.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 158</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 92</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 20 33 70 99 121 68 119 76 10 179 153 134</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 20 33 70 99 121 68 119 76 10 179 153 134</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\utils.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 124</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 66</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_utils.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 156</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 170</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\easyflash.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 26</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 103</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134</file>
+          <file> 95 42 25 136 130 13 123 155 82 173 170 191</file>
         </tool>
       </inputs>
     </file>
@@ -390,30 +246,809 @@
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 96</file>
+          <file> 111</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 87</file>
+          <file> 140</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134 48 31 51</file>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191 21 51 18</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134 48 31 51</file>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191 21 51 18</file>
         </tool>
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\flash_utils.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_utils.c</name>
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 12</file>
+          <file> 162</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 165</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\flash.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 163</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 144</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 95 42 25 136 130 13 123 155 82 173 170 191</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 95 42 25 136 130 13 123 155 82 173 170 191</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\easyflash.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 45</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 126</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\utils.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 110</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 11</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\src\stm32f10x_it.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 9</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 151</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 14 120 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 14 120 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\easyflash\src\easyflash.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 45</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 126</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 125 201 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 173 170 191</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 125 201 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 173 170 191</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\CM3\DeviceSupport\ST\STM32F10x\startup\iar\startup_stm32f10x_hd.s</name>
+      <outputs>
+        <tool>
+          <name>AARM</name>
+          <file> 146</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_adc.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 171</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 88</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_cec.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 34</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 106</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 56 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 56 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_crc.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 164</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 127</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 183 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 183 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dbgmcu.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 7</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 99</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 197 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 197 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\components\others\bsp.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 193</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 41</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 120 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 5 170 166</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 120 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 5 170 166</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_env.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 189</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 135</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 125 201 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 173 170 191 21 51 18</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 125 201 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 173 170 191 21 51 18</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dma.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 133</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 124</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 185 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 185 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_env_wl.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 134</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 108</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 125 201 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 173 170 191 21 51 18</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 125 201 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 173 170 191 21 51 18</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\misc.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 168</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 8</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 93 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 93 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 145</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 107</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 12 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 12 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_can.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 103</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 114</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 38 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 38 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dac.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 174</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 121</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 36 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 36 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_exti.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 46</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 138</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 141 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 141 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_iap.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 116</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 187</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 125 201 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 173 170 191</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 125 201 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 173 170 191</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_flash.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 22</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 149</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 180 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 180 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_fsmc.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 194</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 40</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 83 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 83 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_gpio.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 33</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 39</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 113 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 113 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_utils.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 162</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 165</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 125 201 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 173 170 191</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 125 201 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 173 170 191</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_i2c.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 154</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 177</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 122 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 122 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\CM3\DeviceSupport\ST\STM32F10x\system_stm32f10x.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 43</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 148</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\components\easyflash\port\ef_port.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 23</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 176</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 125 201 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 173 170 191 5 166 18 50</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 125 201 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 173 170 191 5 166 18 50</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\src\app.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 137</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 0</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 120 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 125 201 173 170 191 5 166 18</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 120 54 112 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93 125 201 173 170 191 5 166 18</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_tim.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 27</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 29</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 181 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 181 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_pwr.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 109</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 156</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 44 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 44 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_iwdg.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 199</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 49</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 24 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 24 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_sdio.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 30</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 119</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 20 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 20 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_env.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 189</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 135</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191 21 51 18</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\components\easyflash\port\port.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 195</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 32</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191 5 166 18 50 54 112 118 15 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191 5 166 18 50 54 112 118 15 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\components\easyflash\port\flash_port.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 160</file>
         </tool>
         <tool>
           <name>ICCARM</name>
@@ -423,279 +1058,11 @@
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 20 33 70 99 121 68 119 76 10 179 153 134</file>
+          <file> 95 42 25 136 130 13 123 155 82 173 170 191 5 166 18 50 54 112 118 15 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 20 33 70 99 121 68 119 76 10 179 153 134</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\flash_env.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 94</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 83</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 20 33 70 99 121 68 119 76 10 179 153 134 48 31 51</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 20 33 70 99 121 68 119 76 10 179 153 134 48 31 51</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\flash_env_wl.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 151</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 155</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 20 33 70 99 121 68 119 76 10 179 153 134 48 31 51</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 20 33 70 99 121 68 119 76 10 179 153 134 48 31 51</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\iap.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 93</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 90</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\env_wl.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 15</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 58</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134 48 31 51</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134 48 31 51</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\flash_iap.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 132</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 13</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 20 33 70 99 121 68 119 76 10 179 153 134</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 20 33 70 99 121 68 119 76 10 179 153 134</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_wwdg.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 174</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 79</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 85 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 85 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_iwdg.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 149</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 30</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 65 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 65 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_rcc.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 167</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 82</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 6 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_tim.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 49</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 44</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 142 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 142 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_iap.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 113</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 129</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 55 33 70 99 121 68 119 76 10 179 153 134</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_spi.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 141</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 45</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 18 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 18 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_flash.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 64</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 77</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 146 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 146 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 11 98 65 6 142 29 85 9</file>
+          <file> 95 42 25 136 130 13 123 155 82 173 170 191 5 166 18 50 54 112 118 15 10 55 186 188 198 38 141 180 83 113 24 105 181 37 139 93</file>
         </tool>
       </inputs>
     </file>
@@ -708,63 +1075,17 @@
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 139</file>
+          <file> 184</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 29 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 85 9</file>
+          <file> 37 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 139 93</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 29 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_sdio.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 50</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 104</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 63 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 63 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_i2c.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 81</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 152</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 110 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 110 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
+          <file> 37 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 139 93</file>
         </tool>
       </inputs>
     </file>
@@ -773,113 +1094,201 @@
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 32</file>
+          <file> 53</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 89</file>
+          <file> 142</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 120 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
+          <file> 129 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 120 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
+          <file> 129 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
         </tool>
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_exti.c</name>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_rcc.c</name>
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 43</file>
+          <file> 175</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 102</file>
+          <file> 158</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 88 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 146 11 98 65 6 142 29 85 9</file>
+          <file> 105 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 181 37 139 93</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 88 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 146 11 98 65 6 142 29 85 9</file>
+          <file> 105 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 181 37 139 93</file>
         </tool>
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_pwr.c</name>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_spi.c</name>
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 122</file>
+          <file> 179</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 73</file>
+          <file> 26</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 21 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
+          <file> 3 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 21 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
+          <file> 3 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 139 93</file>
         </tool>
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_fsmc.c</name>
+      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_wwdg.c</name>
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 143</file>
+          <file> 167</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 41</file>
+          <file> 157</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 11 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 98 65 6 142 29 85 9</file>
+          <file> 139 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 93</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 11 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 98 65 6 142 29 85 9</file>
+          <file> 139 118 15 42 25 136 130 13 123 155 82 10 55 186 188 198 54 112 38 141 180 83 113 24 105 181 37 93</file>
         </tool>
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_gpio.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_env_wl.c</name>
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 69</file>
+          <file> 134</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 38</file>
+          <file> 108</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191 21 51 18</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\env_wl.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 1</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 28</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 98 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 65 6 142 29 85 9</file>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191 21 51 18</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 98 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 65 6 142 29 85 9</file>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191 21 51 18</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\iap.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 147</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 150</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\flash_env_wl.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 200</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 161</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 95 42 25 136 130 13 123 155 82 173 170 191 21 51 18</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 95 42 25 136 130 13 123 155 82 173 170 191 21 51 18</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\flash_env.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 132</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 159</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 95 42 25 136 130 13 123 155 82 173 170 191 21 51 18</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 95 42 25 136 130 13 123 155 82 173 170 191 21 51 18</file>
         </tool>
       </inputs>
     </file>
@@ -888,460 +1297,68 @@
       <outputs>
         <tool>
           <name>OBJCOPY</name>
-          <file> 74</file>
+          <file> 152</file>
         </tool>
         <tool>
           <name>ILINK</name>
-          <file> 140</file>
+          <file> 182</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ILINK</name>
-          <file> 2 14 42 103 125 115 129 138 170 52 78 1 106 107 8 111 95 4 97 102 77 41 38 152 75 30 73 82 89 104 45 44 139 79 86 123 127 16 136</file>
+          <file> 104 0 41 126 135 108 187 176 165 8 146 88 107 114 106 127 121 99 124 138 149 40 39 177 151 49 156 158 142 119 26 29 184 157 148 131 178 2 192</file>
         </tool>
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_can.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_iap.c</name>
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 5</file>
+          <file> 116</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 107</file>
+          <file> 187</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 16 42 25 136 130 13 123 155 82 173 170 191</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\flash_iap.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 190</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 90</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 34 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 88 146 11 98 65 6 142 29 85 9</file>
+          <file> 95 42 25 136 130 13 123 155 82 173 170 191</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 34 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_cec.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 40</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 8</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 39 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 39 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_utils.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 156</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 170</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 116 33 70 99 121 68 119 76 10 179 153 134</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 116 33 70 99 121 68 119 76 10 179 153 134</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_adc.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 159</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 1</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 100 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 100 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_env_wl.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 114</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 115</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 116 33 70 99 121 68 119 76 10 179 153 134 48 31 51</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 116 33 70 99 121 68 119 76 10 179 153 134 48 31 51</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\CM3\DeviceSupport\ST\STM32F10x\startup\iar\startup_stm32f10x_hd.s</name>
-      <outputs>
-        <tool>
-          <name>AARM</name>
-          <file> 78</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\CM3\DeviceSupport\ST\STM32F10x\system_stm32f10x.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 36</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 86</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 80</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 106</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 67 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 67 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\easyflash\src\easyflash.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 26</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 103</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 116 33 70 99 121 68 119 76 10 179 153 134</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_crc.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 157</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 111</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 144 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 144 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dac.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 161</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 95</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 24 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 24 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dbgmcu.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 47</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 4</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 147 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 147 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dma.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 108</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 97</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 130 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 130 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\components\easyflash\port\ef_port.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 62</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 138</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 116 33 70 99 121 68 119 76 10 179 153 134 126 171 51 28 35 100 118 54 59 37 133 131 148 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 116 33 70 99 121 68 119 76 10 179 153 134 126 171 51 28 35 100 118 54 59 37 133 131 148 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\app\src\app.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 101</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 14</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 112 35 100 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 34 88 146 11 98 65 6 142 29 85 9 116 179 153 134 126 171 51</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 112 35 100 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 34 88 146 11 98 65 6 142 29 85 9 116 179 153 134 126 171 51</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_env.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 128</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 125</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 116 33 70 99 121 68 119 76 10 179 153 134 48 31 51</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 116 33 70 99 121 68 119 76 10 179 153 134 48 31 51</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\components\others\bsp.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 137</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 42</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 112 35 100 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 34 88 146 11 98 65 6 142 29 85 9 126 153 171</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 112 35 100 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 34 88 146 11 98 65 6 142 29 85 9 126 153 171</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\app\src\stm32f10x_it.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 56</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 75</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 46 112 35 100 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 46 112 35 100 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 34 88 146 11 98 65 6 142 29 85 9</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\misc.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 178</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 52</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 9 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 9 118 54 33 70 99 121 68 119 76 10 59 37 133 131 148 35 100 34 88 146 11 98 65 6 142 29 85</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\easyflash\src\ef_iap.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 113</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 129</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 116 33 70 99 121 68 119 76 10 179 153 134</file>
+          <file> 95 42 25 136 130 13 123 155 82 173 170 191</file>
         </tool>
       </inputs>
     </file>
     <forcedrebuild>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_env_wl.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_utils.c</name>
+      <tool>ICCARM</tool>
+    </forcedrebuild>
+    <forcedrebuild>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\easyflash.c</name>
       <tool>ICCARM</tool>
     </forcedrebuild>
     <forcedrebuild>
@@ -1349,11 +1366,7 @@
       <tool>ICCARM</tool>
     </forcedrebuild>
     <forcedrebuild>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_utils.c</name>
-      <tool>ICCARM</tool>
-    </forcedrebuild>
-    <forcedrebuild>
-      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\easyflash.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\easyflash\src\ef_env_wl.c</name>
       <tool>ICCARM</tool>
     </forcedrebuild>
     <forcedrebuild>

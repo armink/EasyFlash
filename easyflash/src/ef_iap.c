@@ -26,7 +26,7 @@
  * Created on: 2015-01-05
  */
 
-#include "easyflash.h"
+#include <easyflash.h>
 
 #ifdef EF_USING_IAP
 
@@ -38,16 +38,21 @@ static uint32_t get_bak_app_start_addr(void);
 /**
  * Flash IAP function initialize.
  *
- * @param start_addr IAP section backup application section start address in flash
- *
  * @return result
  */
-EfErrCode ef_iap_init(uint32_t start_addr) {
+EfErrCode ef_iap_init(void) {
     EfErrCode result = EF_NO_ERR;
 
-    EF_ASSERT(start_addr);
+    bak_app_start_addr = EF_START_ADDR ;
 
-    bak_app_start_addr = start_addr;
+#if defined(EF_USING_ENV)
+    bak_app_start_addr += ENV_AREA_SIZE;
+#endif
+
+#if defined(EF_USING_LOG)
+    bak_app_start_addr += LOG_AREA_SIZE;
+#endif
+
     return result;
 }
 

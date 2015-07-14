@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2014, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2015, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -22,9 +22,31 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * Function: Initialize interface for this library.
- * Created on: 2014-09-09
+ * Function: Is is the configure head file for this library.
+ * Created on: 2015-07-14
  */
+
+
+#ifndef EF_CFG_H_
+#define EF_CFG_H_
+
+#include <stm32f4xx_conf.h>
+
+/* using ENV function */
+#define EF_USING_ENV
+/* using wear leveling mode for ENV */
+/* #define EF_ENV_USING_WL_MODE */
+/* using power fail safeguard mode for ENV */
+/* #define EF_ENV_USING_PFS_MODE */
+
+/* using IAP function */
+#define EF_USING_IAP
+
+/* using save log function */
+/* #define EF_USING_LOG */
+
+/* the minimum size of flash erasure */
+#define EF_ERASE_MIN_SIZE         (128 * 1024)              /* it is 128K for compatibility */
 
 /**
  *
@@ -40,7 +62,7 @@
  * |----------------------------|
  *
  * @note all area size must be aligned with EF_ERASE_MIN_SIZE
- * @note EasyFlash will use ram to buffered the ENV. At some time flash's EF_ERASE_MIN_SIZE is so big,
+ * @note EasyFlash will use ram to buffered the ENV.At some time some flash's EF_ERASE_MIN_SIZE is so big,
  *       and you want use ENV size is less than it. So you must defined ENV_USER_SETTING_SIZE for ENV.
  * @note ENV area size has some limitations in different modes.
  *       1.Normal mode: no more limitations
@@ -51,53 +73,36 @@
  *       For example:
  *       The EF_ERASE_MIN_SIZE is 128K and the ENV_USER_SETTING_SIZE: 2K. The ENV_AREA_SIZE in different mode you can define
  *       1.Normal mode: 1*EF_ERASE_MIN_SIZE
- *       2.Wear leveling mode: 3*EF_ERASE_MIN_SIZE (It has 2 flash section to store ENV. So ENV can erase at least 200,000 times)
+ *       2.Wear leveling mode: 2*EF_ERASE_MIN_SIZE (It has 2 flash section to store ENV. So ENV can erase at least 200,000 times)
  *       3.Power fail safeguard mode: 2*EF_ERASE_MIN_SIZE
  *       4.Wear leveling and power fail safeguard mode: 5*EF_ERASE_MIN_SIZE
  * @note the log area size must be more than twice of EF_ERASE_MIN_SIZE
  */
-#include <easyflash.h>
-
-/**
- * EasyFlash system initialize.
- *
- * @return result
- */
-EfErrCode easyflash_init(void) {
-    extern EfErrCode ef_port_init(ef_env const **default_env, size_t *default_env_size);
-    extern EfErrCode ef_env_init(ef_env const *default_env, size_t default_env_size);
-    extern EfErrCode ef_iap_init(void);
-    extern EfErrCode ef_log_init(void);
-
-    size_t default_env_set_size = 0;
-    const ef_env *default_env_set;
-    EfErrCode result = EF_NO_ERR;
-
-    result = ef_port_init(&default_env_set, &default_env_set_size);
-
-#ifdef EF_USING_ENV
-    if (result == EF_NO_ERR) {
-        result = ef_env_init(default_env_set, default_env_set_size);
-    }
+/* backup area start address */
+#define EF_START_ADDR             (FLASH_BASE + 128 * 1024) /* on the chip position: 128KB */
+/* the user setting size of ENV, must be word alignment */
+#define ENV_USER_SETTING_SIZE     (2 * 1024)
+#ifndef EF_ENV_USING_PFS_MODE
+    #ifndef EF_ENV_USING_WL_MODE
+        /* ENV area total bytes size in normal mode. */
+        #define ENV_AREA_SIZE          (1 * EF_ERASE_MIN_SIZE)      /* 128K */
+    #else
+        /* ENV area total bytes size in wear leveling mode. */
+        #define ENV_AREA_SIZE          (4 * EF_ERASE_MIN_SIZE)      /* 512K */
+    #endif
+#else
+    #ifndef EF_ENV_USING_WL_MODE
+        /* ENV area total bytes size in power fail safeguard mode. */
+        #define ENV_AREA_SIZE          (2 * EF_ERASE_MIN_SIZE)      /* 256K */
+    #else
+        /* ENV area total bytes size in wear leveling and power fail safeguard mode. */
+        #define ENV_AREA_SIZE          (5 * EF_ERASE_MIN_SIZE)      /* 640K */
+    #endif
 #endif
+/* saved log area size */
+#define LOG_AREA_SIZE             (2 * EF_ERASE_MIN_SIZE)      /* 256K */
 
-#ifdef EF_USING_IAP
-    if (result == EF_NO_ERR) {
-        result = ef_iap_init();
-    }
-#endif
+/* print debug information of flash */
+#define PRINT_DEBUG
 
-#ifdef EF_USING_LOG
-    if (result == EF_NO_ERR) {
-        result = ef_log_init();
-    }
-#endif
-
-    if (result == EF_NO_ERR) {
-        EF_DEBUG("EasyFlash V%s is initialize success.\n", EF_SW_VERSION);
-    } else {
-        EF_DEBUG("EasyFlash V%s is initialize fail.\n", EF_SW_VERSION);
-    }
-
-    return result;
-}
+#endif /* EF_CFG_H_ */

@@ -26,42 +26,10 @@
  * Created on: 2015-01-16
  */
 
-#include "easyflash.h"
+#include <easyflash.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <stm32f10x_conf.h>
-
-/* page size for stm32 flash */
-#if defined(STM32F10X_LD) || defined(STM32F10X_LD_VL) || defined (STM32F10X_MD) || defined (STM32F10X_MD_VL)
-#define PAGE_SIZE     1024
-#else
-#define PAGE_SIZE     2048
-#endif
-
-/* Environment variables start address */
-#define ENV_START_ADDR            (FLASH_BASE + 100 * 1024) /* from the chip position: 100KB */
-/* the minimum size of flash erasure */
-#define ERASE_MIN_SIZE             PAGE_SIZE                /* it is one page for STM32 */
-#ifndef EF_ENV_USING_PFS_MODE
-#ifndef EF_ENV_USING_WL_MODE
-/* ENV section total bytes size in normal mode. */
-#define ENV_SECTION_SIZE          (ERASE_MIN_SIZE)
-#else
-/* ENV section total bytes size in wear leveling mode. */
-#define ENV_SECTION_SIZE          (4 * ERASE_MIN_SIZE)
-#endif
-#else
-#ifndef EF_ENV_USING_WL_MODE
-/* ENV section total bytes size in normal and power fail safeguard mode. */
-#define ENV_SECTION_SIZE          (2 * ERASE_MIN_SIZE)
-#else
-/* ENV section total bytes size in wear leveling and power fail safeguard mode. */
-#define ENV_SECTION_SIZE          (5 * ERASE_MIN_SIZE)
-#endif
-#endif
-/* print debug information of flash */
-#define PRINT_DEBUG
 
 /* default environment variables set for user */
 static const ef_env default_env_set[] = {
@@ -77,25 +45,14 @@ static char log_buf[128];
 /**
  * Flash port for hardware initialize.
  *
- * @param env_addr ENV start address
- * @param env_total_size ENV sector total bytes size (@note must be word alignment)
- * @param erase_min_size the minimum size of Flash erasure
  * @param default_env default ENV set for user
  * @param default_env_size default ENV size
- * @param log_total_size saved log area size
  *
  * @return result
  */
-EfErrCode ef_port_init(uint32_t *env_addr, size_t *env_total_size, size_t *erase_min_size,
-        ef_env const **default_env, size_t *default_env_size, size_t *log_size) {
+EfErrCode ef_port_init(ef_env const **default_env, size_t *default_env_size) {
     EfErrCode result = EF_NO_ERR;
-          
-    EF_ASSERT(EF_USER_SETTING_ENV_SIZE % 4 == 0);
-    EF_ASSERT(ENV_SECTION_SIZE % 4 == 0);
 
-    *env_addr = ENV_START_ADDR;
-    *env_total_size = ENV_SECTION_SIZE;
-    *erase_min_size = ERASE_MIN_SIZE;
     *default_env = default_env_set;
     *default_env_size = sizeof(default_env_set) / sizeof(default_env_set[0]);
 
@@ -141,7 +98,7 @@ EfErrCode ef_port_erase(uint32_t addr, size_t size) {
     size_t erase_pages, i;
     
     /* make sure the start address is a multiple of FLASH_ERASE_MIN_SIZE */
-    EF_ASSERT(addr % ERASE_MIN_SIZE == 0);
+    EF_ASSERT(addr % EF_ERASE_MIN_SIZE == 0);
     
     /* calculate pages */
     erase_pages = size / PAGE_SIZE;

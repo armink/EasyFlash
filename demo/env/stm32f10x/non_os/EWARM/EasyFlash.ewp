@@ -301,6 +301,7 @@
           <state>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc</state>
           <state>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\Include</state>
           <state>$PROJ_DIR$\..\Libraries\CMSIS_EWARM\CM3\DeviceSupport\ST\STM32F10x</state>
+          <state>$PROJ_DIR$\..\components\easyflash\inc</state>
           <state>$PROJ_DIR$\..\..\..\..\..\easyflash\inc</state>
         </option>
         <option>

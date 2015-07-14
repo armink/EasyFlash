@@ -26,7 +26,7 @@
  * Created on: 2015-06-04
  */
 
-#include "easyflash.h"
+#include <easyflash.h>
 
 #ifdef EF_USING_LOG
 
@@ -34,10 +34,6 @@
 static uint32_t log_start_addr = 0, log_end_addr = 0;
 /* saved log area address for flash */
 static uint32_t log_area_start_addr = 0;
-/* saved log area total size */
-static size_t flash_log_size = 0;
-/* the minimum size of flash erasure */
-static size_t flash_erase_min_size = 0;
 /* initialize OK flag */
 static bool init_ok = false;
 
@@ -47,26 +43,23 @@ static uint32_t get_next_flash_sec_addr(uint32_t cur_addr);
 /**
  * The flash save log function initialize.
  *
- * @param start_addr log area start address
- * @param log_size log area total size
- * @param erase_min_size the minimum size of flash erasure
- *
  * @return result
  */
-EfErrCode ef_log_init(uint32_t start_addr, size_t log_size, size_t erase_min_size) {
+EfErrCode ef_log_init(void) {
     EfErrCode result = EF_NO_ERR;
 
-    EF_ASSERT(start_addr);
-    EF_ASSERT(log_size);
-    EF_ASSERT(erase_min_size);
+    EF_ASSERT(LOG_AREA_SIZE);
+    EF_ASSERT(EF_ERASE_MIN_SIZE);
     /* the log area size must be an integral multiple of erase minimum size. */
-    EF_ASSERT(log_size % erase_min_size == 0);
-    /* the log area size must be more than 2 multiple of erase minimum size */
-    EF_ASSERT(log_size / erase_min_size >= 2);
+    EF_ASSERT(LOG_AREA_SIZE % EF_ERASE_MIN_SIZE == 0);
+    /* the log area size must be more than twice of EF_ERASE_MIN_SIZE */
+    EF_ASSERT(LOG_AREA_SIZE / EF_ERASE_MIN_SIZE >= 2);
 
-    log_area_start_addr = start_addr;
-    flash_log_size = log_size;
-    flash_erase_min_size = erase_min_size;
+#ifdef EF_USING_ENV
+    log_area_start_addr = EF_START_ADDR + ENV_AREA_SIZE;
+#else
+    log_area_start_addr = EF_START_ADDR;
+#endif
 
     /* find the log store start address and end address */
     find_start_and_end_addr();
@@ -96,7 +89,7 @@ EfErrCode ef_log_init(uint32_t start_addr, size_t log_size, size_t erase_min_siz
  *                   |   empty    |                         |############|
  *  log area end --> |============|                         |============|
  *
- *  flash_log_size = log area end - log area star
+ *  LOG_AREA_SIZE = log area end - log area star
  *
  */
 static void find_start_and_end_addr(void) {
@@ -106,17 +99,17 @@ static void find_start_and_end_addr(void) {
     /* all status sector counts */
     size_t empty_sec_counts = 0, using_sec_counts = 0, full_sector_counts = 0;
     /* total sector number */
-    size_t total_sec_num = flash_log_size / flash_erase_min_size;
+    size_t total_sec_num = LOG_AREA_SIZE / EF_ERASE_MIN_SIZE;
     /* see comment of find_start_and_end_addr function */
     uint8_t cur_log_sec_state = 0;
 
     /* get the first sector status */
-    cur_sec_status = ef_get_sector_status(log_area_start_addr, flash_erase_min_size);
+    cur_sec_status = ef_get_sector_status(log_area_start_addr, EF_ERASE_MIN_SIZE);
     last_sec_status = cur_sec_status;
 
-    for (cur_size = flash_erase_min_size; cur_size < flash_log_size; cur_size += flash_erase_min_size) {
+    for (cur_size = EF_ERASE_MIN_SIZE; cur_size < LOG_AREA_SIZE; cur_size += EF_ERASE_MIN_SIZE) {
         /* get current sector status */
-        cur_sec_status = ef_get_sector_status(log_area_start_addr + cur_size, flash_erase_min_size);
+        cur_sec_status = ef_get_sector_status(log_area_start_addr + cur_size, EF_ERASE_MIN_SIZE);
         /* compare last and current status */
         switch (last_sec_status) {
         case FLASH_SECTOR_EMPTY: {
@@ -141,7 +134,7 @@ static void find_start_and_end_addr(void) {
                 /* like state 1 */
                 cur_log_sec_state = 1;
                 log_start_addr = log_area_start_addr;
-                cur_using_sec_addr = log_area_start_addr + cur_size - flash_erase_min_size;
+                cur_using_sec_addr = log_area_start_addr + cur_size - EF_ERASE_MIN_SIZE;
                 break;
             case FLASH_SECTOR_USING:
                 EF_DEBUG("Error: Log area error! Now will clean all log area.\n");
@@ -151,7 +144,7 @@ static void find_start_and_end_addr(void) {
                 /* like state 2 */
                 cur_log_sec_state = 2;
                 log_start_addr = log_area_start_addr + cur_size;
-                cur_using_sec_addr = log_area_start_addr + cur_size - flash_erase_min_size;
+                cur_using_sec_addr = log_area_start_addr + cur_size - EF_ERASE_MIN_SIZE;
                 break;
             }
             using_sec_counts++;
@@ -170,7 +163,7 @@ static void find_start_and_end_addr(void) {
                     log_start_addr = log_area_start_addr;
                     /* word alignment */
                     log_end_addr = log_area_start_addr + cur_size - 4;
-                    cur_using_sec_addr = log_area_start_addr + cur_size - flash_erase_min_size;
+                    cur_using_sec_addr = log_area_start_addr + cur_size - EF_ERASE_MIN_SIZE;
                 }
                 break;
             case FLASH_SECTOR_USING:
@@ -216,7 +209,7 @@ static void find_start_and_end_addr(void) {
     } else if (((cur_log_sec_state == 1) && (cur_using_sec_addr != 0))
             || (cur_log_sec_state == 2)) {
         /* find the end address */
-        log_end_addr = ef_find_sec_using_end_addr(cur_using_sec_addr, flash_erase_min_size);
+        log_end_addr = ef_find_sec_using_end_addr(cur_using_sec_addr, EF_ERASE_MIN_SIZE);
     }
 }
 
@@ -235,7 +228,7 @@ size_t ef_log_get_used_size(void) {
     if (log_start_addr < log_end_addr) {
         return log_end_addr - log_start_addr + 4;
     } else if (log_start_addr > log_end_addr) {
-        return flash_log_size - (log_start_addr - log_end_addr) + 4;
+        return LOG_AREA_SIZE - (log_start_addr - log_end_addr) + 4;
     } else {
         return 0;
     }
@@ -269,7 +262,7 @@ EfErrCode ef_log_read(size_t index, uint32_t *log, size_t size) {
     if (log_start_addr < log_end_addr) {
         result = ef_port_read(log_area_start_addr + index, log, size);
     } else if (log_start_addr > log_end_addr) {
-        if (log_start_addr + index + size <= log_area_start_addr + flash_log_size) {
+        if (log_start_addr + index + size <= log_area_start_addr + LOG_AREA_SIZE) {
             /*                          Flash log area
              *                         |--------------|
              * log_area_start_addr --> |##############|
@@ -288,7 +281,7 @@ EfErrCode ef_log_read(size_t index, uint32_t *log, size_t size) {
              * read from (log_start_addr + index) to (log_start_addr + index + size)
              */
             result = ef_port_read(log_start_addr + index, log, size);
-        } else if (log_start_addr + index < log_area_start_addr + flash_log_size) {
+        } else if (log_start_addr + index < log_area_start_addr + LOG_AREA_SIZE) {
             /*                          Flash log area
              *                         |--------------|
              * log_area_start_addr --> |**************| <-- read end
@@ -307,7 +300,7 @@ EfErrCode ef_log_read(size_t index, uint32_t *log, size_t size) {
              * step1: read from (log_start_addr + index) to flash log area end address
              * step2: read from flash log area start address to read size's end address
              */
-            read_size_temp = (log_area_start_addr + flash_log_size) - (log_start_addr + index);
+            read_size_temp = (log_area_start_addr + LOG_AREA_SIZE) - (log_start_addr + index);
             result = ef_port_read(log_start_addr + index, log, read_size_temp);
             if (result == EF_NO_ERR) {
                 result = ef_port_read(log_area_start_addr, log + read_size_temp,
@@ -328,9 +321,9 @@ EfErrCode ef_log_read(size_t index, uint32_t *log, size_t size) {
              *                         |##############|
              *                         |##############|
              *                         |--------------|
-             * read from (log_start_addr + index - flash_log_size) to read size's end address
+             * read from (log_start_addr + index - LOG_AREA_SIZE) to read size's end address
              */
-            result = ef_port_read(log_start_addr + index - flash_log_size, log, size);
+            result = ef_port_read(log_start_addr + index - LOG_AREA_SIZE, log, size);
         }
     }
 
@@ -357,8 +350,8 @@ EfErrCode ef_log_write(const uint32_t *log, size_t size) {
     /* write address is after log end address  */
     write_addr = log_end_addr + 4;
     /* write the already erased but not used area */
-    writable_size = flash_erase_min_size - ((write_addr - log_area_start_addr) % flash_erase_min_size);
-    if (writable_size != flash_erase_min_size) {
+    writable_size = EF_ERASE_MIN_SIZE - ((write_addr - log_area_start_addr) % EF_ERASE_MIN_SIZE);
+    if (writable_size != EF_ERASE_MIN_SIZE) {
         if (size > writable_size) {
             result = ef_port_write(write_addr, log, writable_size);
             if (result != EF_NO_ERR) {
@@ -380,16 +373,16 @@ EfErrCode ef_log_write(const uint32_t *log, size_t size) {
             log_start_addr = get_next_flash_sec_addr(log_start_addr);
         }
         /* erase sector */
-        result = ef_port_erase(erase_addr, flash_erase_min_size);
+        result = ef_port_erase(erase_addr, EF_ERASE_MIN_SIZE);
         if (result == EF_NO_ERR) {
-            if (size - write_size > flash_erase_min_size) {
-                result = ef_port_write(write_addr, log + write_size / 4, flash_erase_min_size);
+            if (size - write_size > EF_ERASE_MIN_SIZE) {
+                result = ef_port_write(write_addr, log + write_size / 4, EF_ERASE_MIN_SIZE);
                 if (result != EF_NO_ERR) {
                     goto exit;
                 }
-                log_end_addr = write_addr + flash_erase_min_size - 4;
-                write_size += flash_erase_min_size;
-                write_addr += flash_erase_min_size;
+                log_end_addr = write_addr + EF_ERASE_MIN_SIZE - 4;
+                write_size += EF_ERASE_MIN_SIZE;
+                write_addr += EF_ERASE_MIN_SIZE;
             } else {
                 result = ef_port_write(write_addr, log + write_size / 4, size - write_size);
                 if (result != EF_NO_ERR) {
@@ -415,13 +408,13 @@ exit:
  * @return next flash sector address
  */
 static uint32_t get_next_flash_sec_addr(uint32_t cur_addr) {
-    size_t cur_sec_id = (cur_addr - log_area_start_addr) / flash_erase_min_size;
-    size_t sec_total_num = flash_log_size / flash_erase_min_size;
+    size_t cur_sec_id = (cur_addr - log_area_start_addr) / EF_ERASE_MIN_SIZE;
+    size_t sec_total_num = LOG_AREA_SIZE / EF_ERASE_MIN_SIZE;
     if (cur_sec_id + 1 >= sec_total_num) {
         /* return to ring head */
         return log_area_start_addr;
     } else {
-        return log_area_start_addr + (cur_sec_id + 1) * flash_erase_min_size;
+        return log_area_start_addr + (cur_sec_id + 1) * EF_ERASE_MIN_SIZE;
     }
 }
 
@@ -434,12 +427,11 @@ EfErrCode ef_log_clean(void) {
     EfErrCode result = EF_NO_ERR;
 
     EF_ASSERT(log_area_start_addr);
-    EF_ASSERT(flash_log_size);
 
     /* clean address */
     log_start_addr = log_end_addr = log_area_start_addr;
     /* erase log flash area */
-    result = ef_port_erase(log_area_start_addr, flash_log_size);
+    result = ef_port_erase(log_area_start_addr, LOG_AREA_SIZE);
 
     return result;
 }
