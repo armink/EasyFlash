@@ -6,7 +6,7 @@
 
 名词介绍：
 
-**备份区** ：是EasyFlash定义的一个存放环境变量、已下载程序的Flash及日志的区域，详细存储架构可以参考 `\easyflash\src\easyflash.c` 文件头位置的注释说明或本文中的备份区参数配置。
+**备份区** ：是EasyFlash定义的一个存放环境变量、已下载程序及日志的Flash区域，详细存储架构可以参考 `\easyflash\src\easyflash.c` 文件头位置的注释说明或本文中的备份区参数配置。
 
 **环境变量表** ：负责存放所有的环境变量，该表在Flash及RAM中均存在，上电后需从Flash加载到RAM中，修改后，则需要保存其至Flash中。。
 
@@ -14,7 +14,7 @@
 
 ### 1.1 初始化
 
-初始化EasyFlash。在初始化的过程中会使用 `\easyflash\port\ef_port.c` 中的用户自定义参数。
+初始化的EasyFlash的各个组件，初始化后才可以使用下面的API。
 
 ```C
 EfErrCode easyflash_init(void)
@@ -331,10 +331,8 @@ void ef_print(const char *format, ...)
 磨损平衡：由于flash在写操作之前需要擦除且使用寿命有限，所以需要设计合理的磨损平衡（写平衡）机制，来保证数据被安全的保存在未到擦写寿命的Flash区中。
 
 - 默认状态：常规模式
-- 磨损平衡模式：打开`EF_ENV_USING_WL_MODE`
 - 常规模式：关闭`FLASH_ENV_USING_WL_MODE`
-
-> 注意：只能选择其中一种模式，两种模式不能同时使用
+- 磨损平衡模式：打开`EF_ENV_USING_WL_MODE`
 
 #### 3.1.2 掉电保护
 
@@ -357,21 +355,11 @@ void ef_print(const char *format, ...)
 
 - 操作方法：修改`EF_ERASE_MIN_SIZE`宏对应值即可
 
-### 3.4 备份区
+### 3.5 备份区
 
-备份区共计包含3个区域，依次为：ENV area、Log area 及 IAP area。
+备份区共计包含3个区域，依次为：环境变量区、日志区及在线升级区。分区方式如下图所示
 
-```
- * |----------------------------|   存储容量：
- * |         环境变量区         |   环境变量区容量：ENV_AREA_SIZE
- * |          1.系统区          |   系统区容量
- * |          2:数据区          |   环境变量区容量 - 系统区容量
- * |----------------------------|
- * |           日志区           |   日志区容量：LOG_AREA_SIZE
- * |----------------------------|
- * |         在线升级区         |   存放已经下载好的应用程序，大小不固定
- * |----------------------------|
-```
+![backup_area_partiton](http://git.oschina.net/Armink/EasyFlash/raw/master/docs/zh/images/BackupAreaPartition.gif)
 
 在配置时需要注意以下几点：
 
@@ -384,23 +372,29 @@ void ef_print(const char *format, ...)
  - 4、擦写平衡+掉电保护模式：系统区将会占用1个`EF_ERASE_MIN_SIZE`大小，数据区将会是擦写平衡模式下的数据区总容量的2倍。
  - 例如：`EF_ERASE_MIN_SIZE`是128K，`ENV_USER_SETTING_SIZE`是2K，那么你可以这样定义不同模式下的环境变量总容量：
  - 1、常规模式：`1*EF_ERASE_MIN_SIZE`；
- - 2、擦写平衡模式：`3*EF_ERASE_MIN_SIZE`（它将会有2个Flash扇区去存储环境变量，所以环境变量可以被擦写至少20W次）;
+ - 2、擦写平衡模式：`3*EF_ERASE_MIN_SIZE`（它将会有2个Flash扇区去存储环境变量，按照每个Flash扇区可被擦写10W次计算，那么当前配置至少可擦写20W次）;
  - 3、掉电保护模式：`2*EF_ERASE_MIN_SIZE`;
  - 4、擦写平衡+掉电保护模式：`5*EF_ERASE_MIN_SIZE`;
 
-#### 3.4.1 用户设定环境变量大小
+#### 3.5.1 备份区起始地址
+
+- 操作方法：修改`EF_START_ADDR`宏对应值即可
+
+#### 3.5.2 用户设定环境变量大小
 
 - 操作方法：修改`ENV_USER_SETTING_SIZE`宏对应值即可
 
-#### 3.4.2 环境变量区总容量
+#### 3.5.3 环境变量区总容量
 
 - 操作方法：修改`ENV_AREA_SIZE`宏对应值即可
 
-#### 3.4.3 日志区总容量
+#### 3.5.4 日志区总容量
 
 - 操作方法：修改`LOG_AREA_SIZE`宏对应值即可
 
-### 3.5 调试日志
+### 3.6 调试日志
+
+开启后，将会库运行时自动输出调试日志
 
 - 默认状态：开启
 - 操作方法：开启、关闭`PRINT_DEBUG`宏即可

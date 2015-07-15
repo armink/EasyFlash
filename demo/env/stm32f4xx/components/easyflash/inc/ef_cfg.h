@@ -100,7 +100,7 @@
     #endif
 #endif
 /* saved log area size */
-#define LOG_AREA_SIZE             (2 * EF_ERASE_MIN_SIZE)      /* 256K */
+/* #define LOG_AREA_SIZE             (2 * EF_ERASE_MIN_SIZE)*/      /* 256K */
 
 /* print debug information of flash */
 #define PRINT_DEBUG
