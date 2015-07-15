@@ -359,7 +359,7 @@ void ef_print(const char *format, ...)
 
 备份区共计包含3个区域，依次为：环境变量区、日志区及在线升级区。分区方式如下图所示
 
-![backup_area_partiton](http://git.oschina.net/Armink/EasyFlash/raw/master/docs/zh/images/BackupAreaPartition.gif)
+![backup_area_partiton](http://git.oschina.net/Armink/EasyFlash/raw/master/docs/zh/images/BackupAreaPartition.jpg)
 
 在配置时需要注意以下几点：
 
