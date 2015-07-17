@@ -22,7 +22,7 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * Function: Is is the configure head file for this library.
+ * Function: It is the configure head file for this library.
  * Created on: 2015-07-14
  */
 
