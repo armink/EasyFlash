@@ -2,11 +2,11 @@
 
 ---
 
-所有支持的API接口都在 `\easyflash\inc\easyflash.h` 中声明。以下内容较多，建议使用 **CTRL+F** 搜索。
+所有支持的API接口都在`\easyflash\inc\easyflash.h`中声明。以下内容较多，建议使用 **CTRL+F** 搜索。
 
 名词介绍：
 
-**备份区** ：是EasyFlash定义的一个存放环境变量、已下载程序及日志的Flash区域，详细存储架构可以参考 `\easyflash\src\easyflash.c` 文件头位置的注释说明或本文中的备份区参数配置。
+**备份区** ：是EasyFlash定义的一个存放环境变量、已下载程序及日志的Flash区域，详细存储架构可以参考`\easyflash\src\easyflash.c`文件头位置的注释说明或本文中的备份区参数配置。
 
 **环境变量表** ：负责存放所有的环境变量，该表在Flash及RAM中均存在，上电后需从Flash加载到RAM中，修改后，则需要保存其至Flash中。。
 
@@ -32,7 +32,7 @@ void ef_load_env(void)
 
 #### 1.2.2 打印环境变量
 
-通过在移植接口( `\easyflash\port\ef_port.c` )中定义的 `ef_print` 打印方法，来将Flash中的所有环境变量输出出来。
+通过在移植接口(`\easyflash\port\ef_port.c`)中定义的`ef_print`打印方法，来将Flash中的所有环境变量输出出来。
 
 ```C
 void ef_print_env(void)
@@ -212,196 +212,13 @@ EfErrCode ef_log_clean(void);
 size_t ef_log_get_used_size(void);
 ```
 
-## 2 移植接口
+## 2、配置
 
-### 2.1 移植初始化
+参照EasyFlash 移植说明（port.md）中的 `参数设置` 章节
 
-EasyFlash移植初始化。可以传递默认环境变量，初始化EasyFlash移植所需的资源等等。
-
-```C
-EfErrCode ef_port_init(ef_env const **default_env, size_t *default_env_size)
-```
-
-|参数                                    |描述|
-|:-----                                  |:----|
-|default_env                             |默认的环境变量|
-|default_env_size                        |默认环境变量的数量|
-
-### 2.2 读取Flash
-
-最小单位为4个字节
-
-```C
-EfErrCode ef_port_read(uint32_t addr, uint32_t *buf, size_t size)
-```
-
-|参数                                    |描述|
-|:-----                                  |:----|
-|addr                                    |读取起始地址|
-|buf                                     |存放读取数据的缓冲区|
-|size                                    |读取数据的大小（字节）|
-
-### 2.3 擦除Flash
-
-```C
-EfErrCode ef_port_erase(uint32_t addr, size_t size)
-```
-
-|参数                                    |描述|
-|:-----                                  |:----|
-|addr                                    |擦除起始地址|
-|size                                    |擦除数据的大小（字节）|
-
-### 2.4 写入Flash
-
-最小单位为4个字节
-
-```C
-EfErrCode ef_port_write(uint32_t addr, const uint32_t *buf, size_t size)
-```
-
-|参数                                    |描述|
-|:-----                                  |:----|
-|addr                                    |写入的起始地址|
-|buf                                     |源数据的缓冲区|
-|size                                    |写入数据的大小（字节）|
-
-### 2.5 对环境变量缓冲区加锁
-
-```C
-void ef_port_env_lock(void)
-```
-
-### 2.6 对环境变量缓冲区解锁
-
-```C
-void ef_port_env_unlock(void)
-```
-
-### 2.7 打印调试日志信息
-
-在定义 `PRINT_DEBUG` 宏后，打印调试日志信息
-
-```C
-void ef_log_debug(const char *file, const long line, const char *format, ...)
-```
-
-|参数                                    |描述|
-|:-----                                  |:----|
-|file                                    |调用该方法的文件|
-|line                                    |调用该方法的行号|
-|format                                  |打印格式|
-|...                                     |不定参|
-
-### 2.8 打印普通日志信息
-
-```C
-void ef_log_info(const char *format, ...)
-```
-
-|参数                                    |描述|
-|:-----                                  |:----|
-|format                                  |打印格式|
-|...                                     |不定参|
-
-### 2.9 无格式打印信息
-
-该方法输出无固定格式的打印信息，为 `ef_print_env` 方法所用。而 `ef_log_debug` 及 `ef_log_info` 可以输出带指定前缀及格式的打印日志信息。
-
-```C
-void ef_print(const char *format, ...)
-```
-
-|参数                                    |描述|
-|:-----                                  |:----|
-|format                                  |打印格式|
-|...                                     |不定参|
-
-## 3、配置
-
-配置该库需要将`\easyflash\ef_cfg.h`文件拷贝至项目目录，修改项目中的`ef_cfg.h`文件，开启、关闭、修改对应的宏即可。
-
-### 3.1 ENV功能
-
-- 默认状态：开启
-- 操作方法：开启、关闭`EF_USING_ENV`宏即可
-
-#### 3.1.1 磨损平衡/常规 模式
-
-磨损平衡：由于flash在写操作之前需要擦除且使用寿命有限，所以需要设计合理的磨损平衡（写平衡）机制，来保证数据被安全的保存在未到擦写寿命的Flash区中。
-
-- 默认状态：常规模式
-- 常规模式：关闭`FLASH_ENV_USING_WL_MODE`
-- 磨损平衡模式：打开`EF_ENV_USING_WL_MODE`
-
-#### 3.1.2 掉电保护
-
-掉电保护：Power Fail Safeguard，当此项设置为可用时，如果在环境变量保存过程中发生掉电，已保存在Flash中的环境变量将不会有丢失的危险。下次上电后，环境变量将会被自动还原至之前的状态。（注意：本保护是基于软件实现的保护功能，更加可靠的掉电保护功能需要通过硬件来实现）
-
-- 默认状态：关闭
-- 操作方法：开启、关闭`EF_ENV_USING_PFS_MODE`宏即可
-
-### 3.2 IAP功能
-
-- 默认状态：开启
-- 操作方法：开启、关闭`EF_USING_IAP`宏即可
-
-### 3.3 Log功能
-
-- 默认状态：开启
-- 操作方法：开启、关闭`EF_USING_LOG`宏即可
-
-### 3.4 Flash最小擦除单位
-
-- 操作方法：修改`EF_ERASE_MIN_SIZE`宏对应值即可
-
-### 3.5 备份区
-
-备份区共计包含3个区域，依次为：环境变量区、日志区及在线升级区。分区方式如下图所示
-
-![backup_area_partiton](http://git.oschina.net/Armink/EasyFlash/raw/master/docs/zh/images/BackupAreaPartition.jpg)
-
-在配置时需要注意以下几点：
-
-- 1、所有的区域必须按照`EF_ERASE_MIN_SIZE`对齐；
-- 2、由于EasyFlash对所有的环境变量都会使用RAM缓存，但是在更多时候用户使用的环境变量大小会比`EF_ERASE_MIN_SIZE`小，所以需要再定义`ENV_USER_SETTING_SIZE`来指定用户设定的环境变量大小。
-- 3、环境变量区总容量在不同的模式下会有差异
- - 1、常规模式：没有差异；
- - 2、擦写平衡模式：系统区将会占用1个`EF_ERASE_MIN_SIZE`大小，数据区至少等使用2个以上Flash扇区；
- - 3、掉电保护模式：环境变量区将会被备份，所以总容量是常规模式的2倍；
- - 4、擦写平衡+掉电保护模式：系统区将会占用1个`EF_ERASE_MIN_SIZE`大小，数据区将会是擦写平衡模式下的数据区总容量的2倍。
- - 例如：`EF_ERASE_MIN_SIZE`是128K，`ENV_USER_SETTING_SIZE`是2K，那么你可以这样定义不同模式下的环境变量总容量：
- - 1、常规模式：`1*EF_ERASE_MIN_SIZE`；
- - 2、擦写平衡模式：`3*EF_ERASE_MIN_SIZE`（它将会有2个Flash扇区去存储环境变量，按照每个Flash扇区可被擦写10W次计算，那么当前配置至少可擦写20W次）;
- - 3、掉电保护模式：`2*EF_ERASE_MIN_SIZE`;
- - 4、擦写平衡+掉电保护模式：`5*EF_ERASE_MIN_SIZE`;
-
-#### 3.5.1 备份区起始地址
-
-- 操作方法：修改`EF_START_ADDR`宏对应值即可
-
-#### 3.5.2 用户设定环境变量大小
-
-- 操作方法：修改`ENV_USER_SETTING_SIZE`宏对应值即可
-
-#### 3.5.3 环境变量区总容量
-
-- 操作方法：修改`ENV_AREA_SIZE`宏对应值即可
-
-#### 3.5.4 日志区总容量
-
-- 操作方法：修改`LOG_AREA_SIZE`宏对应值即可
-
-### 3.6 调试日志
-
-开启后，将会库运行时自动输出调试日志
-
-- 默认状态：开启
-- 操作方法：开启、关闭`PRINT_DEBUG`宏即可
-
-## 4、注意
+## 3、注意
 
 - 写数据前务必记得先擦除
-- 环境变量设置完后，只有调用 `ef_save_env`才会保存在Flash中，否则开机会丢失修改的内容
+- 环境变量设置完后，只有调用`ef_save_env`才会保存在Flash中，否则开机会丢失修改的内容
 - 不要在应用程序及Bootloader中执行擦除及拷贝自身的动作
 - ENV及Log功能对Flash擦除和写入要求4个字节对齐，擦除的最小单位则需根据用户的平台来确定

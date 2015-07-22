@@ -18,24 +18,7 @@ EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Mi
 
 非常适合应用在小型的不带文件系统的产品中，方便开发人员快速定位、查找系统发生崩溃或死机的原因。同时配合[EasyLogger](https://github.com/armink/EasyLogger)(我开源的超轻量级、高性能C日志库，它提供与EasyFlash的无缝接口)一起使用，轻松实现C日志的Flash存储功能。
 
-### 1.1、文件结构
-
-|源文件                                 |描述   |
-|:------------------------------        |:----- |
-|\easyflash\src\ef_env.c                |Env（常规模式）相关操作接口及实现源码|
-|\easyflash\src\ef_env_wl.c             |Env（磨损平衡模式）相关操作接口及实现源码|
-|\easyflash\src\ef_iap.c                |IAP 相关操作接口及实现源码|
-|\easyflash\src\ef_log.c                |Log 相关操作接口及实现源码|
-|\easyflash\src\ef_utils.c              |EasyFlash常用小工具，例如：CRC32|
-|\easyflash\src\easyflash.c             |目前只包含EasyFlash初始化方法|
-|\easyflash\port\ef_port.c              |不同平台下的EasyFlash移植接口及配置参数|
-|\demo\env\stm32f10x\non_os             |stm32f10x裸机的Env demo|
-|\demo\env\stm32f10x\rtt                |stm32f10x基于[RT-Thread](http://www.rt-thread.org/)的Env demo|
-|\demo\env\stm32f4xx                    |stm32f4xx基于[RT-Thread](http://www.rt-thread.org/)的Env demo|
-|\demo\iap\ymodem+rtt.c                 |使用[RT-Thread](http://www.rt-thread.org/)+[Ymodem](https://github.com/RT-Thread/rt-thread/tree/master/components/utilities/ymodem)的IAP Demo|
-|\demo\log\easylogger.c                 |基于[EasyLogger](https://github.com/armink/EasyLogger)的Log Demo|
-
-### 1.2、资源占用
+### 1.1、资源占用
 
 ```
 最低要求： ROM: 6K bytes     RAM: 0.5K bytes + (Env大小)
@@ -44,7 +27,7 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 实际占用： ROM: 6K bytes     RAM: 2.6K bytes
 ```
 
-### 1.3、支持平台
+### 1.2、支持平台
 
 目前已移植硬件平台有 `stm32f10x`与 `stm32f4xx` 系列的片内Flash，这个也是笔者产品使用的平台。其余平台的移植难度不大，在项目的设计之初就有考虑针对所有平台的适配性问题（64位除外），所以对所有移植接口都有做预留。移植只需修改 `\easyflash\port\ef_port.c` 一个文件，实现里面的擦、写、读及打印功能即可。
 
@@ -78,9 +61,11 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 ![easy_flash_log](http://git.oschina.net/Armink/EasyFlash/raw/master/docs/zh/images/LogDemo.gif)
 
 ## 3、文档
-具体内容参考`\docs\`下的文件。
+
+具体内容参考`\docs\`下的文件。务必保证在 **阅读文档** 后再移植使用。
 
 ## 4、许可
+
 采用 MIT 开源协议，细节请阅读项目中的 LICENSE 文件内容。
 
 ---
@@ -101,23 +86,7 @@ The library encapsulates the IAP (In-Application Programming) feature common int
 
 It's very suitable for small without a file system products. The developer can easy to locate and query problem when system crashes or freezes. You can use [EasyLogger](https://github.com/armink/EasyLogger)( A super-lightweight, high-performance C log library which open source by me. It provides a seamless interface with EasyFlash) at the same time. So, it's so easy to store the logs to flash.
 
-### 1.1 File structure
-
-|Source file                            |Description   |
-|:------------------------------        |:----- |
-|\easyflash\src\ef_env.c                |Env (normal mode) interface and implementation source code.|
-|\easyflash\src\ef_env_wl.c             |Env (wear leveling mode) interface and implementation source code.|
-|\easyflash\src\ef_iap.c                |IAP interface and implementation source code.|
-|\easyflash\src\ef_log.c                |Log interface and implementation source code.|
-|\easyflash\src\ef_utils.c              |EasyFlash utils. For example CRC32.|
-|\easyflash\src\easyflash.c             |Currently contains EasyFlash initialization function only. |
-|\easyflash\port\ef_port.c              |EasyFlash portable interface and configuration for different platforms.|
-|\demo\env\stm32f10x\non_os             |stm32f10x non-os demo.|
-|\demo\env\stm32f10x\rtt                |stm32f10x demo base on [RT-Thread](http://www.rt-thread.org/).|
-|\demo\env\stm32f4xx                    |stm32f4xx demo base on [RT-Thread](http://www.rt-thread.org/).|
-|\demo\iap\ymodem+rtt.c                 |Using [RT-Thread](http://www.rt-thread.org/)+[Ymodem](https://github.com/RT-Thread/rt-thread/tree/master/components/utilities/ymodem) IAP Demo|
-|\demo\log\easylogger.c                 |base on [EasyLogger](https://github.com/armink/EasyLogger) Log Demo|
-### 1.2 Resource consumption
+### 1.1 Resource consumption
 
 ```
 Minimum : ROM: 6K bytes     RAM: 0.5K bytes + (Env size)
@@ -126,7 +95,7 @@ Demo    :STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 Actual  : ROM: 6K bytes     RAM: 2.6K bytes
 ```
 
-### 1.3 Supported platforms
+### 1.2 Supported platforms
 
 Hardware platform has been ported `stm32f10x` and `stm32f4xx` series of on-chip Flash. This is my product platform. Remaining platform porting difficulty is little. The porting just modify `\easyflash\port\ef_port.c` file. Implement erase, write, read, print feature.
 
@@ -161,7 +130,7 @@ The following figure is the output log process through the console. The logs wil
 
 ## 3 Documents
 
-All documents is in the `\docs\` folder.
+All documents is in the `\docs\` folder. Please **read the documents** before port and use it.
 
 ## 4 License
 
