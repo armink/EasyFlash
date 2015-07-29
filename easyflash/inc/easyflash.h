@@ -103,6 +103,7 @@ EfErrCode ef_set_env(const char *key, const char *value);
 EfErrCode ef_save_env(void);
 EfErrCode ef_env_set_default(void);
 size_t ef_get_env_write_bytes(void);
+EfErrCode ef_set_and_save_env(const char *key, const char *value);
 #endif
 
 #ifdef EF_USING_IAP

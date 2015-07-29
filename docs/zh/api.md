@@ -90,6 +90,19 @@ EfErrCode ef_env_set_default(void)
 size_t ef_get_env_write_bytes(void)
 ```
 
+#### 1.2.8 设置后保存环境变量
+
+设置环境变量成功后立刻保存。设置功能参考`ef_set_env`方法。
+
+```C
+EfErrCode ef_set_and_save_env(const char *key, const char *value)
+```
+
+|参数                                    |描述|
+|:-----                                  |:----|
+|key                                     |环境变量名称|
+|value                                   |环境变量值|
+
 ### 1.3 在线升级
 
 #### 1.3.1 擦除备份区中的应用程序

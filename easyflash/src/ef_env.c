@@ -734,6 +734,26 @@ static bool env_crc_is_ok(void) {
     }
 }
 
+/**
+ * Set and save an ENV. If set ENV is success then will save it.
+ *
+ * @param key ENV name
+ * @param value ENV value
+ *
+ * @return result
+ */
+EfErrCode ef_set_and_save_env(const char *key, const char *value) {
+    EfErrCode result = EF_NO_ERR;
+
+    result = ef_set_env(key, value);
+
+    if (result == EF_NO_ERR) {
+        result = ef_save_env();
+    }
+
+    return result;
+}
+
 #endif /* EF_ENV_USING_WL_MODE */
 
 #endif /* EF_USING_ENV */
