@@ -77,12 +77,14 @@ static ef_env const *default_env_set = NULL;
 static size_t default_env_set_size = NULL;
 /* flash ENV data section size */
 static size_t env_data_section_size = NULL;
-/* ENV RAM cache */
+/* ENV ram cache */
 static uint32_t env_cache[ENV_USER_SETTING_SIZE / 4] = { 0 };
 /* ENV start address in flash */
 static uint32_t env_start_addr = NULL;
 /* current using data section address */
 static uint32_t cur_using_data_addr = NULL;
+/* ENV ram cache has changed when ENV created, deleted and changed value. */
+static bool env_cache_changed = false;
 
 #ifdef EF_ENV_USING_PFS_MODE
 /* next save ENV area address */
@@ -96,7 +98,7 @@ static uint32_t get_env_detail_end_addr(void);
 static void set_cur_using_data_addr(uint32_t using_data_addr);
 static void set_env_detail_end_addr(uint32_t end_addr);
 static EfErrCode write_env(const char *key, const char *value);
-static uint32_t *find_env(const char *key);
+static char *find_env(const char *key);
 static size_t get_env_detail_size(void);
 static size_t get_env_user_used_size(void);
 static EfErrCode create_env(const char *key, const char *value);
@@ -325,6 +327,8 @@ static EfErrCode write_env(const char *key, const char *value) {
     /* fill '\0' for word alignment */
     memset(env_cache_bak, 0, env_str_len - (ker_len + value_len + 2));
     set_env_detail_end_addr(get_env_detail_end_addr() + env_str_len);
+    /* ENV ram cache has changed */
+    env_cache_changed = true;
 
     return result;
 }
@@ -334,11 +338,10 @@ static EfErrCode write_env(const char *key, const char *value) {
  *
  * @param key ENV name
  *
- * @return index of ENV in ram cache
+ * @return found ENV in ram cache
  */
-static uint32_t *find_env(const char *key) {
-    uint32_t *env_cache_addr = NULL;
-    char *env_start, *env_end, *env;
+static char *find_env(const char *key) {
+    char *env_start, *env_end, *env, *found_env = NULL;
     size_t key_len = strlen(key), env_len;
 
     EF_ASSERT(cur_using_data_addr);
@@ -361,7 +364,7 @@ static uint32_t *find_env(const char *key) {
     while (env < env_end) {
         /* the key length must be equal */
         if (!strncmp(env, key, key_len) && (env[key_len] == '=')) {
-            env_cache_addr = (uint32_t *) env;
+            found_env = env;
             break;
         } else {
             /* calculate ENV length, contain '\0'. */
@@ -375,7 +378,7 @@ static uint32_t *find_env(const char *key) {
         }
     }
 
-    return env_cache_addr;
+    return found_env;
 }
 
 /**
@@ -423,7 +426,7 @@ static EfErrCode create_env(const char *key, const char *value) {
  */
 static EfErrCode del_env(const char *key) {
     EfErrCode result = EF_NO_ERR;
-    char *del_env_str = NULL;
+    char *del_env = NULL;
     size_t del_env_length, remain_env_length;
 
     EF_ASSERT(key);
@@ -439,13 +442,13 @@ static EfErrCode del_env(const char *key) {
     }
 
     /* find ENV */
-    del_env_str = (char *) find_env(key);
+    del_env = find_env(key);
 
-    if (!del_env_str) {
+    if (!del_env) {
         EF_INFO("Not find \"%s\" in ENV.\n", key);
         return EF_ENV_NAME_ERR;
     }
-    del_env_length = strlen(del_env_str);
+    del_env_length = strlen(del_env);
     /* '\0' also must be as ENV length */
     del_env_length ++;
     /* the address must multiple of 4 */
@@ -454,11 +457,13 @@ static EfErrCode del_env(const char *key) {
     }
     /* calculate remain ENV length */
     remain_env_length = get_env_detail_size()
-            - (((uint32_t) del_env_str + del_env_length) - ((uint32_t) env_cache + ENV_PARAM_PART_BYTE_SIZE));
+            - (((uint32_t) del_env + del_env_length) - ((uint32_t) env_cache + ENV_PARAM_PART_BYTE_SIZE));
     /* remain ENV move forward */
-    memcpy(del_env_str, del_env_str + del_env_length, remain_env_length);
+    memcpy(del_env, del_env + del_env_length, remain_env_length);
     /* reset ENV end address */
     set_env_detail_end_addr(get_env_detail_end_addr() - del_env_length);
+    /* ENV ram cache has changed */
+    env_cache_changed = true;
 
     return result;
 }
@@ -474,6 +479,7 @@ static EfErrCode del_env(const char *key) {
  */
 EfErrCode ef_set_env(const char *key, const char *value) {
     EfErrCode result = EF_NO_ERR;
+    char *old_env, *old_value;
 
     /* lock the ENV cache */
     ef_port_env_lock();
@@ -482,11 +488,20 @@ EfErrCode ef_set_env(const char *key, const char *value) {
     if (*value == NULL) {
         result = del_env(key);
     } else {
-        /* if find this ENV, then delete it and recreate it  */
-        if (find_env(key)) {
-            result = del_env(key);
-        }
-        if (result == EF_NO_ERR) {
+        old_env = find_env(key);
+        /* If find this ENV, then compare the new value and old value. */
+        if (old_env) {
+            /* find the old value address */
+            old_env = strchr(old_env, '=');
+            old_value = old_env + 1;
+            /* If it is changed then delete it and recreate it  */
+            if (strcmp(old_value, value)) {
+                result = del_env(key);
+                if (result == EF_NO_ERR) {
+                    result = create_env(key, value);
+                }
+            }
+        } else {
             result = create_env(key, value);
         }
     }
@@ -504,17 +519,16 @@ EfErrCode ef_set_env(const char *key, const char *value) {
  * @return value
  */
 char *ef_get_env(const char *key) {
-    uint32_t *env_cache_addr = NULL;
-    char *value = NULL;
+    char *env = NULL, *value = NULL;
 
     /* find ENV */
-    env_cache_addr = find_env(key);
+    env = find_env(key);
 
-    if (env_cache_addr == NULL) {
+    if (env == NULL) {
         return NULL;
     }
     /* get value address */
-    value = strchr((char *) env_cache_addr, '=');
+    value = strchr(env, '=');
     if (value != NULL) {
         /* the equal sign next character is value */
         value++;
@@ -710,6 +724,11 @@ EfErrCode ef_save_env(void) {
     uint32_t cur_using_addr_bak, move_offset_addr;
     size_t env_used_size = get_env_user_used_size();
 
+    /* ENV ram cache has not changed don't need to save */
+    if (!env_cache_changed) {
+        return result;
+    }
+
 #ifndef EF_ENV_USING_PFS_MODE
     cur_using_addr_bak = get_cur_using_data_addr();
 #else
@@ -786,6 +805,8 @@ EfErrCode ef_save_env(void) {
         /* clear current using data section address on flash */
         save_cur_using_data_addr(0xFFFFFFFF);
     }
+
+    env_cache_changed = false;
 
     return result;
 }
