@@ -12,7 +12,7 @@
 
 ## 2、导入项目
 
-在导入到的项目前，先打开`\demo`文件夹，检查下有没有与项目Flash规格一致的Demo。如果有则先直接跳过2、3、4章节，按照第5章的要求设置参数，并运行、验证Demo。验证通过再按照下面的导入项目要求，将Demo中的移植文件直接导入到项目中即可。
+在导入到项目前，先打开[`\demo\`](https://github.com/armink/EasyFlash/tree/master/demo)文件夹，检查下有没有与项目Flash规格一致的Demo。如果有则先直接跳过2、3、4章节，按照第5章的要求设置参数，并运行、验证Demo。验证通过再按照下面的导入项目要求，将Demo中的移植文件直接导入到项目中即可。
 
 - 1、先解压下载好的源码包，文件的目录结构大致如下：
 
@@ -32,10 +32,10 @@
 |\demo\log\easylogger.c                 |基于[EasyLogger](https://github.com/armink/EasyLogger)的Log Demo|
 
 
-- 2、将`\easyflash`（里面包含`inc`、`src`及`port`的那个）文件夹拷贝到项目中；
+- 2、将`\easyflash\`（里面包含`inc`、`src`及`port`的那个）文件夹拷贝到项目中；
 - 3、添加`\easyflash\src\easyflash.c`、`\easyflash\src\ef_utils.c`及`\easyflash\port\ef_port.c`这些文件到项目的编译路径中；
-- 4、根据项目需求，选择性添加`\easyflash\src`中的其他源码文件到项目的编译路径中；
-- 5、添加`\easyflash\inc`文件夹到编译的头文件目录列表中；
+- 4、根据项目需求，选择性添加`\easyflash\src\`中的其他源码文件到项目的编译路径中；
+- 5、添加`\easyflash\inc\`文件夹到编译的头文件目录列表中；
 
 ## 3、Flash规格
 
@@ -242,20 +242,20 @@ void ef_print(const char *format, ...)
 
 ## 6、测试验证
 
-如果`\demo`文件夹下有与项目Flash规格一致的Demo，则直接编译运行，观察测试结果即可。无需关注下面的步骤。
+如果`\demo\`文件夹下有与项目Flash规格一致的Demo，则直接编译运行，观察测试结果即可。无需关注下面的步骤。
 
-每次使用前，务必先执行`easyflash_init`方法对EasyFlash库及所使用的Flash进行初始化，保证初始化没问题后，再使用各功能的API方法。如果出现错误或断言，需根据提示信息检查移植配置及接口。
+每次使用前，务必先执行`easyflash_init()`方法对EasyFlash库及所使用的Flash进行初始化，保证初始化没问题后，再使用各功能的API方法。如果出现错误或断言，需根据提示信息检查移植配置及接口。
 
 ### 6.1 环境变量
 
-查看`\demo\env`文件夹中例子的`readme.md`说明文档。测试时可以将`\demo\env\stm32f10x\non_os\app\src\app.c`中的`static void test_env(void)`复制到项目中，然后运行测试。
+查看[`\demo\env\`](https://github.com/armink/EasyFlash/tree/master/demo/env)子文件夹中例子的`README.md`说明文档。测试时可以将`\demo\env\stm32f10x\non_os\app\src\app.c`中的`static void test_env(void)`方法体复制到项目中，然后运行测试。
 
 ### 6.2 在线升级
 
-查看`\demo\iap`文件夹中的`readme.md`说明文档。
+查看[`\demo\iap\README.md`](https://github.com/armink/EasyFlash/tree/master/demo/iap/README.md)说明文档。
 
 ### 6.3 日志
 
-查看`\demo\log`文件夹中的`readme.md`说明文档。
+查看[`\demo\log\README.md`](https://github.com/armink/EasyFlash/tree/master/demo/log/README.md)说明文档。
 
 > 注意：`easylogger.c`是使用[EasyLogger](https://github.com/armink/EasyLogger)与EasyFlash的无缝接口的例子，EasyLogger提供针对日志的很多常用功能封装，详细功能可以查看其介绍。使用这个例子时，务必记得将EasyLogger一并导入到项目中。

@@ -4,7 +4,7 @@
 
 ## 1、介绍
 
-EasyFlash是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Micro Control Unit)提供便捷、通用的上层应用接口，使得开发者更加高效实现基于的Flash存储器常见应用开发。该库目前提供 **三大实用功能** ：
+[EasyFlash](https://github.com/armink/EasyFlash)是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Micro Control Unit)提供便捷、通用的上层应用接口，使得开发者更加高效实现基于的Flash存储器常见应用开发。该库目前提供 **三大实用功能** ：
 
 - **Env** 小型KV数据库，支持 **写平衡（磨损平衡）** 及 **掉电保护** 模式
  
@@ -29,9 +29,9 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 ### 1.2、支持平台
 
-目前已移植硬件平台有 `stm32f10x`与 `stm32f4xx` 系列的片内Flash，这个也是笔者产品使用的平台。其余平台的移植难度不大，在项目的设计之初就有考虑针对所有平台的适配性问题（64位除外），所以对所有移植接口都有做预留。移植只需修改 `\easyflash\port\ef_port.c` 一个文件，实现里面的擦、写、读及打印功能即可。
+目前已移植硬件平台有 `stm32f10x`与 `stm32f4xx` 系列的片内Flash，这个也是笔者产品使用的平台。其余平台的移植难度不大，在项目的设计之初就有考虑针对所有平台的适配性问题（64位除外），所以对所有移植接口都有做预留。移植只需修改 [`\easyflash\port\ef_port.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/port/ef_port.c) 一个文件，实现里面的擦、写、读及打印功能即可。
 
-欢迎大家 **star and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)) 。开源软件的成功离不开所有人的努力，也希望该项目能够帮助大家降低开发周期，让产品更早的获得成功。
+欢迎大家 **fork and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)) 。如果觉得这个开源项目很赞，可以点击[项目主页](https://github.com/armink/EasyFlash) 右上角的**Star**，同时把它推荐给更多有需要的朋友。
 
 ## 2、流程
 
@@ -62,7 +62,7 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 ## 3、文档
 
-具体内容参考`\docs\`下的文件。务必保证在 **阅读文档** 后再移植使用。
+具体内容参考[`\docs\zh\`](https://github.com/armink/EasyFlash/tree/master/docs/zh)下的文件。务必保证在 **阅读文档** 后再移植使用。
 
 ## 4、许可
 
@@ -72,7 +72,7 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 ## 1 Introduction
 
-EasyFlash is an open source lightweight embedded flash memory library. It provide convenient application interface for MCU (Micro Control Unit). The developers can achieve more efficient and common application development based on Flash memory. The library currently provides **Three useful features** ：
+[EasyFlash](https://github.com/armink/EasyFlash) is an open source lightweight embedded flash memory library. It provide convenient application interface for MCU (Micro Control Unit). The developers can achieve more efficient and common application development based on Flash memory. The library currently provides **Three useful features** ：
 
 - **Env(environment variables)** : A small KV database. Support **write balance mode(wear leveling)** and **power fail safeguard**.
 
@@ -97,9 +97,9 @@ Actual  : ROM: 6K bytes     RAM: 2.6K bytes
 
 ### 1.2 Supported platforms
 
-Hardware platform has been ported `stm32f10x` and `stm32f4xx` series of on-chip Flash. This is my product platform. Remaining platform porting difficulty is little. The porting just modify `\easyflash\port\ef_port.c` file. Implement erase, write, read, print feature.
+Hardware platform has been ported `stm32f10x` and `stm32f4xx` series of on-chip Flash. This is my product platform. Remaining platform porting difficulty is little. The porting just modify [`\easyflash\port\ef_port.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/port/ef_port.c) file. Implement erase, write, read, print feature.
 
-Welcome everyone to **star and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)). The open source software success is inseparable from everyone efforts. I hope this project will help everyone reduce product development cycle and make product to success earlier.
+Welcome everyone to **fork and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)). If you think this open source project is awesome. You can press the **Star** on the top right corner of [project home page](https://github.com/armink/EasyFlash), and recommend it to more friends.
 
 ## 2 Flow
 
@@ -130,7 +130,7 @@ The following figure is the output log process through the console. The logs wil
 
 ## 3 Documents
 
-All documents is in the `\docs\` folder. Please **read the documents** before port and use it.
+All documents is in the [`\docs\en\`](https://github.com/armink/EasyFlash/tree/master/docs/en) folder. Please **read the documents** before port and use it.
 
 ## 4 License
 

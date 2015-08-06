@@ -2,11 +2,11 @@
 
 ---
 
-所有支持的API接口都在`\easyflash\inc\easyflash.h`中声明。以下内容较多，建议使用 **CTRL+F** 搜索。
+所有支持的API接口都在[`\easyflash\inc\easyflash.h`](https://github.com/armink/EasyFlash/blob/master/easyflash/inc/easyflash.h)中声明。以下内容较多，建议使用 **CTRL+F** 搜索。
 
 名词介绍：
 
-**备份区** ：是EasyFlash定义的一个存放环境变量、已下载程序及日志的Flash区域，详细存储架构可以参考`\easyflash\src\easyflash.c`文件头位置的注释说明或本文中的备份区参数配置。
+**备份区** ：是EasyFlash定义的一个存放环境变量、已下载程序及日志的Flash区域，详细存储架构可以参考[`\easyflash\src\easyflash.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/src/easyflash.c#L29-L58)文件头位置的注释说明或本文中的备份区参数配置。
 
 **环境变量表** ：负责存放所有的环境变量，该表在Flash及RAM中均存在，上电后需从Flash加载到RAM中，修改后，则需要保存其至Flash中。。
 
@@ -32,7 +32,7 @@ void ef_load_env(void)
 
 #### 1.2.2 打印环境变量
 
-通过在移植接口(`\easyflash\port\ef_port.c`)中定义的`ef_print`打印方法，来将Flash中的所有环境变量输出出来。
+通过在移植接口([`\easyflash\port\ef_port.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/port/ef_port.c))中定义的`ef_print`打印方法，来将Flash中的所有环境变量输出出来。
 
 ```C
 void ef_print_env(void)
@@ -90,7 +90,7 @@ EfErrCode ef_env_set_default(void)
 size_t ef_get_env_write_bytes(void)
 ```
 
-#### 1.2.8 设置后保存环境变量
+#### 1.2.8 设置并保存环境变量
 
 设置环境变量成功后立刻保存。设置功能参考`ef_set_env`方法。
 
@@ -227,7 +227,7 @@ size_t ef_log_get_used_size(void);
 
 ## 2、配置
 
-参照EasyFlash 移植说明（port.md）中的 `参数设置` 章节
+参照EasyFlash 移植说明（[`\docs\zh\port.md`](https://github.com/armink/EasyFlash/blob/master/docs/zh/port.md#5设置参数)）中的 `设置参数` 章节
 
 ## 3、注意
 

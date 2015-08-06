@@ -4,4 +4,4 @@
 
 |File or folder name                     |Description|
 |:-----                                  |:----|
-|easyLogger.c                            |Using EasyLogger lib function|
+|easylogger.c                            |Using [EasyLogger lib](https://github.com/armink/EasyLogger) function|
