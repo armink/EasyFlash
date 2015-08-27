@@ -166,7 +166,7 @@ void ef_print(const char *format, ...)
 磨损平衡：由于flash在写操作之前需要擦除且使用寿命有限，所以需要设计合理的磨损平衡（写平衡）机制，来保证数据被安全的保存在未到擦写寿命的Flash区中。
 
 - 默认状态：常规模式
-- 常规模式：关闭`FLASH_ENV_USING_WL_MODE`
+- 常规模式：关闭`EF_ENV_USING_WL_MODE`
 - 磨损平衡模式：打开`EF_ENV_USING_WL_MODE`
 
 #### 5.1.2 掉电保护
