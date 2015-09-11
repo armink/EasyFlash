@@ -27,9 +27,10 @@
  */
 
 #include <easyflash.h>
+#include <stdarg.h>
 
 /* default environment variables set for user */
-static const flash_env default_env_set[] = {
+static const ef_env default_env_set[] = {
 
 };
 
