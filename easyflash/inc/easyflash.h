@@ -67,9 +67,9 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define EF_SW_VERSION                "1.09.16"
+#define EF_SW_VERSION                "1.12.16"
 
-typedef struct _eflash_env{
+typedef struct _ef_env{
     char *key;
     char *value;
 }ef_env, *ef_env_t;
