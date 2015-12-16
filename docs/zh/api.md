@@ -6,7 +6,7 @@
 
 名词介绍：
 
-**备份区** ：是EasyFlash定义的一个存放环境变量、已下载程序及日志的Flash区域，详细存储架构可以参考[`\easyflash\src\easyflash.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/src/easyflash.c#L29-L58)文件头位置的注释说明或本文中的备份区参数配置。
+**备份区** ：是EasyFlash定义的一个存放环境变量、已下载程序及日志的Flash区域，详细存储架构可以参考[`\easyflash\src\easyflash.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/src/easyflash.c#L29-L58)文件头位置的注释说明或[移植文档中关于备份区参数配置](https://github.com/armink/EasyFlash/blob/master/docs/zh/port.md#55-备份区)。
 
 **环境变量表** ：负责存放所有的环境变量，该表在Flash及RAM中均存在，上电后需从Flash加载到RAM中，修改后，则需要保存其至Flash中。。
 

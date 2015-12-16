@@ -6,9 +6,9 @@
 
 [EasyFlash](https://github.com/armink/EasyFlash)是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Micro Control Unit)提供便捷、通用的上层应用接口，使得开发者更加高效实现基于的Flash存储器常见应用开发。该库目前提供 **三大实用功能** ：
 
-- **Env** 小型KV数据库，支持 **写平衡（磨损平衡）** 及 **掉电保护** 模式
+- **Env** 快速保存产品参数，支持 **写平衡（磨损平衡）** 及 **掉电保护** 模式
  
-让Flash变为NoSQL（非关系型数据库）模型的小型键值（Key-Value）存储数据库。在产品上，能够更加简捷的实现 **设定参数** 或 **运行日志** 等信息掉电保存功能。
+EasyFlash不仅能够实现对产品的 **设定参数** 或 **运行日志** 等信息的掉电保存功能，还封装了简洁的 **增加、删除、修改及查询** 方法， 降低了开发者对产品参数的处理难度，也保证了产品在后期升级时拥有更好的扩展性。让Flash变为NoSQL（非关系型数据库）模型的小型键值（Key-Value）存储数据库。
 
 - **IAP** 在线升级再也不是难事儿
  
@@ -31,7 +31,7 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 目前已移植硬件平台有 `stm32f10x`与 `stm32f4xx` 系列的片内Flash，这个也是笔者产品使用的平台。其余平台的移植难度不大，在项目的设计之初就有考虑针对所有平台的适配性问题（64位除外），所以对所有移植接口都有做预留。移植只需修改 [`\easyflash\port\ef_port.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/port/ef_port.c) 一个文件，实现里面的擦、写、读及打印功能即可。
 
-欢迎大家 **fork and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)) 。如果觉得这个开源项目很赞，可以点击[项目主页](https://github.com/armink/EasyFlash) 右上角的**Star**，同时把它推荐给更多有需要的朋友。
+欢迎大家 **fork and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)) 。如果觉得这个开源项目很赞，可以点击[项目主页](https://github.com/armink/EasyFlash) 右上角的 **Star**，同时把它推荐给更多有需要的朋友。
 
 ## 2、流程
 
@@ -74,9 +74,9 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 [EasyFlash](https://github.com/armink/EasyFlash) is an open source lightweight embedded flash memory library. It provide convenient application interface for MCU (Micro Control Unit). The developers can achieve more efficient and common application development based on Flash memory. The library currently provides **Three useful features** ：
 
-- **Env(environment variables)** : A small KV database. Support **write balance mode(wear leveling)** and **power fail safeguard**.
+- **Env(environment variables)** Fast Saves product parameters. Support **write balance mode(wear leveling)** and **power fail safeguard**. 
 
-Let Flash becomes a small NoSQL (non-relational databases) model and Key-Value stores database. You can be more simple to store **setting parameters** or **running logs** and other information which you want to power down to save.
+EasyFlash can be store **setting parameters** or **running logs** and other information which you want to power down to save. And it packaged add, delete, modify and query method. It make developer easy to process the product parameters. And make sure the product has better scalability after upgrade. Let Flash becomes a small NoSQL (non-relational databases) model and Key-Value stores database.
 
 - **IAP** : online upgrade is no longer a difficult thing.
  
