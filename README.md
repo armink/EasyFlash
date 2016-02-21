@@ -1,8 +1,8 @@
-# EasyFlash
+# EasyFlash 
 
 ---
 
-## 1、介绍
+## 1、介绍（[English](#1-introduction)）
 
 [EasyFlash](https://github.com/armink/EasyFlash)是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Micro Control Unit)提供便捷、通用的上层应用接口，使得开发者更加高效实现基于的Flash存储器常见应用开发。该库目前提供 **三大实用功能** ：
 
