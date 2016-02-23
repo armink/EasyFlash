@@ -36,7 +36,7 @@ ef_types_init(&s2jHook);
 
 对于基本类型的环境变量操作方法与 EasyFlash 原有的 API 一致，只是修改了入参及出参的类型，所有可用的 API 如下：
 
-```
+```C
 bool ef_get_bool(const char *key);
 char ef_get_char(const char *key);
 short ef_get_short(const char *key);
