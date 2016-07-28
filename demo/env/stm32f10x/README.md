@@ -2,10 +2,8 @@
 
 ---
 
-## 1、文件（夹）说明
-
-`non_os` 裸机（无操作系统）的测试 Demo
-
-`non_os_spi_flash` 裸机（无操作系统）的外部 SPI Flash 测试 Demo
-
-`rtt` 基于 RT-Thread 操作系统平台的测试 Demo
+|File or folder name                     |Description|
+|:-----                                  |:----|
+|non_os                                  |STM32F10X non-os platform demo|
+|non_os_spi_flash                        |STM32F10X non-os platform for using SPI Flash demo|
+|rtt                                     |STM32F10X for [RT-Thread](http://www.rt-thread.org/) operating system platform demo|

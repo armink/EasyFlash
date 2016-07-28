@@ -1,4 +1,4 @@
-# stm32f10x 裸机Demo
+# stm32f10x 裸机平台外部 SPI Flash Demo
 
 ---
 
@@ -7,6 +7,8 @@
 通过 `app\src\app.c` 的 `test_env()` 方法来演示环境变量的读取及修改功能，每次系统启动并且初始化EasyFlash成功后会调用该方法。
 
 在 `test_env()` 方法中，会先读取系统的启动次数，读取后对启动次数加一，再存入到环境变量中，实现记录系统启动（开机）次数的功能。
+
+对于 SPI Flash 的驱动这里采用的一款开源的万能 SPI Flash 驱动库 SFUD ，使得此 Demo 能够支持市面上尽可能多的 SPI Flash， [点击查看](https://github.com/armink/SFUD) SFUD 详细介绍说明及使用方法。
 
 ### 1.1、使用方法
 
