@@ -1,0 +1,15 @@
+"C:\Program Files\IAR Systems\Embedded Workbench 7.4\arm\bin\armproc.dll" 
+
+"C:\Program Files\IAR Systems\Embedded Workbench 7.4\arm\bin\armjlink2.dll" 
+
+"D:\Program\STM32\EasyFlash\demo\env\stm32f10x\non_os_spi_flash\EWARM\stm32f103xE\Exe\EasyFlash.out" 
+
+--plugin "C:\Program Files\IAR Systems\Embedded Workbench 7.4\arm\bin\armbat.dll" 
+
+--device_macro "C:\Program Files\IAR Systems\Embedded Workbench 7.4\arm\config\debugger\ST\STM32F1xx_XL.dmac" 
+
+--flash_loader "C:\Program Files\IAR Systems\Embedded Workbench 7.4\arm\config\flashloader\ST\FlashSTM32F10xxE.board" 
+
+
+
+
