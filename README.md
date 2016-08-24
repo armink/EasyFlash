@@ -1,4 +1,4 @@
-# EasyFlash 
+# EasyFlash
 
 ---
 
@@ -46,19 +46,19 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 - 5、检查“温度”是否被成功修改；
 - 6、删除“温度”的环境变量。
 
-![easy_flash_env](http://git.oschina.net/Armink/EasyFlash/raw/master/docs/zh/images/EnvDemo.gif)
+![easy_flash_env](https://raw.githubusercontent.com/armink/EasyFlash/master/docs/zh/images/EnvDemo.gif)
 
 ### 2.2、IAP：在线升级
 
 下图演示了通过控制台来进行IAP升级软件的过程，使用的是库中自带的IAP功能接口，演示采用的是串口+Ymodem协议的方式。你还也可以实现通过CAN、485、以太网等总线，来实现远程网络更新。
 
-![easy_flash_iap](http://git.oschina.net/Armink/EasyFlash/raw/master/docs/zh/images/IapDemo.gif)
+![easy_flash_iap](https://raw.githubusercontent.com/armink/EasyFlash/master/docs/zh/images/IapDemo.gif)
 
 ### 2.3、Log：日志存储
 
 下图过程为通过控制台输出日志，并将输出的日志存储到Flash中。重启再读取上次保存的日志，最后清空Flash日志。
 
-![easy_flash_log](http://git.oschina.net/Armink/EasyFlash/raw/master/docs/zh/images/LogDemo.gif)
+![easy_flash_log](https://raw.githubusercontent.com/armink/EasyFlash/master/docs/zh/images/LogDemo.gif)
 
 ## 3、文档
 
