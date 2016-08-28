@@ -24,7 +24,7 @@
 |\easyflash\src\ef_log.c                |Log 相关操作接口及实现源码|
 |\easyflash\src\ef_utils.c              |EasyFlash常用小工具，例如：CRC32|
 |\easyflash\src\easyflash.c             |目前只包含EasyFlash初始化方法|
-|\easyflash\port\ef_port.c              |不同平台下的EasyFlash移植接口及配置参数|
+|\easyflash\port\ef_port.c              |不同平台下的EasyFlash移植接口|
 |\demo\env\stm32f10x\non_os             |stm32f10x裸机的Env demo|
 |\demo\env\stm32f10x\rtt                |stm32f10x基于[RT-Thread](http://www.rt-thread.org/)的Env demo|
 |\demo\env\stm32f4xx                    |stm32f4xx基于[RT-Thread](http://www.rt-thread.org/)的Env demo|
@@ -60,7 +60,7 @@ EfErrCode ef_port_init(ef_env const **default_env, size_t *default_env_size)
 
 ### 4.2 读取Flash
 
-最小单位为4个字节
+最小单位为4个字节。
 
 ```C
 EfErrCode ef_port_read(uint32_t addr, uint32_t *buf, size_t size)
@@ -85,7 +85,7 @@ EfErrCode ef_port_erase(uint32_t addr, size_t size)
 
 ### 4.4 写入Flash
 
-最小单位为4个字节
+最小单位为4个字节。
 
 ```C
 EfErrCode ef_port_write(uint32_t addr, const uint32_t *buf, size_t size)
@@ -99,7 +99,7 @@ EfErrCode ef_port_write(uint32_t addr, const uint32_t *buf, size_t size)
 
 ### 4.5 对环境变量缓冲区加锁
 
-为了保证RAM缓冲区在并发执行的安全性，所以需要对其进行加锁（如果项目的使用场景不存在并发情况，则可以忽略）。有操作系统是可以使用获取信号量来加锁，裸机时可以通过关闭全局中断来加锁
+为了保证RAM缓冲区在并发执行的安全性，所以需要对其进行加锁（如果项目的使用场景不存在并发情况，则可以忽略）。有操作系统时可以使用获取信号量来加锁，裸机时可以通过关闭全局中断来加锁。
 
 ```C
 void ef_port_env_lock(void)
@@ -107,7 +107,7 @@ void ef_port_env_lock(void)
 
 ### 4.6 对环境变量缓冲区解锁
 
-有操作系统是可以使用释放信号量来解锁，裸机时可以通过开启全局中断来解锁
+有操作系统是可以使用释放信号量来解锁，裸机时可以通过开启全局中断来解锁。
 
 ```C
 void ef_port_env_unlock(void)
@@ -115,7 +115,7 @@ void ef_port_env_unlock(void)
 
 ### 4.7 打印调试日志信息
 
-在定义`PRINT_DEBUG`宏后，打印调试日志信息
+在定义`PRINT_DEBUG`宏后，打印调试日志信息。
 
 ```C
 void ef_log_debug(const char *file, const long line, const char *format, ...)
@@ -207,7 +207,7 @@ void ef_print(const char *format, ...)
  - 4、擦写平衡+掉电保护模式：系统区将会占用1个`EF_ERASE_MIN_SIZE`大小，数据区将会是擦写平衡模式下的数据区总容量的2倍。
  - 例如：`EF_ERASE_MIN_SIZE`是128K，`ENV_USER_SETTING_SIZE`是2K，那么你可以这样定义不同模式下的环境变量总容量：
  - 1、常规模式：`1*EF_ERASE_MIN_SIZE`；
- - 2、擦写平衡模式：`3*EF_ERASE_MIN_SIZE`（它将会有2个Flash扇区去存储环境变量，按照每个Flash扇区可被擦写10W次计算，那么当前配置至少可擦写20W次）;
+ - 2、擦写平衡模式：`3*EF_ERASE_MIN_SIZE`（它将会有3个Flash扇区去存储环境变量，按照每个Flash扇区可被擦写10W次计算，那么当前配置至少可擦写30W次）;
  - 3、掉电保护模式：`2*EF_ERASE_MIN_SIZE`;
  - 4、擦写平衡+掉电保护模式：`5*EF_ERASE_MIN_SIZE`;
 
@@ -252,10 +252,10 @@ void ef_print(const char *format, ...)
 
 ### 6.2 在线升级
 
-查看[`\demo\iap\README.md`](https://github.com/armink/EasyFlash/tree/master/demo/iap/README.md)说明文档。
+查看[`\demo\iap\README.md`](https://github.com/armink/EasyFlash/tree/master/demo/iap)说明文档。
 
 ### 6.3 日志
 
-查看[`\demo\log\README.md`](https://github.com/armink/EasyFlash/tree/master/demo/log/README.md)说明文档。
+查看[`\demo\log\README.md`](https://github.com/armink/EasyFlash/tree/master/demo/log)说明文档。
 
 > 注意：`easylogger.c`是使用[EasyLogger](https://github.com/armink/EasyLogger)与EasyFlash的无缝接口的例子，EasyLogger提供针对日志的很多常用功能封装，详细功能可以查看其介绍。使用这个例子时，务必记得将EasyLogger一并导入到项目中。
