@@ -107,6 +107,15 @@ sfud_err sfud_write(const sfud_flash *flash, uint32_t addr, size_t size, const u
 sfud_err sfud_erase_write(const sfud_flash *flash, uint32_t addr, size_t size, const uint8_t *data);
 
 /**
+ * erase all flash data
+ *
+ * @param flash flash device
+ *
+ * @return result
+ */
+sfud_err sfud_chip_erase(const sfud_flash *flash);
+
+/**
  * read flash register status
  *
  * @param flash flash device

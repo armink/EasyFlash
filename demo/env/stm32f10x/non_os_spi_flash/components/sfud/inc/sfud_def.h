@@ -53,7 +53,7 @@ extern "C" {
 #define SFUD_ASSERT(EXPR)                                                      \
 if (!(EXPR))                                                                   \
 {                                                                              \
-    SFUD_DEBUG("(%s) has assert failed at %s.\n", #EXPR, __FUNCTION__);        \
+    SFUD_DEBUG("(%s) has assert failed at %s.", #EXPR, __FUNCTION__);          \
     while (1);                                                                 \
 }
 #else
@@ -73,7 +73,7 @@ if (!(EXPR))                                                                   \
     else {if (__delay_temp) {__delay_temp();} retry --;}
 
 /* software version number */
-#define SFUD_SW_VERSION                           "0.07.13"
+#define SFUD_SW_VERSION                           "0.08.25"
 /*
  * all defined supported command
  */
