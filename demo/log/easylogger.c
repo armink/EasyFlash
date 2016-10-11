@@ -69,7 +69,7 @@ int main(void){
  */
 static void test_elog(void) {
     /* output all saved log from flash */
-    elog_flash_outout_all();
+    elog_flash_output_all();
     /* test log output for all level */
     log_a("Hello EasyLogger!");
     log_e("Hello EasyLogger!");
