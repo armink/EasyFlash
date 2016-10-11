@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2014, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2014-2016, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -98,6 +98,7 @@ EfErrCode easyflash_init(void) {
     } else {
         EF_DEBUG("EasyFlash V%s is initialize fail.\n", EF_SW_VERSION);
     }
+    EF_DEBUG("You can get the latest version on https://github.com/armink/EasyFlash .\n");
 
     return result;
 }
