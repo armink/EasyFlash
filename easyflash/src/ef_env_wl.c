@@ -72,17 +72,17 @@ enum {
 };
 
 /* default ENV set, must be initialized by user */
-static ef_env const *default_env_set = NULL;
+static ef_env const *default_env_set;
 /* default ENV set size, must be initialized by user */
-static size_t default_env_set_size = NULL;
+static size_t default_env_set_size = 0;
 /* flash ENV data section size */
-static size_t env_data_section_size = NULL;
+static size_t env_data_section_size = 0;
 /* ENV ram cache */
 static uint32_t env_cache[ENV_USER_SETTING_SIZE / 4] = { 0 };
 /* ENV start address in flash */
-static uint32_t env_start_addr = NULL;
+static uint32_t env_start_addr = 0;
 /* current using data section address */
-static uint32_t cur_using_data_addr = NULL;
+static uint32_t cur_using_data_addr = 0;
 /* ENV ram cache has changed when ENV created, deleted and changed value. */
 static bool env_cache_changed = false;
 /* initialize OK flag */
@@ -90,7 +90,7 @@ static bool init_ok = false;
 
 #ifdef EF_ENV_USING_PFS_MODE
 /* next save ENV area address */
-static uint32_t next_save_area_addr = NULL;
+static uint32_t next_save_area_addr = 0;
 #endif
 
 static uint32_t get_env_start_addr(void);
