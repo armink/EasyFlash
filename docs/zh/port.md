@@ -25,9 +25,10 @@
 |\easyflash\src\ef_utils.c              |EasyFlash常用小工具，例如：CRC32|
 |\easyflash\src\easyflash.c             |目前只包含EasyFlash初始化方法|
 |\easyflash\port\ef_port.c              |不同平台下的EasyFlash移植接口|
-|\demo\env\stm32f10x\non_os             |stm32f10x裸机的Env demo|
-|\demo\env\stm32f10x\rtt                |stm32f10x基于[RT-Thread](http://www.rt-thread.org/)的Env demo|
-|\demo\env\stm32f4xx                    |stm32f4xx基于[RT-Thread](http://www.rt-thread.org/)的Env demo|
+|\demo\env\stm32f10x\non_os             |stm32f10x裸机片内Flash的Env demo|
+|\demo\env\stm32f10x\non_os_spi_flash   |stm32f10x裸机SPI Flash的Env demo|
+|\demo\env\stm32f10x\rtt                |stm32f10x基于[RT-Thread](http://www.rt-thread.org/)的片内Flash Env demo|
+|\demo\env\stm32f4xx                    |stm32f4xx基于[RT-Thread](http://www.rt-thread.org/)的片内Flash Env demo|
 |\demo\iap\ymodem+rtt.c                 |使用[RT-Thread](http://www.rt-thread.org/)+[Ymodem](https://github.com/RT-Thread/rt-thread/tree/master/components/utilities/ymodem)的IAP Demo|
 |\demo\log\easylogger.c                 |基于[EasyLogger](https://github.com/armink/EasyLogger)的Log Demo|
 
@@ -204,12 +205,12 @@ void ef_print(const char *format, ...)
  - 1、常规模式：没有差异；
  - 2、擦写平衡模式：系统区将会占用1个`EF_ERASE_MIN_SIZE`大小，数据区至少等使用2个以上Flash扇区；
  - 3、掉电保护模式：环境变量区将会被备份，所以总容量是常规模式的2倍；
- - 4、擦写平衡+掉电保护模式：系统区将会占用1个`EF_ERASE_MIN_SIZE`大小，数据区将会是擦写平衡模式下的数据区总容量的2倍。
+ - 4、擦写平衡+掉电保护模式：所需容量将会是擦写平衡模式下总容量的2倍。
  - 例如：`EF_ERASE_MIN_SIZE`是128K，`ENV_USER_SETTING_SIZE`是2K，那么你可以这样定义不同模式下的环境变量总容量：
  - 1、常规模式：`1*EF_ERASE_MIN_SIZE`；
- - 2、擦写平衡模式：`3*EF_ERASE_MIN_SIZE`（它将会有3个Flash扇区去存储环境变量，按照每个Flash扇区可被擦写10W次计算，那么当前配置至少可擦写30W次）;
+ - 2、擦写平衡模式：`3*EF_ERASE_MIN_SIZE`（它将会有3个Flash扇区去存储环境变量，1个系统区，2个数据区，按照每个Flash扇区可被擦写10W次计算，那么当前配置至少可擦写20W次）;
  - 3、掉电保护模式：`2*EF_ERASE_MIN_SIZE`;
- - 4、擦写平衡+掉电保护模式：`5*EF_ERASE_MIN_SIZE`;
+ - 4、擦写平衡+掉电保护模式：`6*EF_ERASE_MIN_SIZE`;
 
 #### 5.5.1 备份区起始地址
 
