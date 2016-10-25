@@ -53,7 +53,7 @@
  *       1.Normal mode: 1*EF_ERASE_MIN_SIZE
  *       2.Wear leveling mode: 3*EF_ERASE_MIN_SIZE (It has 2 flash section to store ENV. So ENV can erase at least 200,000 times)
  *       3.Power fail safeguard mode: 2*EF_ERASE_MIN_SIZE
- *       4.Wear leveling and power fail safeguard mode: 5*EF_ERASE_MIN_SIZE
+ *       4.Wear leveling and power fail safeguard mode: 6*EF_ERASE_MIN_SIZE
  * @note the log area size must be more than twice of EF_ERASE_MIN_SIZE
  */
 #include <easyflash.h>
