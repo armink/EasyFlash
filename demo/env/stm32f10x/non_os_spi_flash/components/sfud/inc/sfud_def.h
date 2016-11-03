@@ -73,7 +73,7 @@ if (!(EXPR))                                                                   \
     else {if (__delay_temp) {__delay_temp();} retry --;}
 
 /* software version number */
-#define SFUD_SW_VERSION                           "0.08.25"
+#define SFUD_SW_VERSION                           "0.10.29"
 /*
  * all defined supported command
  */

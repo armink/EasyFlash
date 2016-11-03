@@ -110,7 +110,7 @@ sfud_err sfud_init(void) {
         cur_flash_result = sfud_device_init(&flash_table[i]);
 
         if (cur_flash_result != SFUD_SUCCESS) {
-            cur_flash_result = cur_flash_result;
+            all_flash_result = cur_flash_result;
         }
     }
 
