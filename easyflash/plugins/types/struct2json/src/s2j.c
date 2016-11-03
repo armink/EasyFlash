@@ -26,7 +26,7 @@
  * Created on: 2015-10-14
  */
 
-#include "..\inc\s2j.h"
+#include <s2j.h>
 #include <stdlib.h>
 
 S2jHook s2jHook = {

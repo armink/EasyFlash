@@ -90,6 +90,9 @@ typedef struct {
 #define S2J_CREATE_JSON_OBJECT(json_obj) \
     cJSON *json_obj = cJSON_CreateObject();
 
+#define S2J_DELETE_JSON_OBJECT(json_obj) \
+    cJSON_Delete(json_obj);
+
 #define S2J_JSON_SET_BASIC_ELEMENT(to_json, from_struct, type, _element) \
     S2J_JSON_SET_##type##_ELEMENT(to_json, from_struct, _element)
 
@@ -115,6 +118,9 @@ typedef struct {
     cJSON *json_temp; \
     type *struct_obj = s2jHook.malloc_fn(sizeof(type)); \
     if (struct_obj) memset(struct_obj, 0, sizeof(type));
+
+#define S2J_DELETE_STRUCT_OBJECT(struct_obj) \
+    s2jHook.free_fn(struct_obj);
 
 #define S2J_STRUCT_GET_BASIC_ELEMENT(to_struct, from_json, type, _element) \
     S2J_STRUCT_GET_##type##_ELEMENT(to_struct, from_json, _element)

@@ -1,34 +1,34 @@
-# CΩ·ππÃÂ”Î JSON øÏÀŸª•◊™ø‚
+# CÁªìÊûÑ‰Ωì‰∏é JSON Âø´ÈÄü‰∫íËΩ¨Â∫ì
 
 ---
 
 ## struct2json
 
-[struct2json](https://github.com/armink/struct2json)  «“ª∏ˆø™‘¥µƒCΩ·ππÃÂ”Î JSON øÏÀŸª•◊™ø‚£¨À¸ø…“‘øÏÀŸ µœ÷ **Ω·ππÃÂ∂‘œÛ** ”Î **JSON ∂‘œÛ** ÷Æº‰–Ú¡–ªØº∞∑¥–Ú¡–ªØ“™«Û°£øÏÀŸ°¢ºÚΩ‡µƒ API …Ëº∆£¨¥Û¥ÛΩµµÕ÷±Ω” π”√ JSON Ω‚Œˆø‚¿¥ µœ÷¥À¿‡π¶ƒ‹µƒ¥˙¬Î∏¥‘”∂»°£
+[struct2json](https://github.com/armink/struct2json) ÊòØ‰∏Ä‰∏™ÂºÄÊ∫êÁöÑCÁªìÊûÑ‰Ωì‰∏é JSON Âø´ÈÄü‰∫íËΩ¨Â∫ìÔºåÂÆÉÂèØ‰ª•Âø´ÈÄüÂÆûÁé∞ **ÁªìÊûÑ‰ΩìÂØπË±°** ‰∏é **JSON ÂØπË±°** ‰πãÈó¥Â∫èÂàóÂåñÂèäÂèçÂ∫èÂàóÂåñË¶ÅÊ±Ç„ÄÇÂø´ÈÄü„ÄÅÁÆÄÊ¥ÅÁöÑ API ËÆæËÆ°ÔºåÂ§ßÂ§ßÈôç‰ΩéÁõ¥Êé•‰ΩøÁî® JSON Ëß£ÊûêÂ∫ìÊù•ÂÆûÁé∞Ê≠§Á±ªÂäüËÉΩÁöÑ‰ª£Á†ÅÂ§çÊùÇÂ∫¶„ÄÇ
 
-## ∆‘¥
+## Ëµ∑Ê∫ê
 
-∞—√ÊœÚ∂‘œÛ…Ëº∆”¶”√µΩC”Ô—‘÷–£¨ «µ±œ¬∫‹¡˜––µƒ…Ëº∆ÀºœÎ°£”…”⁄C”Ô—‘÷–√ª”–¿‡£¨À˘“‘“ª∞„ π”√Ω·ππÃÂ `struct` ≥‰µ±¿‡£¨ƒ«√¥Ω·ππÃÂ±‰¡øæÕ «∂‘œÛ°£”–¡À∂‘œÛ÷Æ∫Û£¨∫‹∂‡ ±∫Ú–Ë“™øº¬«∂‘œÛµƒ–Ú¡–ªØº∞∑¥–Ú¡–ªØŒ Ã‚°£C”Ô—‘≤ªœÒ∫‹∂‡∏ﬂº∂”Ô—‘”µ”–∑¥…‰µ»ª˙÷∆£¨ πµ√∂‘œÛ–Ú¡–ªØº∞∑¥–Ú¡–ªØ±ª‘≠…˙µƒ÷ß≥÷°£
+ÊääÈù¢ÂêëÂØπË±°ËÆæËÆ°Â∫îÁî®Âà∞CËØ≠Ë®Ä‰∏≠ÔºåÊòØÂΩì‰∏ãÂæàÊµÅË°åÁöÑËÆæËÆ°ÊÄùÊÉ≥„ÄÇÁî±‰∫éCËØ≠Ë®Ä‰∏≠Ê≤°ÊúâÁ±ªÔºåÊâÄ‰ª•‰∏ÄËà¨‰ΩøÁî®ÁªìÊûÑ‰Ωì `struct` ÂÖÖÂΩìÁ±ªÔºåÈÇ£‰πàÁªìÊûÑ‰ΩìÂèòÈáèÂ∞±ÊòØÂØπË±°„ÄÇÊúâ‰∫ÜÂØπË±°‰πãÂêéÔºåÂæàÂ§öÊó∂ÂÄôÈúÄË¶ÅËÄÉËôëÂØπË±°ÁöÑÂ∫èÂàóÂåñÂèäÂèçÂ∫èÂàóÂåñÈóÆÈ¢ò„ÄÇCËØ≠Ë®Ä‰∏çÂÉèÂæàÂ§öÈ´òÁ∫ßËØ≠Ë®ÄÊã•ÊúâÂèçÂ∞ÑÁ≠âÊú∫Âà∂Ôºå‰ΩøÂæóÂØπË±°Â∫èÂàóÂåñÂèäÂèçÂ∫èÂàóÂåñË¢´ÂéüÁîüÁöÑÊîØÊåÅ„ÄÇ
 
-∂‘”⁄C”Ô—‘¿¥Àµ£¨–Ú¡–ªØŒ™ JSON ◊÷∑˚¥Æ «∏ˆ≤ª¥Ìµƒ—°‘Ò£¨À˘“‘æÕµ√ π”√ [cJSON](https://github.com/kbranigan/cJSON) ’‚¿‡ JSON Ω‚Œˆø‚£¨µ´ « π”√∫Ûµƒ¥˙¬Î»ﬂ”‡«“¬ﬂº≠–‘≤Ó£¨À˘“‘√»…˙∂‘cJSONø‚Ω¯––∂˛¥Œ∑‚◊∞£¨ µœ÷“ª∏ˆ struct ”Î JSON ÷Æº‰øÏÀŸª•◊™µƒø‚°£ struct2json æÕµÆ…˙”⁄¥À°£œ¬√Ê « struct2json ÷˜“™ π”√≥°æ∞£∫
+ÂØπ‰∫éCËØ≠Ë®ÄÊù•ËØ¥ÔºåÂ∫èÂàóÂåñ‰∏∫ JSON Â≠óÁ¨¶‰∏≤ÊòØ‰∏™‰∏çÈîôÁöÑÈÄâÊã©ÔºåÊâÄ‰ª•Â∞±Âæó‰ΩøÁî® [cJSON](https://github.com/kbranigan/cJSON) ËøôÁ±ª JSON Ëß£ÊûêÂ∫ìÔºå‰ΩÜÊòØ‰ΩøÁî®ÂêéÁöÑ‰ª£Á†ÅÂÜó‰Ωô‰∏îÈÄªËæëÊÄßÂ∑ÆÔºåÊâÄ‰ª•ËêåÁîüÂØπcJSONÂ∫ìËøõË°å‰∫åÊ¨°Â∞ÅË£ÖÔºåÂÆûÁé∞‰∏Ä‰∏™ struct ‰∏é JSON ‰πãÈó¥Âø´ÈÄü‰∫íËΩ¨ÁöÑÂ∫ì„ÄÇ struct2json Â∞±ËØûÁîü‰∫éÊ≠§„ÄÇ‰∏ãÈù¢ÊòØ struct2json ‰∏ªË¶Å‰ΩøÁî®Âú∫ÊôØÔºö
 
-- **≥÷æ√ªØ** £∫Ω·ππÃÂ∂‘œÛ–Ú¡–ªØŒ™ JSON ∂‘œÛ∫Û£¨ø…÷±Ω”±£¥Ê÷¡Œƒº˛°¢Flash£¨ µœ÷∂‘Ω·ππÃÂ∂‘œÛµƒµÙµÁ¥Ê¥¢£ª
-- **Õ®–≈** £∫∏ﬂº∂”Ô—‘∂‘JSON÷ß≥÷µƒ∫‹”—∫√£¨¿˝»Á£∫ Javascript°¢Groovy æÕ∂‘ JSON æﬂ”–‘≠…˙µƒ÷ß≥÷£¨À˘“‘ JSON “≤ø…◊˜Œ™C”Ô—‘”Î∆‰À˚”Ô—‘»Ìº˛÷Æº‰µƒÕ®–≈–≠“È∏Ò Ωº∞∂‘œÛ¥´µ›∏Ò Ω£ª
-- **ø… ”ªØ** £∫–Ú¡–ªØŒ™ JSON ∫Ûµƒ∂‘œÛ£¨ø…“‘∏¸º”÷±π€µƒ’π æµΩøÿ÷∆Ã®ªÚ’ﬂ UI …œ£¨ø…”√”⁄≤˙∆∑µ˜ ‘°¢≤˙∆∑∂˛¥Œø™∑¢µ»≥°æ∞£ª
+- **ÊåÅ‰πÖÂåñ** ÔºöÁªìÊûÑ‰ΩìÂØπË±°Â∫èÂàóÂåñ‰∏∫ JSON ÂØπË±°ÂêéÔºåÂèØÁõ¥Êé•‰øùÂ≠òËá≥Êñá‰ª∂„ÄÅFlashÔºåÂÆûÁé∞ÂØπÁªìÊûÑ‰ΩìÂØπË±°ÁöÑÊéâÁîµÂ≠òÂÇ®Ôºõ
+- **ÈÄö‰ø°** ÔºöÈ´òÁ∫ßËØ≠Ë®ÄÂØπJSONÊîØÊåÅÁöÑÂæàÂèãÂ•ΩÔºå‰æãÂ¶ÇÔºö Javascript„ÄÅGroovy Â∞±ÂØπ JSON ÂÖ∑ÊúâÂéüÁîüÁöÑÊîØÊåÅÔºåÊâÄ‰ª• JSON ‰πüÂèØ‰Ωú‰∏∫CËØ≠Ë®Ä‰∏éÂÖ∂‰ªñËØ≠Ë®ÄËΩØ‰ª∂‰πãÈó¥ÁöÑÈÄö‰ø°ÂçèËÆÆÊ†ºÂºèÂèäÂØπË±°‰º†ÈÄíÊ†ºÂºèÔºõ
+- **ÂèØËßÜÂåñ** ÔºöÂ∫èÂàóÂåñ‰∏∫ JSON ÂêéÁöÑÂØπË±°ÔºåÂèØ‰ª•Êõ¥Âä†Áõ¥ËßÇÁöÑÂ±ïÁ§∫Âà∞ÊéßÂà∂Âè∞ÊàñËÄÖ UI ‰∏äÔºåÂèØÁî®‰∫é‰∫ßÂìÅË∞ÉËØï„ÄÅ‰∫ßÂìÅ‰∫åÊ¨°ÂºÄÂèëÁ≠âÂú∫ÊôØÔºõ
 
-## »Á∫Œ π”√
+## Â¶Ç‰Ωï‰ΩøÁî®
 
-### …˘√˜Ω·ππÃÂ
+### Â£∞ÊòéÁªìÊûÑ‰Ωì
 
-»Áœ¬…˘√˜¡À¡Ω∏ˆΩ·ππÃÂ£¨Ω·ππÃÂ `Hometown`  «Ω·ππÃÂ `Student` µƒ◊”Ω·ππÃÂ
+Â¶Ç‰∏ãÂ£∞Êòé‰∫Ü‰∏§‰∏™ÁªìÊûÑ‰ΩìÔºåÁªìÊûÑ‰Ωì `Hometown` ÊòØÁªìÊûÑ‰Ωì `Student` ÁöÑÂ≠êÁªìÊûÑ‰Ωì
 
 ```C
-/* ºÆπ· */
+/* Á±çË¥Ø */
 typedef struct {
     char name[16];
 } Hometown;
 
-/* —ß…˙ */
+/* Â≠¶Áîü */
 typedef struct {
     uint8_t id;
     uint8_t score[8];
@@ -38,189 +38,24 @@ typedef struct {
 } Student;
 ```
 
-### Ω´Ω·ππÃÂ∂‘œÛ–Ú¡–ªØŒ™ JSON ∂‘œÛ
+### Â∞ÜÁªìÊûÑ‰ΩìÂØπË±°Â∫èÂàóÂåñ‰∏∫ JSON ÂØπË±°
 
-|Œ¥ π”√£®[‘¥Œƒº˛](https://github.com/armink/struct2json/blob/master/docs/zh/assets/not_use_struct2json.c)£©| π”√∫Û£®[‘¥Œƒº˛](https://github.com/armink/struct2json/blob/master/docs/zh/assets/used_struct2json.c)£©|
+|‰ΩøÁî®ÂâçÔºà[Ê∫êÊñá‰ª∂](https://github.com/armink/struct2json/blob/master/docs/zh/assets/not_use_struct2json.c)Ôºâ|‰ΩøÁî®ÂêéÔºà[Ê∫êÊñá‰ª∂](https://github.com/armink/struct2json/blob/master/docs/zh/assets/used_struct2json.c)Ôºâ|
 |:-----:|:-----:|
-|![Ω·ππÃÂ◊™JSON- π”√«∞](https://git.oschina.net/Armink/struct2json/raw/master/docs/zh/images/not_use_struct2json.png)| ![Ω·ππÃÂ◊™JSON- π”√∫Û](https://git.oschina.net/Armink/struct2json/raw/master/docs/zh/images/used_struct2json.png)|
+|![ÁªìÊûÑ‰ΩìËΩ¨JSON-‰ΩøÁî®Ââç](https://git.oschina.net/Armink/struct2json/raw/master/docs/zh/images/not_use_struct2json.png)| ![ÁªìÊûÑ‰ΩìËΩ¨JSON-‰ΩøÁî®Âêé](https://git.oschina.net/Armink/struct2json/raw/master/docs/zh/images/used_struct2json.png)|
 
-### Ω´ JSON ∂‘œÛ∑¥–Ú¡–ªØŒ™Ω·ππÃÂ∂‘œÛ
+### Â∞Ü JSON ÂØπË±°ÂèçÂ∫èÂàóÂåñ‰∏∫ÁªìÊûÑ‰ΩìÂØπË±°
 
-|Œ¥ π”√£®[‘¥Œƒº˛](https://github.com/armink/struct2json/blob/master/docs/zh/assets/not_use_struct2json_for_json.c)£©| π”√∫Û£®[‘¥Œƒº˛](https://github.com/armink/struct2json/blob/master/docs/zh/assets/used_struct2json_for_json.c)£©|
+|‰ΩøÁî®ÂâçÔºà[Ê∫êÊñá‰ª∂](https://github.com/armink/struct2json/blob/master/docs/zh/assets/not_use_struct2json_for_json.c)Ôºâ|‰ΩøÁî®ÂêéÔºà[Ê∫êÊñá‰ª∂](https://github.com/armink/struct2json/blob/master/docs/zh/assets/used_struct2json_for_json.c)Ôºâ|
 |:-----:|:-----:|
-|![JSON◊™Ω·ππÃÂ- π”√«∞](https://git.oschina.net/Armink/struct2json/raw/master/docs/zh/images/not_use_struct2json_for_json.png)| ![JSON◊™Ω·ππÃÂ- π”√∫Û](https://git.oschina.net/Armink/struct2json/raw/master/docs/zh/images/used_struct2json_for_json.png)|
+|![JSONËΩ¨ÁªìÊûÑ‰Ωì-‰ΩøÁî®Ââç](https://git.oschina.net/Armink/struct2json/raw/master/docs/zh/images/not_use_struct2json_for_json.png)| ![JSONËΩ¨ÁªìÊûÑ‰Ωì-‰ΩøÁî®Âêé](https://git.oschina.net/Armink/struct2json/raw/master/docs/zh/images/used_struct2json_for_json.png)|
 
-ª∂”≠¥Ûº“ **fork and pull request**([Github](https://github.com/armink/struct2json)|[OSChina](http://git.oschina.net/armink/struct2json)|[Coding](https://coding.net/u/armink/p/struct2json/git)) °£»Áπ˚æıµ√’‚∏ˆø™‘¥œÓƒø∫‹‘ﬁ£¨ø…“‘µ„ª˜[œÓƒø÷˜“≥](https://github.com/armink/struct2json) ”“…œΩ«µƒ**Star**£¨Õ¨ ±∞—À¸Õ∆ºˆ∏¯∏¸∂‡”––Ë“™µƒ≈Û”—°£
+Ê¨¢ËøéÂ§ßÂÆ∂ **fork and pull request**([Github](https://github.com/armink/struct2json)|[OSChina](http://git.oschina.net/armink/struct2json)|[Coding](https://coding.net/u/armink/p/struct2json/git)) „ÄÇÂ¶ÇÊûúËßâÂæóËøô‰∏™ÂºÄÊ∫êÈ°πÁõÆÂæàËµûÔºåÂèØ‰ª•ÁÇπÂáª[È°πÁõÆ‰∏ªÈ°µ](https://github.com/armink/struct2json) Âè≥‰∏äËßíÁöÑ**Star**ÔºåÂêåÊó∂ÊääÂÆÉÊé®ËçêÁªôÊõ¥Â§öÊúâÈúÄË¶ÅÁöÑÊúãÂèã„ÄÇ
 
-## Œƒµµ
+## ÊñáÊ°£
 
-æﬂÃÂƒ⁄»›≤Œøº[`\docs\zh\`](https://github.com/armink/struct2json/tree/master/docs/zh)œ¬µƒŒƒº˛°£ŒÒ±ÿ±£÷§‘⁄ **‘ƒ∂¡Œƒµµ** ∫Û‘Ÿ π”√°£
+ÂÖ∑‰ΩìÂÜÖÂÆπÂèÇËÄÉ[`\docs\zh\`](https://github.com/armink/struct2json/tree/master/docs/zh)‰∏ãÁöÑÊñá‰ª∂„ÄÇÂä°ÂøÖ‰øùËØÅÂú® **ÈòÖËØªÊñáÊ°£** ÂêéÂÜç‰ΩøÁî®„ÄÇ
 
-## –Ìø…
+## ËÆ∏ÂèØ
 
 MIT Copyright (c) armink.ztl@gmail.com
-
-```C
-cJSON *struct_to_json(void* struct_obj) {
-    Student *struct_student = (Student *)struct_obj;
-
-    /* ¥¥Ω®Student JSON∂‘œÛ */
-    s2j_create_json_obj(json_student);
-
-    /* –Ú¡–ªØ ˝æ›µΩStudent JSON∂‘œÛ */
-    s2j_json_set_basic_element(json_student, struct_student, int, id);
-    s2j_json_set_basic_element(json_student, struct_student, double, weight);
-    s2j_json_set_array_element(json_student, struct_student, int, score, 8);
-    s2j_json_set_basic_element(json_student, struct_student, string, name);
-
-    /* –Ú¡–ªØ ˝æ›µΩStudent.Hometown JSON∂‘œÛ */
-    s2j_json_set_struct_element(json_hometown, json_student, struct_hometown, struct_student, Hometown, hometown);
-    s2j_json_set_basic_element(json_hometown, struct_hometown, string, name);
-
-    /* ∑µªÿStudent JSON∂‘œÛ÷∏’Î */
-    return json_student;
-}
-
-
-
-
-
-
-
-
-
-
-
-```
-```C
-cJSON *struct_to_json(void* struct_obj) {
-    Student *struct_student = (Student *) struct_obj;
-    cJSON *score, *score_element;
-    size_t index = 0;
-
-    /* ¥¥Ω®Student JSON∂‘œÛ */
-    cJSON *json_student = cJSON_CreateObject();
-
-    /* –Ú¡–ªØ ˝æ›µΩStudent JSON∂‘œÛ */
-    cJSON_AddNumberToObject(json_student, "id", struct_student->id);
-    cJSON_AddNumberToObject(json_student, "weight", struct_student->weight);
-    score = cJSON_CreateArray();
-    if (score) {
-        while (index < 8) {
-            score_element = cJSON_CreateNumber(struct_student->score[index++]);
-            cJSON_AddItemToArray(score, score_element);
-        }
-        cJSON_AddItemToObject(json_student, "score", score);
-    }
-    cJSON_AddStringToObject(json_student, "name", struct_student->name);
-
-    /* –Ú¡–ªØ ˝æ›µΩStudent.Hometown JSON∂‘œÛ */
-    Hometown *hometown_struct = &(struct_student->hometown);
-    cJSON *hometown_json = cJSON_CreateObject();
-    cJSON_AddItemToObject(json_student, "hometown", hometown_json);
-    cJSON_AddStringToObject(hometown_json, "name", hometown_struct->name);
-
-    /* ∑µªÿStudent JSON∂‘œÛ÷∏’Î */
-    return json_student;
-}
-
-```
-
-
-```C
-void *json_to_struct(cJSON* json_obj) {
-    /* ¥¥Ω®StudentΩ·ππÃÂ∂‘œÛ */
-    s2j_create_struct_obj(struct_student, Student);
-
-    /* ∑¥–Ú¡–ªØ ˝æ›µΩStudentΩ·ππÃÂ∂‘œÛ */
-    s2j_struct_get_basic_element(struct_student, json_obj, int, id);
-    s2j_struct_get_array_element(struct_student, json_obj, int, score);
-    s2j_struct_get_basic_element(struct_student, json_obj, string, name);
-    s2j_struct_get_basic_element(struct_student, json_obj, double, weight);
-
-    /* ∑¥–Ú¡–ªØ ˝æ›µΩStudent.HometownΩ·ππÃÂ∂‘œÛ */
-    s2j_struct_get_struct_element(struct_hometown, struct_student, json_hometown, json_obj, Hometown, hometown);
-    s2j_struct_get_basic_element(struct_hometown, json_hometown, string, name);
-
-    /* ∑µªÿStudentΩ·ππÃÂ∂‘œÛ÷∏’Î */
-    return struct_student;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```
-
-```
-void *json_to_struct(cJSON* json_obj) {
-    cJSON *json_temp, *score, *score_element;
-    Student *struct_student;
-    size_t index = 0, score_size = 0;
-
-    /* ¥¥Ω®StudentΩ·ππÃÂ∂‘œÛ */
-    struct_student = s2j_malloc(sizeof(Student));
-    if (struct_student) {
-        memset(struct_student, 0, sizeof(Student));
-    }
-
-    /* ∑¥–Ú¡–ªØ ˝æ›µΩStudentΩ·ππÃÂ∂‘œÛ */
-    json_temp = cJSON_GetObjectItem(json_obj, "id");
-    if (json_temp) {
-        struct_student->id = json_temp->valueint;
-    }
-    score = cJSON_GetObjectItem(json_obj, "score")
-    if (score) {
-        score_size = cJSON_GetArraySize(score);
-        while (index < score_size) {
-            score_element = cJSON_GetArrayItem(score, index);
-            if (score_element) {
-                struct_student->score[index++] = score_element->valueint;
-            }
-        }
-    }
-    json_temp = cJSON_GetObjectItem(json_obj, "name");
-    if (json_temp) {
-        strcpy(struct_student->name, json_temp->valuestring);
-    }
-    json_temp = cJSON_GetObjectItem(json_obj, "weight");
-    if (json_temp) {
-        struct_student->weight = json_temp->valuedouble;
-    }
-
-    /* ∑¥–Ú¡–ªØ ˝æ›µΩStudent.HometownΩ·ππÃÂ∂‘œÛ */
-    Hometown *struct_hometown = &(struct_student->hometown);
-    cJSON *json_hometown = cJSON_GetObjectItem(json_obj, "hometown");
-    json_temp = cJSON_GetObjectItem(json_hometown, "name");
-    if (json_temp) {
-        strcpy(struct_hometown->name, json_temp->valuestring);
-    }
-
-    /* ∑µªÿStudentΩ·ππÃÂ∂‘œÛ÷∏’Î */
-    return struct_student;
-}
-```
