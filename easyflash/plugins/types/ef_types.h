@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2015, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2015-2016, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -33,8 +33,8 @@
 #include <stdbool.h>
 #include "struct2json\inc\s2j.h"
 
-/* EasyLogger flash log plugin's software version number */
-#define EF_TYPES_SW_VERSION                      "0.02.22"
+/* EasyFlash types plugin's software version number */
+#define EF_TYPES_SW_VERSION                      "0.11.03"
 
 typedef cJSON *(*ef_types_set_cb)(void* struct_obj);
 typedef void *(*ef_types_get_cb)(cJSON* json_obj);

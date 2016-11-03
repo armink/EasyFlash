@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2015, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2015-2016, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -59,7 +59,7 @@ bool ef_get_bool(const char *key) {
     if(value) {
         return atoi(value) == 0 ? false : true;
     } else {
-        EF_INFO("Could't found this ENV(%s)!\n", key);
+        EF_INFO("Couldn't found this ENV(%s)!\n", key);
         return false;
     }
 }
@@ -81,7 +81,7 @@ long ef_get_long(const char *key) {
     if(value) {
         return atol(value);
     } else {
-        EF_INFO("Could't found this ENV(%s)!\n", key);
+        EF_INFO("Couldn't found this ENV(%s)!\n", key);
         return NULL;
     }
 }
@@ -95,7 +95,7 @@ double ef_get_double(const char *key) {
     if(value) {
         return atof(value);
     } else {
-        EF_INFO("Could't found this ENV(%s)!\n", key);
+        EF_INFO("Couldn't found this ENV(%s)!\n", key);
         return NULL;
     }
 }
@@ -159,7 +159,7 @@ static void ef_get_array(const char *key, void *value, ef_array_types types) {
         }
         cJSON_Delete(array);
     } else {
-        EF_INFO("Could't found this ENV(%s)!\n", key);
+        EF_INFO("Couldn't found this ENV(%s)!\n", key);
     }
 }
 
