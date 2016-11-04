@@ -1,4 +1,4 @@
-# EasyFlash
+# EasyFlash 
 
 ---
 
@@ -29,7 +29,7 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 
 ### 1.2、支持平台
 
-目前已移植硬件平台有 `stm32f10x`与 `stm32f4xx` 系列的片内Flash，这个也是笔者产品使用的平台。其余平台的移植难度不大，在项目的设计之初就有考虑针对所有平台的适配性问题（64位除外），所以对所有移植接口都有做预留。移植只需修改 [`\easyflash\port\ef_port.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/port/ef_port.c) 一个文件，实现里面的擦、写、读及打印功能即可。
+目前已移植硬件平台有 `stm32f10x`与 `stm32f4xx` 系列的片内Flash，SPI Flash，这些也是笔者产品使用的平台。其余平台的移植难度不大，在项目的设计之初就有考虑针对所有平台的适配性问题（64位除外），所以对所有移植接口都有做预留。移植只需修改 [`\easyflash\port\ef_port.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/port/ef_port.c) 一个文件，实现里面的擦、写、读及打印功能即可。
 
 欢迎大家 **fork and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)) 。如果觉得这个开源项目很赞，可以点击[项目主页](https://github.com/armink/EasyFlash) 右上角的 **Star**，同时把它推荐给更多有需要的朋友。
 
@@ -97,7 +97,7 @@ Actual  : ROM: 6K bytes     RAM: 2.6K bytes
 
 ### 1.2 Supported platforms
 
-Hardware platform has been ported `stm32f10x` and `stm32f4xx` series of on-chip Flash. This is my product platform. Remaining platform porting difficulty is little. The porting just modify [`\easyflash\port\ef_port.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/port/ef_port.c) file. Implement erase, write, read, print feature.
+Hardware platform has been ported SPI Flash, `stm32f10x` and `stm32f4xx` series of on-chip Flash. These are my product platforms. Remaining platform porting difficulty is little. The porting just modify [`\easyflash\port\ef_port.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/port/ef_port.c) file. Implement erase, write, read, print feature.
 
 Welcome everyone to **fork and pull request**([Github](https://github.com/armink/EasyFlash)|[OSChina](http://git.oschina.net/armink/EasyFlash)|[Coding](https://coding.net/u/armink/p/EasyFlash/git)). If you think this open source project is awesome. You can press the **Star** on the top right corner of [project home page](https://github.com/armink/EasyFlash), and recommend it to more friends.
 
