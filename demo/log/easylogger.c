@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2015, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2015-2017, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,14 +26,9 @@
  * Created on: 2015-07-06
  */
 
-#include "elog_flash.h"
+#define LOG_TAG    "main"
 
-#define log_a(...) elog_a("main.test.a", __VA_ARGS__)
-#define log_e(...) elog_e("main.test.e", __VA_ARGS__)
-#define log_w(...) elog_w("main.test.w", __VA_ARGS__)
-#define log_i(...) elog_i("main.test.i", __VA_ARGS__)
-#define log_d(...) elog_d("main.test.d", __VA_ARGS__)
-#define log_v(...) elog_v("main.test.v", __VA_ARGS__)
+#include "elog_flash.h"
 
 static void test_elog(void);
 static void elog_user_assert_hook(const char* ex, const char* func, size_t line);
@@ -83,6 +78,7 @@ static void test_elog(void) {
 }
 
 static void elog_user_assert_hook(const char* ex, const char* func, size_t line) {
+    rt_enter_critical();
     /* disable logger output lock */
     elog_output_lock_enabled(false);
     /* disable flash plugin lock */
