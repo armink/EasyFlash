@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2015-2016, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2015-2017, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -214,7 +214,6 @@ static uint32_t get_env_start_addr(void) {
  * @return current using data section address
  */
 static uint32_t get_cur_using_data_addr(void) {
-    EF_ASSERT(cur_using_data_addr);
     return cur_using_data_addr;
 }
 
@@ -233,7 +232,6 @@ static void set_cur_using_data_addr(uint32_t using_data_addr) {
  * @return detail part start address
  */
 static uint32_t get_env_detail_addr(void) {
-    EF_ASSERT(cur_using_data_addr);
     return get_cur_using_data_addr() + ENV_PARAM_PART_BYTE_SIZE;
 }
 
@@ -347,8 +345,6 @@ static EfErrCode write_env(const char *key, const char *value) {
 static char *find_env(const char *key) {
     char *env_start, *env_end, *env, *found_env = NULL;
     size_t key_len = strlen(key), env_len;
-
-    EF_ASSERT(cur_using_data_addr);
 
     if (*key == NULL) {
         EF_INFO("Flash ENV name must be not empty!\n");

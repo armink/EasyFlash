@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2015-2016, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2015-2017, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -258,7 +258,6 @@ EfErrCode ef_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size) {
  * @return size
  */
 static uint32_t get_bak_app_start_addr(void) {
-    EF_ASSERT(bak_app_start_addr);
     return bak_app_start_addr;
 }
 

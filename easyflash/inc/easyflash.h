@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2014-2016, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2014-2017, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -67,7 +67,7 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define EF_SW_VERSION                "2.12.08"
+#define EF_SW_VERSION                "3.0.0"
 
 typedef struct _ef_env{
     char *key;
@@ -128,8 +128,6 @@ size_t ef_log_get_used_size(void);
 
 /* ef_utils.c */
 uint32_t ef_calc_crc32(uint32_t crc, const void *buf, size_t size);
-EfSecrorStatus ef_get_sector_status(uint32_t addr, size_t sec_size);
-uint32_t ef_find_sec_using_end_addr(uint32_t addr, size_t sec_size);
 
 /* ef_port.c */
 EfErrCode ef_port_read(uint32_t addr, uint32_t *buf, size_t size);
