@@ -33,8 +33,6 @@
 /* IAP section backup application section start address in flash */
 static uint32_t bak_app_start_addr = 0;
 
-static uint32_t get_bak_app_start_addr(void);
-
 /**
  * Flash IAP function initialize.
  *
@@ -66,7 +64,7 @@ EfErrCode ef_iap_init(void) {
 EfErrCode ef_erase_bak_app(size_t app_size) {
     EfErrCode result = EF_NO_ERR;
 
-    result = ef_port_erase(get_bak_app_start_addr(), app_size);
+    result = ef_port_erase(ef_get_bak_app_start_addr(), app_size);
     switch (result) {
     case EF_NO_ERR: {
         EF_INFO("Erased backup area application OK.\n");
@@ -156,7 +154,7 @@ EfErrCode ef_write_data_to_bak(uint8_t *data, size_t size, size_t *cur_size,
         size = total_size - *cur_size;
     }
 
-    result = ef_port_write(get_bak_app_start_addr() + *cur_size, (uint32_t *) data, size);
+    result = ef_port_write(ef_get_bak_app_start_addr() + *cur_size, (uint32_t *) data, size);
     switch (result) {
     case EF_NO_ERR: {
         *cur_size += size;
@@ -190,7 +188,7 @@ EfErrCode ef_copy_app_from_bak(uint32_t user_app_addr, size_t app_size) {
     /* cycle copy data */
     for (cur_size = 0; cur_size < app_size; cur_size += sizeof(buff)) {
         app_cur_addr = user_app_addr + cur_size;
-        bak_cur_addr = get_bak_app_start_addr() + cur_size;
+        bak_cur_addr = ef_get_bak_app_start_addr() + cur_size;
         ef_port_read(bak_cur_addr, buff, sizeof(buff));
         result = ef_port_write(app_cur_addr, buff, sizeof(buff));
         if (result != EF_NO_ERR) {
@@ -230,7 +228,7 @@ EfErrCode ef_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size) {
     /* cycle copy data by 32bytes buffer */
     for (cur_size = 0; cur_size < bl_size; cur_size += sizeof(buff)) {
         bl_cur_addr = bl_addr + cur_size;
-        bak_cur_addr = get_bak_app_start_addr() + cur_size;
+        bak_cur_addr = ef_get_bak_app_start_addr() + cur_size;
         ef_port_read(bak_cur_addr, buff, sizeof(buff));
         result = ef_port_write(bl_cur_addr, buff, sizeof(buff));
         if (result != EF_NO_ERR) {
@@ -257,7 +255,7 @@ EfErrCode ef_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size) {
  *
  * @return size
  */
-static uint32_t get_bak_app_start_addr(void) {
+uint32_t ef_get_bak_app_start_addr(void) {
     return bak_app_start_addr;
 }
 

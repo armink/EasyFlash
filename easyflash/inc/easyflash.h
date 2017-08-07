@@ -67,7 +67,7 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define EF_SW_VERSION                "3.0.0"
+#define EF_SW_VERSION                "3.0.1"
 
 typedef struct _ef_env{
     char *key;
@@ -116,6 +116,7 @@ EfErrCode ef_write_data_to_bak(uint8_t *data, size_t size, size_t *cur_size,
         size_t total_size);
 EfErrCode ef_copy_app_from_bak(uint32_t user_app_addr, size_t app_size);
 EfErrCode ef_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size);
+uint32_t ef_get_bak_app_start_addr(void);
 #endif
 
 #ifdef EF_USING_LOG
