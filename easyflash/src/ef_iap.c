@@ -158,7 +158,7 @@ EfErrCode ef_write_data_to_bak(uint8_t *data, size_t size, size_t *cur_size,
     switch (result) {
     case EF_NO_ERR: {
         *cur_size += size;
-        EF_INFO("Write data to backup area OK.\n");
+        EF_DEBUG("Write data to backup area OK.\n");
         break;
     }
     case EF_WRITE_ERR: {
