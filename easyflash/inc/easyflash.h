@@ -67,7 +67,7 @@ if (!(EXPR))                                                                  \
     while (1);                                                                \
 }
 /* EasyFlash software version number */
-#define EF_SW_VERSION                "3.0.2"
+#define EF_SW_VERSION                "3.0.3"
 
 typedef struct _ef_env{
     char *key;
@@ -111,10 +111,14 @@ EfErrCode ef_set_and_save_env(const char *key, const char *value);
 /* ef_iap.c */
 EfErrCode ef_erase_bak_app(size_t app_size);
 EfErrCode ef_erase_user_app(uint32_t user_app_addr, size_t user_app_size);
+EfErrCode ef_erase_spec_user_app(uint32_t user_app_addr, size_t app_size,
+        EfErrCode (*app_erase)(uint32_t addr, size_t size));
 EfErrCode ef_erase_bl(uint32_t bl_addr, size_t bl_size);
 EfErrCode ef_write_data_to_bak(uint8_t *data, size_t size, size_t *cur_size,
         size_t total_size);
 EfErrCode ef_copy_app_from_bak(uint32_t user_app_addr, size_t app_size);
+EfErrCode ef_copy_spec_app_from_bak(uint32_t user_app_addr, size_t app_size,
+        EfErrCode (*app_write)(uint32_t addr, const uint32_t *buf, size_t size));
 EfErrCode ef_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size);
 uint32_t ef_get_bak_app_start_addr(void);
 #endif

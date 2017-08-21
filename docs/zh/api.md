@@ -124,7 +124,24 @@ EfErrCode ef_erase_user_app(uint32_t user_app_addr, size_t user_app_size)
 |user_app_addr                           |用户应用程序入口地址|
 |user_app_size                           |用户应用程序大小|
 
-#### 1.3.3 擦除Bootloader
+#### 1.3.3 通过用户指定的擦除方法来擦除应用程序
+
+当用户的应用程序与备份区 **不在同一个** Flash 时，则需要用户额外指定擦除应用程序的方法。而 `ef_erase_user_app` 会使用移植文件中的 `ef_port_erase` 方法进行擦除，除此之外的其余功能，两个方法均一致。
+
+注意：请不要在应用程序中调用该方法
+
+```C
+EfErrCode ef_erase_spec_user_app(uint32_t user_app_addr, size_t app_size,
+        EfErrCode (*app_erase)(uint32_t addr, size_t size));
+```
+
+|参数                                    |描述|
+|:-----                                  |:----|
+|user_app_addr                           |用户应用程序入口地址|
+|user_app_size                           |用户应用程序大小|
+|app_erase                               |用户指定应用程序擦写方法|
+
+#### 1.3.4 擦除Bootloader
 
 注意：请不要在Bootloader中调用该方法
 
@@ -137,7 +154,7 @@ EfErrCode ef_erase_bl(uint32_t bl_addr, size_t bl_size)
 |bl_addr                                 |Bootloader入口地址|
 |bl_size                                 |Bootloader大小|
 
-#### 1.3.4 写数据到备份区
+#### 1.3.5 写数据到备份区
 
 为下载程序到备份区定制的Flash连续写方法。
 注意：写之前请先确认Flash已进行擦除。
@@ -156,7 +173,7 @@ EfErrCode ef_write_data_to_bak(uint8_t *data,
 |cur_size                                |之前已写入到备份区中的数据大小（字节）|
 |total_size                              |需要写入到备份区的数据总大小（字节）|
 
-#### 1.3.5 从备份拷贝应用程序
+#### 1.3.6 从备份拷贝应用程序
 
 将备份区已下载好的应用程序拷贝至用户应用程序起始地址。
 注意：
@@ -172,7 +189,22 @@ EfErrCode ef_copy_app_from_bak(uint32_t user_app_addr, size_t app_size)
 |user_app_addr                           |用户应用程序入口地址|
 |user_app_size                           |用户应用程序大小|
 
-#### 1.3.6 从备份拷贝Bootloader
+#### 1.3.7 通过用户指定的写操作方法来拷贝应用程序
+
+当用户的应用程序与备份区 **不在同一个** Flash 时，则需要用户额外指定写应用程序的方法。而 `ef_copy_app_from_bak` 会使用移植文件中的 `ef_port_write` 方法进行写操作，除此之外的其余功能，两个方法均一致。
+
+```C
+EfErrCode ef_copy_spec_app_from_bak(uint32_t user_app_addr, size_t app_size,
+        EfErrCode (*app_write)(uint32_t addr, const uint32_t *buf, size_t size))
+```
+
+|参数                                    |描述|
+|:-----                                  |:----|
+|user_app_addr                           |用户应用程序入口地址|
+|user_app_size                           |用户应用程序大小|
+|app_write                               |用户指定应用程序写操作方法|
+
+#### 1.3.8 从备份拷贝Bootloader
 
 将备份区已下载好的Bootloader拷贝至Bootloader起始地址。
 注意：
