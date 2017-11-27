@@ -276,30 +276,30 @@ static uint32_t stm32_get_sector_size(uint32_t sector) {
     EF_ASSERT(IS_FLASH_SECTOR(sector));
 
     switch (sector) {
-    case 0: return 16 * 1024;
-    case 1: return 16 * 1024;
-    case 2: return 16 * 1024;
-    case 3: return 16 * 1024;
-    case 4: return 64 * 1024;
-    case 5: return 128 * 1024;
-    case 6: return 128 * 1024;
-    case 7: return 128 * 1024;
-    case 8: return 128 * 1024;
-    case 9: return 128 * 1024;
-    case 10: return 128 * 1024;
-    case 11: return 128 * 1024;
-    case 12: return 16 * 1024;
-    case 13: return 16 * 1024;
-    case 14: return 16 * 1024;
-    case 15: return 16 * 1024;
-    case 16: return 64 * 1024;
-    case 17: return 128 * 1024;
-    case 18: return 128 * 1024;
-    case 19: return 128 * 1024;
-    case 20: return 128 * 1024;
-    case 21: return 128 * 1024;
-    case 22: return 128 * 1024;
-    case 23: return 128 * 1024;
+    case FLASH_Sector_0: return 16 * 1024;
+    case FLASH_Sector_1: return 16 * 1024;
+    case FLASH_Sector_2: return 16 * 1024;
+    case FLASH_Sector_3: return 16 * 1024;
+    case FLASH_Sector_4: return 64 * 1024;
+    case FLASH_Sector_5: return 128 * 1024;
+    case FLASH_Sector_6: return 128 * 1024;
+    case FLASH_Sector_7: return 128 * 1024;
+    case FLASH_Sector_8: return 128 * 1024;
+    case FLASH_Sector_9: return 128 * 1024;
+    case FLASH_Sector_10: return 128 * 1024;
+    case FLASH_Sector_11: return 128 * 1024;
+    case FLASH_Sector_12: return 16 * 1024;
+    case FLASH_Sector_13: return 16 * 1024;
+    case FLASH_Sector_14: return 16 * 1024;
+    case FLASH_Sector_15: return 16 * 1024;
+    case FLASH_Sector_16: return 64 * 1024;
+    case FLASH_Sector_17: return 128 * 1024;
+    case FLASH_Sector_18: return 128 * 1024;
+    case FLASH_Sector_19: return 128 * 1024;
+    case FLASH_Sector_20: return 128 * 1024;
+    case FLASH_Sector_21: return 128 * 1024;
+    case FLASH_Sector_22: return 128 * 1024;
+    case FLASH_Sector_23: return 128 * 1024;
     default : return 128 * 1024;
     }
 }
