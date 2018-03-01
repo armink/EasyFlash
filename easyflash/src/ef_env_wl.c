@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2015-2017, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2015-2018, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -262,7 +262,11 @@ static void set_env_detail_end_addr(uint32_t end_addr) {
  * @return size
  */
 static size_t get_env_detail_size(void) {
-    return get_env_detail_end_addr() - get_env_detail_addr();
+    if (get_env_detail_end_addr() > get_env_detail_addr()) {
+        return get_env_detail_end_addr() - get_env_detail_addr();
+    } else {
+        return 0;
+    }
 }
 
 /**
@@ -274,7 +278,11 @@ static size_t get_env_detail_size(void) {
  */
     /* must be initialized */
 static size_t get_env_user_used_size(void) {
-    return get_env_detail_end_addr() - get_cur_using_data_addr();
+    if (get_env_detail_end_addr() > get_cur_using_data_addr()) {
+        return get_env_detail_end_addr() - get_cur_using_data_addr();
+    } else {
+        return 0;
+    }
 }
 
 /**
