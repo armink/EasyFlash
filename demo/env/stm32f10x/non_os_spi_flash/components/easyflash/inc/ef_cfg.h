@@ -85,7 +85,7 @@
         #define ENV_AREA_SIZE          (1 * EF_ERASE_MIN_SIZE)      /* 4K */
     #else
         /* ENV area total bytes size in wear leveling mode. */
-        #define ENV_AREA_SIZE          (3 * EF_ERASE_MIN_SIZE)      /* 16K */
+        #define ENV_AREA_SIZE          (3 * EF_ERASE_MIN_SIZE)      /* 12K */
     #endif
 #else
     #ifndef EF_ENV_USING_WL_MODE
@@ -93,7 +93,7 @@
         #define ENV_AREA_SIZE          (2 * EF_ERASE_MIN_SIZE)      /* 8K */
     #else
         /* ENV area total bytes size in wear leveling and power fail safeguard mode. */
-        #define ENV_AREA_SIZE          (6 * EF_ERASE_MIN_SIZE)      /* 20K */
+        #define ENV_AREA_SIZE          (6 * EF_ERASE_MIN_SIZE)      /* 24K */
     #endif
 #endif
 /* saved log area size */
