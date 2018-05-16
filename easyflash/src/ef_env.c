@@ -37,13 +37,13 @@
 /**
  * ENV area has 2 sections
  * 1. System section
- *    It storage ENV parameters. (Units: Word)
+ *    It storages ENV parameters. (Units: Word)
  * 2. Data section
- *    It storage all ENV. Storage format is key=value\0.
+ *    It storages all ENV. Storage format is key=value\0.
  *    All ENV must be 4 bytes alignment. The remaining part must fill '\0'.
  *
  * @note Word = 4 Bytes in this file
- * @note It will has two ENV areas(Area0, Area1) when used power fail safeguard mode.
+ * @note When using power fail safeguard mode, it has two ENV areas(Area0, Area1).
  */
 
 /* flash ENV parameters index and size in system section */

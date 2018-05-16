@@ -32,7 +32,7 @@
 
 /* magic code on every sector header. 'EF' is 0x4546 */
 #define LOG_SECTOR_MAGIC               0x4546
-/* sector header size, include the sector magic code and status magic code */
+/* sector header size, includes the sector magic code and status magic code */
 #define LOG_SECTOR_HEADER_SIZE         4
 
 /**
@@ -62,7 +62,7 @@ typedef enum {
     SECTOR_STATUS_HEADER_ERROR,
 } SectorStatus;
 
-/* the stored logs start address and end address. It's like a ring buffer which implement by flash. */
+/* the stored logs start address and end address. It's like a ring buffer implemented on flash. */
 static uint32_t log_start_addr = 0, log_end_addr = 0;
 /* saved log area address for flash */
 static uint32_t log_area_start_addr = 0;
@@ -228,8 +228,8 @@ static uint32_t find_sec_using_end_addr(uint32_t addr) {
 
 /**
  * Find the log store start address and end address.
- * It's like a ring buffer which implement by flash.
- * The flash log area has two state when find start address and end address.
+ * It's like a ring buffer implemented on flash.
+ * The flash log area can be in two states depending on start address and end address:
  *                       state 1                                state 2
  *                   |============|                         |============|
  * log area start--> |############| <-- start address       |############| <-- end address
