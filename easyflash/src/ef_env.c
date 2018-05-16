@@ -337,7 +337,7 @@ static char *find_env(const char *key) {
     char *env_start, *env_end, *env, *found_env = NULL;
     size_t key_len = strlen(key), env_len;
 
-    if (*key == NULL) {
+    if ((key == NULL) || *key == '\0') {
         EF_INFO("Flash ENV name must be not empty!\n");
         return NULL;
     }
@@ -386,7 +386,7 @@ static EfErrCode create_env(const char *key, const char *value) {
     EF_ASSERT(key);
     EF_ASSERT(value);
 
-    if (*key == NULL) {
+    if ((key == NULL) || *key == '\0') {
         EF_INFO("Flash ENV name must be not empty!\n");
         return EF_ENV_NAME_ERR;
     }
@@ -421,7 +421,7 @@ static EfErrCode del_env(const char *key){
 
     EF_ASSERT(key);
 
-    if (*key == NULL) {
+    if ((key == NULL) || *key == '\0') {
         EF_INFO("Flash ENV name must be not NULL!\n");
         return EF_ENV_NAME_ERR;
     }
@@ -480,7 +480,7 @@ EfErrCode ef_set_env(const char *key, const char *value) {
     ef_port_env_lock();
 
     /* if ENV value is empty, delete it */
-    if (*value == NULL) {
+    if ((value == NULL) || *value == '\0') {
         result = del_env(key);
     } else {
         old_env = find_env(key);
@@ -554,7 +554,7 @@ void ef_print_env(void) {
         for (j = 0; j < 4; j++) {
             c = (*env_cache_data_addr) >> (8 * j);
             ef_print("%c", c);
-            if (c == NULL) {
+            if (c == '\0') {
                 ef_print("\n");
                 break;
             }

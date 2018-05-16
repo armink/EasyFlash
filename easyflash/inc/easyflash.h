@@ -78,6 +78,7 @@ typedef struct _ef_env{
 typedef enum {
     EF_NO_ERR,
     EF_ERASE_ERR,
+    EF_READ_ERR,
     EF_WRITE_ERR,
     EF_ENV_NAME_ERR,
     EF_ENV_NAME_EXIST,
