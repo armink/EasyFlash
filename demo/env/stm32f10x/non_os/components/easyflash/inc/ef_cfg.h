@@ -68,14 +68,14 @@
  * |(IAP)Downloaded application |   IAP already downloaded application, unfixed size
  * |----------------------------|
  *
- * @note all area size must be aligned with EF_ERASE_MIN_SIZE
- * @note EasyFlash will use ram to buffered the ENV.At some time some flash's EF_ERASE_MIN_SIZE is so big,
- *       and you want use ENV size is less than it. So you must defined ENV_USER_SETTING_SIZE for ENV.
+ * @note all area sizes must be aligned with EF_ERASE_MIN_SIZE
+ * @note EasyFlash will use ram to buffer the ENV. At some point flash's EF_ERASE_MIN_SIZE may become so big,
+ *       and you want to keep ENV size smaller. To do it you must define ENV_USER_SETTING_SIZE for ENV.
  * @note ENV area size has some limitations in different modes.
- *       1.Normal mode: no more limitations
- *       2.Wear leveling mode: system section will used an flash section and the data section will used at least 2 flash sections
- *       3.Power fail safeguard mode: ENV area will has an backup. It is twice as normal mode.
- *       4.wear leveling and power fail safeguard mode: The required capacity will be 2 times the total capacity in wear leveling mode.
+ *       1.Normal mode: no limitations
+ *       2.Wear leveling mode: system section will used a flash section and the data section will use at least 2 flash sections
+ *       3.Power fail safeguard mode: ENV area will has a backup. It is twice as normal mode.
+ *       4.Wear leveling and power fail safeguard mode: The required capacity will be 2 times the total capacity in wear leveling mode.
  *       For example:
  *       The EF_ERASE_MIN_SIZE is 128K and the ENV_USER_SETTING_SIZE: 2K. The ENV_AREA_SIZE in different mode you can define
  *       1.Normal mode: 1*EF_ERASE_MIN_SIZE
