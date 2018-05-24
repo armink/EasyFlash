@@ -63,6 +63,11 @@ enum {
     ENV_PARAM_PART_INDEX_SAVED_COUNT,
 #endif
 
+#ifdef EF_ENV_AUTO_UPDATE
+    /* current version number for ENV */
+    ENV_PARAM_INDEX_VER_NUM,
+#endif
+
     /* data section CRC32 code index */
     ENV_PARAM_PART_INDEX_DATA_CRC,
     /* ENV parameters part word size */
@@ -108,6 +113,7 @@ static EfErrCode del_env(const char *key);
 static EfErrCode save_cur_using_data_addr(uint32_t cur_data_addr);
 static uint32_t calc_env_crc(void);
 static bool env_crc_is_ok(void);
+static EfErrCode env_auto_update(void);
 
 /**
  * Flash ENV initialize.
@@ -149,6 +155,12 @@ EfErrCode ef_env_init(ef_env const *default_env, size_t default_env_size) {
 
     result = ef_load_env();
 
+#ifdef EF_ENV_AUTO_UPDATE
+    if (result == EF_NO_ERR) {
+        env_auto_update();
+    }
+#endif
+
     if (result == EF_NO_ERR) {
         init_ok = true;
     }
@@ -177,6 +189,11 @@ EfErrCode ef_env_set_default(void){
 #ifdef EF_ENV_USING_PFS_MODE
     /* set saved count to default 0 */
     env_cache[ENV_PARAM_PART_INDEX_SAVED_COUNT] = 0;
+#endif
+
+#ifdef EF_ENV_AUTO_UPDATE
+    /* initialize version number */
+    env_cache[ENV_PARAM_INDEX_VER_NUM] = EF_ENV_VER_NUM;
 #endif
 
     /* create default ENV */
@@ -579,13 +596,18 @@ void ef_print_env(void) {
     }
 
 #ifndef EF_ENV_USING_PFS_MODE
-    ef_print("\nENV size: %ld/%ld bytes, write bytes %ld/%ld, mode: wear leveling.\n",
-            get_env_user_used_size(), ENV_USER_SETTING_SIZE, ef_get_env_write_bytes(),
-            ENV_AREA_SIZE);
+    ef_print("\nmode: wear leveling\n");
+    ef_print("size: %ld/%ld bytes, write bytes %ld/%ld.\n", get_env_user_used_size(), ENV_USER_SETTING_SIZE,
+            ef_get_env_write_bytes(), ENV_AREA_SIZE);
 #else
-    ef_print("\nENV size: %ld/%ld bytes, write bytes %ld/%ld, saved count: %ld, mode: wear leveling and power fail safeguard.\n",
-            get_env_user_used_size(), ENV_USER_SETTING_SIZE, ef_get_env_write_bytes(),
-            ENV_AREA_SIZE/2, env_cache[ENV_PARAM_PART_INDEX_SAVED_COUNT]);
+    ef_print("\nmode: wear leveling and power fail safeguard\n");
+    ef_print("size: %ld/%ld bytes, write bytes %ld/%ld.\n", get_env_user_used_size(), ENV_USER_SETTING_SIZE,
+            ef_get_env_write_bytes(), ENV_AREA_SIZE / 2);
+    ef_print("saved count: %ld\n", env_cache[ENV_PARAM_PART_INDEX_SAVED_COUNT]);
+#endif
+
+#ifdef EF_ENV_AUTO_UPDATE
+    ef_print("ver num: %d\n", env_cache[ENV_PARAM_INDEX_VER_NUM]);
 #endif
 }
 
@@ -966,6 +988,39 @@ EfErrCode ef_set_and_save_env(const char *key, const char *value) {
 
     return result;
 }
+
+#ifdef EF_ENV_AUTO_UPDATE
+/**
+ * Auto update ENV to latest default when current EF_ENV_VER is changed.
+ *
+ * @return result
+ */
+static EfErrCode env_auto_update(void)
+{
+    size_t i;
+
+    /* lock the ENV cache */
+    ef_port_env_lock();
+
+    /* check version number */
+    if (env_cache[ENV_PARAM_INDEX_VER_NUM] != EF_ENV_VER_NUM) {
+        env_cache_changed = true;
+        /* update version number */
+        env_cache[ENV_PARAM_INDEX_VER_NUM] = EF_ENV_VER_NUM;
+        /* add a new ENV when it's not found */
+        for (i = 0; i < default_env_set_size; i++) {
+            if (find_env(default_env_set[i].key) == NULL) {
+                create_env(default_env_set[i].key, default_env_set[i].value);
+            }
+        }
+    }
+
+    /* unlock the ENV cache */
+    ef_port_env_unlock();
+
+    return ef_save_env();
+}
+#endif /* EF_ENV_AUTO_UPDATE */
 
 #endif /* EF_ENV_USING_WL_MODE */
 

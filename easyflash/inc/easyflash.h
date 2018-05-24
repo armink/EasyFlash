@@ -66,8 +66,17 @@ if (!(EXPR))                                                                  \
     EF_DEBUG("(%s) has assert failed at %s.\n", #EXPR, __FUNCTION__);         \
     while (1);                                                                \
 }
+
+/**
+ * ENV version number defined by user.
+ * Please change it when your firmware add a new ENV to default_env_set.
+ */
+#ifndef EF_ENV_VER_NUM
+#define EF_ENV_VER_NUM                 0
+#endif
+
 /* EasyFlash software version number */
-#define EF_SW_VERSION                "3.0.4"
+#define EF_SW_VERSION                  "3.1.0"
 
 typedef struct _ef_env{
     char *key;
