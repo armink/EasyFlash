@@ -1,19 +1,17 @@
 # EasyFlash 
 
----
-
-[![GitHub release](https://img.shields.io/github/release/armink/EasyFlash.svg)](https://github.com/armink/EasyFlash/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/armink/EasyFlash/3.0.0.svg)](https://github.com/armink/EasyFlash/compare/3.0.0...master) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/armink/EasyFlash/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/armink/EasyFlash.svg)](https://github.com/armink/EasyFlash/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/armink/EasyFlash/3.1.0.svg)](https://github.com/armink/EasyFlash/compare/3.1.0...master) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/armink/EasyFlash/master/LICENSE)
 
 ## 1、介绍（[English](#1-introduction)）
 
 [EasyFlash](https://github.com/armink/EasyFlash)是一款开源的轻量级嵌入式Flash存储器库，主要为MCU(Micro Control Unit)提供便捷、通用的上层应用接口，使得开发者更加高效实现基于的Flash存储器常见应用开发。该库目前提供 **三大实用功能** ：
 
 - **Env** 快速保存产品参数，支持 **写平衡（磨损平衡）** 及 **掉电保护** 模式
- 
+
 EasyFlash不仅能够实现对产品的 **设定参数** 或 **运行日志** 等信息的掉电保存功能，还封装了简洁的 **增加、删除、修改及查询** 方法， 降低了开发者对产品参数的处理难度，也保证了产品在后期升级时拥有更好的扩展性。让Flash变为NoSQL（非关系型数据库）模型的小型键值（Key-Value）存储数据库。
 
 - **IAP** 在线升级再也不是难事儿
- 
+
 该库封装了IAP(In-Application Programming)功能常用的接口，支持CRC32校验，同时支持Bootloader及Application的升级。
 
 - **Log** 无需文件系统，日志可直接存储在Flash上
@@ -81,7 +79,7 @@ Demo平台：STM32F103RET6 + RT-Thread 1.2.2 + Env(2K bytes)
 EasyFlash can store **setting parameters** or **running logs** and other information which you want to keep after power down. It contains add, delete, modify and query methods. It helps developer to process the product parameters, and makes sure the product has better scalability after upgrade. Turns the Flash into a small NoSQL (non-relational databases) model and Key-Value stores database.
 
 - **IAP** : online upgrade is no longer a difficult thing.
- 
+
 The library encapsulates the IAP (In-Application Programming) feature common interface. Support CRC32 checksum. While supporting the bootloader and application upgrade.
 
 - **Log** : The logs can store to product's flash which has no file-system.
