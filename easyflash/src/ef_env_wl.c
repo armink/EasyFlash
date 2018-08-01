@@ -494,7 +494,7 @@ static EfErrCode del_env(const char *key) {
 }
 
 /**
- * Set an ENV.
+ * Set an ENV.If it value is NULL, delete it.
  * If not find it in ENV table, then create it.
  *
  * @param key ENV name
@@ -514,21 +514,26 @@ EfErrCode ef_set_env(const char *key, const char *value) {
     /* lock the ENV cache */
     ef_port_env_lock();
 
-    old_env = find_env(key);
-    /* If find this ENV, then compare the new value and old value. */
-    if (old_env) {
-        /* find the old value address */
-        old_env = strchr(old_env, '=');
-        old_value = old_env + 1;
-        /* If it is changed then delete it and recreate it  */
-        if (strcmp(old_value, value)) {
-            result = del_env(key);
-            if (result == EF_NO_ERR) {
-                result = create_env(key, value);
-            }
-        }
+    /* if ENV value is NULL, delete it */
+    if (value == NULL) {
+        result = del_env(key);
     } else {
-        result = create_env(key, value);
+        old_env = find_env(key);
+        /* If find this ENV, then compare the new value and old value. */
+        if (old_env) {
+            /* find the old value address */
+            old_env = strchr(old_env, '=');
+            old_value = old_env + 1;
+            /* If it is changed then delete it and recreate it  */
+            if (strcmp(old_value, value)) {
+                result = del_env(key);
+                if (result == EF_NO_ERR) {
+                    result = create_env(key, value);
+                }
+            }
+        } else {
+            result = create_env(key, value);
+        }
     }
     /* unlock the ENV cache */
     ef_port_env_unlock();
