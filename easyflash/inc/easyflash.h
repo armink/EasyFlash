@@ -40,19 +40,19 @@ extern "C" {
 #endif
 
 #if defined(EF_USING_ENV) && (!defined(ENV_USER_SETTING_SIZE) || !defined(ENV_AREA_SIZE))
-    #error "Please configure user setting ENV size or ENV area size (in ef_cfg.h)"
+#error "Please configure user setting ENV size or ENV area size (in ef_cfg.h)"
 #endif
 
 #if defined(EF_USING_LOG) && !defined(LOG_AREA_SIZE)
-    #error "Please configure log area size (in ef_cfg.h)"
+#error "Please configure log area size (in ef_cfg.h)"
 #endif
 
 #if !defined(EF_START_ADDR)
-    #error "Please configure backup area start address (in ef_cfg.h)"
+#error "Please configure backup area start address (in ef_cfg.h)"
 #endif
 
 #if !defined(EF_ERASE_MIN_SIZE)
-    #error "Please configure minimum size of flash erasure (in ef_cfg.h)"
+#error "Please configure minimum size of flash erasure (in ef_cfg.h)"
 #endif
 
 /* EasyFlash debug print function. Must be implement by user. */
@@ -78,10 +78,10 @@ if (!(EXPR))                                                                  \
 /* EasyFlash software version number */
 #define EF_SW_VERSION                  "3.1.0"
 
-typedef struct _ef_env{
+typedef struct _ef_env {
     char *key;
     char *value;
-}ef_env, *ef_env_t;
+} ef_env, *ef_env_t;
 
 /* EasyFlash error code */
 typedef enum {
@@ -100,7 +100,7 @@ typedef enum {
     EF_SECTOR_EMPTY,
     EF_SECTOR_USING,
     EF_SECTOR_FULL,
-}EfSecrorStatus;
+} EfSecrorStatus;
 
 /* easyflash.c */
 EfErrCode easyflash_init(void);
@@ -111,10 +111,12 @@ EfErrCode ef_load_env(void);
 void ef_print_env(void);
 char *ef_get_env(const char *key);
 EfErrCode ef_set_env(const char *key, const char *value);
+EfErrCode ef_del_env(const char *key);
 EfErrCode ef_save_env(void);
 EfErrCode ef_env_set_default(void);
 size_t ef_get_env_write_bytes(void);
 EfErrCode ef_set_and_save_env(const char *key, const char *value);
+EfErrCode ef_del_and_save_env(const char *key);
 #endif
 
 #ifdef EF_USING_IAP
@@ -122,13 +124,13 @@ EfErrCode ef_set_and_save_env(const char *key, const char *value);
 EfErrCode ef_erase_bak_app(size_t app_size);
 EfErrCode ef_erase_user_app(uint32_t user_app_addr, size_t user_app_size);
 EfErrCode ef_erase_spec_user_app(uint32_t user_app_addr, size_t app_size,
-        EfErrCode (*app_erase)(uint32_t addr, size_t size));
+                                 EfErrCode (*app_erase)(uint32_t addr, size_t size));
 EfErrCode ef_erase_bl(uint32_t bl_addr, size_t bl_size);
 EfErrCode ef_write_data_to_bak(uint8_t *data, size_t size, size_t *cur_size,
-        size_t total_size);
+                               size_t total_size);
 EfErrCode ef_copy_app_from_bak(uint32_t user_app_addr, size_t app_size);
 EfErrCode ef_copy_spec_app_from_bak(uint32_t user_app_addr, size_t app_size,
-        EfErrCode (*app_write)(uint32_t addr, const uint32_t *buf, size_t size));
+                                    EfErrCode (*app_write)(uint32_t addr, const uint32_t *buf, size_t size));
 EfErrCode ef_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size);
 uint32_t ef_get_bak_app_start_addr(void);
 #endif

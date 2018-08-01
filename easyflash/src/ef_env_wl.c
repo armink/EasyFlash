@@ -173,7 +173,7 @@ EfErrCode ef_env_init(ef_env const *default_env, size_t default_env_size) {
  *
  * @return result
  */
-EfErrCode ef_env_set_default(void){
+EfErrCode ef_env_set_default(void) {
     EfErrCode result = EF_NO_ERR;
     size_t i;
 
@@ -293,7 +293,7 @@ static size_t get_env_detail_size(void) {
  *
  * @return size
  */
-    /* must be initialized */
+/* must be initialized */
 static size_t get_env_user_used_size(void) {
     if (get_env_detail_end_addr() > get_cur_using_data_addr()) {
         return get_env_detail_end_addr() - get_cur_using_data_addr();
@@ -482,7 +482,7 @@ static EfErrCode del_env(const char *key) {
     }
     /* calculate remain ENV length */
     remain_env_length = get_env_detail_size()
-            - (((uint32_t) del_env + del_env_length) - ((uint32_t) env_cache + ENV_PARAM_PART_BYTE_SIZE));
+                        - (((uint32_t) del_env + del_env_length) - ((uint32_t) env_cache + ENV_PARAM_PART_BYTE_SIZE));
     /* remain ENV move forward */
     memcpy(del_env, del_env + del_env_length, remain_env_length);
     /* reset ENV end address */
@@ -494,7 +494,7 @@ static EfErrCode del_env(const char *key) {
 }
 
 /**
- * Set an ENV. If it value is empty, delete it.
+ * Set an ENV.If it value is NULL, delete it.
  * If not find it in ENV table, then create it.
  *
  * @param key ENV name
@@ -506,7 +506,7 @@ EfErrCode ef_set_env(const char *key, const char *value) {
     EfErrCode result = EF_NO_ERR;
     char *old_env, *old_value;
 
-    if(!init_ok) {
+    if (!init_ok) {
         EF_INFO("ENV isn't initialize OK.\n");
         return EF_ENV_INIT_FAILED;
     }
@@ -514,8 +514,8 @@ EfErrCode ef_set_env(const char *key, const char *value) {
     /* lock the ENV cache */
     ef_port_env_lock();
 
-    /* if ENV value is empty, delete it */
-    if ((value == NULL) || (*value == '\0')) {
+    /* if ENV value is NULL, delete it */
+    if (value == NULL) {
         result = del_env(key);
     } else {
         old_env = find_env(key);
@@ -542,6 +542,32 @@ EfErrCode ef_set_env(const char *key, const char *value) {
 }
 
 /**
+ * Del an ENV.
+ *
+ * @param key ENV name
+ *
+ * @return result
+ */
+EfErrCode ef_del_env(const char *key) {
+    EfErrCode result = EF_NO_ERR;
+
+    if (!init_ok) {
+        EF_INFO("ENV isn't initialize OK.\n");
+        return EF_ENV_INIT_FAILED;
+    }
+
+    /* lock the ENV cache */
+    ef_port_env_lock();
+
+    result = del_env(key);
+
+    /* unlock the ENV cache */
+    ef_port_env_unlock();
+
+    return result;
+}
+
+/**
  * Get an ENV value by key name.
  *
  * @param key ENV name
@@ -551,7 +577,7 @@ EfErrCode ef_set_env(const char *key, const char *value) {
 char *ef_get_env(const char *key) {
     char *env = NULL, *value = NULL;
 
-    if(!init_ok) {
+    if (!init_ok) {
         EF_INFO("ENV isn't initialize OK.\n");
         return NULL;
     }
@@ -575,11 +601,11 @@ char *ef_get_env(const char *key) {
  */
 void ef_print_env(void) {
     uint32_t *env_cache_detail_addr = env_cache + ENV_PARAM_PART_WORD_SIZE, *env_cache_end_addr =
-            (uint32_t *) (env_cache + ENV_PARAM_PART_WORD_SIZE + get_env_detail_size() / 4);
+                                          (uint32_t *) (env_cache + ENV_PARAM_PART_WORD_SIZE + get_env_detail_size() / 4);
     uint8_t j;
     char c;
 
-    if(!init_ok) {
+    if (!init_ok) {
         EF_INFO("ENV isn't initialize OK.\n");
         return;
     }
@@ -598,11 +624,11 @@ void ef_print_env(void) {
 #ifndef EF_ENV_USING_PFS_MODE
     ef_print("\nmode: wear leveling\n");
     ef_print("size: %ld/%ld bytes, write bytes %ld/%ld.\n", get_env_user_used_size(), ENV_USER_SETTING_SIZE,
-            ef_get_env_write_bytes(), ENV_AREA_SIZE);
+             ef_get_env_write_bytes(), ENV_AREA_SIZE);
 #else
     ef_print("\nmode: wear leveling and power fail safeguard\n");
     ef_print("size: %ld/%ld bytes, write bytes %ld/%ld.\n", get_env_user_used_size(), ENV_USER_SETTING_SIZE,
-            ef_get_env_write_bytes(), ENV_AREA_SIZE / 2);
+             ef_get_env_write_bytes(), ENV_AREA_SIZE / 2);
     ef_print("saved count: %ld\n", env_cache[ENV_PARAM_PART_INDEX_SAVED_COUNT]);
 #endif
 
@@ -657,7 +683,7 @@ EfErrCode ef_load_env(void) {
             ef_port_read(get_env_detail_addr(), env_cache_bak, get_env_detail_size());
             /* read ENV CRC code from flash */
             ef_port_read(get_cur_using_data_addr() + ENV_PARAM_PART_INDEX_DATA_CRC * 4,
-                    &env_cache[ENV_PARAM_PART_INDEX_DATA_CRC], 4);
+                         &env_cache[ENV_PARAM_PART_INDEX_DATA_CRC], 4);
             /* if ENV CRC32 check is fault, set default for it */
             if (!env_crc_is_ok()) {
                 EF_INFO("Warning: ENV CRC check failed. Set it to default.\n");
@@ -739,11 +765,11 @@ EfErrCode ef_load_env(void) {
     if (area0_is_valid && area1_is_valid) {
         /* read ENV area saved count from flash */
         ef_port_read(area0_cur_using_addr + ENV_PARAM_PART_INDEX_SAVED_COUNT * 4,
-                &area0_saved_count, 4);
+                     &area0_saved_count, 4);
         ef_port_read(area1_cur_using_addr + ENV_PARAM_PART_INDEX_SAVED_COUNT * 4,
-                &area1_saved_count, 4);
+                     &area1_saved_count, 4);
         /* the bigger saved count area is valid */
-        if ((area0_saved_count > area1_saved_count)||((area0_saved_count == 0)&&(area1_saved_count == 0xFFFFFFFF))) {
+        if ((area0_saved_count > area1_saved_count) || ((area0_saved_count == 0) && (area1_saved_count == 0xFFFFFFFF))) {
             area1_is_valid = false;
         } else {
             area0_is_valid = false;
@@ -801,7 +827,7 @@ EfErrCode ef_save_env(void) {
     /* change the ENV detail end address to next save area address */
     set_env_detail_end_addr(get_cur_using_data_addr() + env_used_size);
     /* area0 or area1 */
-    if(get_cur_using_data_addr() < get_env_start_addr() + ENV_AREA_SIZE / 2) {
+    if (get_cur_using_data_addr() < get_env_start_addr() + ENV_AREA_SIZE / 2) {
         data_sec_end_addr = get_env_start_addr() + ENV_AREA_SIZE / 2 - 4;
     } else {
         data_sec_end_addr = get_env_start_addr() + ENV_AREA_SIZE - 4;
@@ -943,7 +969,7 @@ static EfErrCode save_cur_using_data_addr(uint32_t cur_data_addr) {
     EfErrCode result = EF_NO_ERR;
     uint32_t cur_system_sec_addr;
 
-    if (cur_data_addr < get_env_start_addr() + ENV_AREA_SIZE / 2){
+    if (cur_data_addr < get_env_start_addr() + ENV_AREA_SIZE / 2) {
         /* current using system section is in ENV area0 */
         cur_system_sec_addr = get_env_start_addr();
     } else {
@@ -981,6 +1007,25 @@ EfErrCode ef_set_and_save_env(const char *key, const char *value) {
     EfErrCode result = EF_NO_ERR;
 
     result = ef_set_env(key, value);
+
+    if (result == EF_NO_ERR) {
+        result = ef_save_env();
+    }
+
+    return result;
+}
+
+/**
+ * Del and save an ENV. If del ENV is success then will save it.
+ *
+ * @param key ENV name
+ *
+ * @return result
+ */
+EfErrCode ef_del_and_save_env(const char *key) {
+    EfErrCode result = EF_NO_ERR;
+
+    result = ef_del_env(key);
 
     if (result == EF_NO_ERR) {
         result = ef_save_env();

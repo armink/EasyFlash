@@ -55,10 +55,9 @@ char *ef_get_env(const char *key)
 使用此方法可以实现对环境变量的增加、修改及删除功能。（注意：此处的环境变量指代的已加载到内存中的环境变量）
 
 - **增加** ：当环境变量表中不存在该名称的环境变量时，则会执行新增操作；
-
 - **修改** ：入参中的环境变量名称在当前环境变量表中存在，则把该环境变量值修改为入参中的值；
+- **删除**：当入参中的value为NULL时，则会删除入参名对应的环境变量。 
 
-- **删除** ：当入参中的value为空时，则会删除入参名对应的环境变量。
 
 ```C
 EfErrCode ef_set_env(const char *key, const char *value)
@@ -69,7 +68,19 @@ EfErrCode ef_set_env(const char *key, const char *value)
 |key                                     |环境变量名称|
 |value                                   |环境变量值|
 
-#### 1.2.5 保存环境变量
+#### 1.2.5 删除环境变量
+
+使用此方法可以实现对环境变量的删除功能。（注意：此处的环境变量指代的已加载到内存中的环境变量）
+
+```c
+EfErrCode ef_del_env(const char *key)
+```
+
+| 参数 | 描述         |
+| :--- | :----------- |
+| key  | 环境变量名称 |
+
+#### 1.2.6 保存环境变量
 
 保存内存中的环境变量表到Flash中。
 
@@ -77,20 +88,20 @@ EfErrCode ef_set_env(const char *key, const char *value)
 EfErrCode ef_save_env(void)
 ```
 
-#### 1.2.6 重置环境变量
+#### 1.2.7 重置环境变量
 将内存中的环境变量表重置为默认值。
 
 ```C
 EfErrCode ef_env_set_default(void)
 ```
 
-#### 1.2.7 获取当前环境变量写入到Flash的字节大小
+#### 1.2.8 获取当前环境变量写入到Flash的字节大小
 
 ```C
 size_t ef_get_env_write_bytes(void)
 ```
 
-#### 1.2.8 设置并保存环境变量
+#### 1.2.9 设置并保存环境变量
 
 设置环境变量成功后立刻保存。设置功能参考`ef_set_env`方法。
 
@@ -102,6 +113,18 @@ EfErrCode ef_set_and_save_env(const char *key, const char *value)
 |:-----                                  |:----|
 |key                                     |环境变量名称|
 |value                                   |环境变量值|
+
+#### 1.2.10 删除并保存环境变量
+
+删除环境变量成功后立刻保存。删除功能参考`ef_del_env`方法。
+
+```c
+EfErrCode ef_del_and_save_env(const char *key)
+```
+
+| 参数 | 描述         |
+| :--- | :----------- |
+| key  | 环境变量名称 |
 
 ### 1.3 在线升级
 
