@@ -887,6 +887,10 @@ static EfErrCode env_auto_update(void)
     /* lock the ENV cache */
     ef_port_env_lock();
 
+    /* read ENV version number from flash*/
+    ef_port_read(get_env_system_addr() + ENV_PARAM_INDEX_VER_NUM * 4,
+                 &env_cache[ENV_PARAM_INDEX_VER_NUM] , 4);
+
     /* check version number */
     if (env_cache[ENV_PARAM_INDEX_VER_NUM] != EF_ENV_VER_NUM) {
         env_cache_changed = true;
