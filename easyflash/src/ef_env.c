@@ -101,7 +101,9 @@ static size_t get_env_user_used_size(void);
 static EfErrCode create_env(const char *key, const char *value);
 static uint32_t calc_env_crc(void);
 static bool env_crc_is_ok(void);
+#ifdef EF_ENV_AUTO_UPDATE
 static EfErrCode env_auto_update(void);
+#endif
 
 /**
  * Flash ENV initialize.
