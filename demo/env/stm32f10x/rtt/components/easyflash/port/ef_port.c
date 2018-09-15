@@ -237,10 +237,9 @@ void ef_print(const char *format, ...) {
 #if defined(RT_USING_FINSH) && defined(FINSH_USING_MSH)
 #include <finsh.h>
 #if defined(EF_USING_ENV)
-void setenv(uint8_t argc, char **argv) {
+static void setenv(uint8_t argc, char **argv) {
     uint8_t i;
-    char c_value = NULL;
-    char *value = &c_value;
+
     if (argc > 3) {
         /* environment variable value string together */
         for (i = 0; i < argc - 2; i++) {
@@ -248,26 +247,26 @@ void setenv(uint8_t argc, char **argv) {
         }
     }
     if (argc == 1) {
-        ef_set_env(value, value);
+        rt_kprintf("Please input: setenv <key> [value]\n");
     } else if (argc == 2) {
-        ef_set_env(argv[1], value);
+        ef_set_env(argv[1], NULL);
     } else {
         ef_set_env(argv[1], argv[2]);
     }
 }
 MSH_CMD_EXPORT(setenv, Set an envrionment variable.);
 
-void printenv(uint8_t argc, char **argv) {
+static void printenv(uint8_t argc, char **argv) {
     ef_print_env();
 }
 MSH_CMD_EXPORT(printenv, Print all envrionment variables.);
 
-void saveenv(uint8_t argc, char **argv) {
+static void saveenv(uint8_t argc, char **argv) {
     ef_save_env();
 }
 MSH_CMD_EXPORT(saveenv, Save all envrionment variables to flash.);
 
-void getvalue(uint8_t argc, char **argv) {
+static void getvalue(uint8_t argc, char **argv) {
     char *value = NULL;
     value = ef_get_env(argv[1]);
     if (value) {
@@ -278,7 +277,7 @@ void getvalue(uint8_t argc, char **argv) {
 }
 MSH_CMD_EXPORT(getvalue, Get an envrionment variable by name.);
 
-void resetenv(uint8_t argc, char **argv) {
+static void resetenv(uint8_t argc, char **argv) {
     ef_env_set_default();
 }
 MSH_CMD_EXPORT(resetenv, Reset all envrionment variable to default.);
