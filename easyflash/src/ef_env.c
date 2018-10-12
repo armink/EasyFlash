@@ -771,7 +771,7 @@ EfErrCode ef_save_env(void) {
     result = ef_port_erase(write_addr, write_size);
     switch (result) {
     case EF_NO_ERR: {
-        EF_INFO("Erased ENV OK.\n");
+        EF_DEBUG("Erased ENV OK.\n");
         break;
     }
     case EF_ERASE_ERR: {
@@ -785,7 +785,7 @@ EfErrCode ef_save_env(void) {
     result = ef_port_write(write_addr, env_cache, write_size);
     switch (result) {
     case EF_NO_ERR: {
-        EF_INFO("Saved ENV OK.\n");
+        EF_DEBUG("Saved ENV OK.\n");
         break;
     }
     case EF_WRITE_ERR: {
