@@ -1050,7 +1050,7 @@ static EfErrCode env_auto_update(void)
     ef_port_env_lock();
 
     /* read ENV version number from flash*/
-    ef_port_read(get_env_system_addr() + ENV_PARAM_INDEX_VER_NUM * 4,
+    ef_port_read(get_cur_using_data_addr() + ENV_PARAM_INDEX_VER_NUM * 4,
                  &env_cache[ENV_PARAM_INDEX_VER_NUM] , 4);
 
     /* check version number */
