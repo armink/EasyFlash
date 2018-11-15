@@ -120,15 +120,12 @@ static SectorStatus get_sector_status(uint32_t addr) {
         sector_magic = header_buf[0];
         status_full_magic = header_buf[SECTOR_STATUS_FULL];
         status_use_magic = header_buf[SECTOR_STATUS_USING];
-        
-    
     } else {
         EF_DEBUG("Error: Read sector header data error.\n");
         return SECTOR_STATUS_HEADER_ERROR;
     }
     /* compare header magic code */
     if (sector_magic == LOG_SECTOR_MAGIC) {
-        
         switch (status_use_magic) {
         case SECTOR_STATUS_MAGIC_EMPUT:{
             switch (status_full_magic) {
@@ -158,7 +155,6 @@ static SectorStatus get_sector_status(uint32_t addr) {
             return SECTOR_STATUS_HEADER_ERROR;
         default:
             return SECTOR_STATUS_HEADER_ERROR;
-
     }  
     } else {
         return SECTOR_STATUS_HEADER_ERROR;
