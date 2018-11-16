@@ -30,11 +30,12 @@
 
 #ifdef EF_USING_LOG
 
-/* magic code on every sector header. 'EF' is 0x45464546 */
-#define LOG_SECTOR_MAGIC               0x45464546
+/* magic code on every sector header. 'EF' is 0xEF30EF30 */
+#define LOG_SECTOR_MAGIC               0xEF30EF30
 /* sector header size, includes the sector magic code and status magic code */
 #define LOG_SECTOR_HEADER_SIZE         12
-
+/* sector header word size,what is equivalent to the total number of sectors header index */
+#define LOG_SECTOR_HEADER_WORD_SIZE    3
 
 /**
  * Sector status magic code
@@ -42,9 +43,9 @@
  * ==============================================
  * |           header(12B)            | status |
  * ----------------------------------------------
- * | 0x45464546 0xFFFFFFFF 0xFFFFFFFF |  empty |
- * | 0x45464546 0xFEFEFEFE 0xFFFFFFFF |  using |
- * | 0x45464546 0xFEFEFEFE 0xFCFCFCFC |  full  |
+ * | 0xEF30EF30 0xFFFFFFFF 0xFFFFFFFF |  empty |
+ * | 0xEF30EF30 0xFEFEFEFE 0xFFFFFFFF |  using |
+ * | 0xEF30EF30 0xFEFEFEFE 0xFCFCFCFC |  full  |
  * ==============================================
  *
  * State transition relationship: empty->using->full
@@ -61,6 +62,12 @@ typedef enum {
     SECTOR_STATUS_FULL,
     SECTOR_STATUS_HEADER_ERROR,
 } SectorStatus;
+
+typedef enum {
+    SECTOR_HEADER_MAGIC_INDEX,
+    SECTOR_HEADER_USING_INDEX,
+    SECTOR_HEADER_FULL_INDEX,
+} SectorHeaderIndex;
 
 /* the stored logs start address and end address. It's like a ring buffer implemented on flash. */
 static uint32_t log_start_addr = 0, log_end_addr = 0;
@@ -109,56 +116,37 @@ EfErrCode ef_log_init(void) {
  * @return the flash sector current status
  */
 static SectorStatus get_sector_status(uint32_t addr) {
-    uint32_t header_buf[3] = {0}, header_addr = 0;
-    uint32_t sector_magic = 0;
+    uint32_t header_buf[LOG_SECTOR_HEADER_WORD_SIZE] = {0}, header_addr = 0;
+    uint32_t sector_header_magic = 0;
     uint32_t status_full_magic = 0, status_use_magic = 0;
 
     /* calculate the sector header address */
     header_addr = addr / EF_ERASE_MIN_SIZE * EF_ERASE_MIN_SIZE;
 
     if (ef_port_read(header_addr, header_buf, sizeof(header_buf)) == EF_NO_ERR) {
-        sector_magic = header_buf[0];
-        status_full_magic = header_buf[SECTOR_STATUS_FULL];
-        status_use_magic = header_buf[SECTOR_STATUS_USING];
+        sector_header_magic = header_buf[SECTOR_HEADER_MAGIC_INDEX];
+        status_use_magic = header_buf[SECTOR_HEADER_USING_INDEX];
+        status_full_magic = header_buf[SECTOR_HEADER_FULL_INDEX];
     } else {
         EF_DEBUG("Error: Read sector header data error.\n");
         return SECTOR_STATUS_HEADER_ERROR;
     }
+
     /* compare header magic code */
-    if (sector_magic == LOG_SECTOR_MAGIC) {
-        switch (status_use_magic) {
-        case SECTOR_STATUS_MAGIC_EMPUT:{
-            switch (status_full_magic) {
-            case SECTOR_STATUS_MAGIC_EMPUT:
-                return SECTOR_STATUS_EMPUT;
-            case SECTOR_STATUS_MAGIC_USING:
-                return SECTOR_STATUS_HEADER_ERROR;
-            case SECTOR_STATUS_MAGIC_FULL:
-                return SECTOR_STATUS_HEADER_ERROR;
-            default:
-                return SECTOR_STATUS_HEADER_ERROR;
-            }
-        }    
-        case SECTOR_STATUS_MAGIC_USING:{
-            switch (status_full_magic) {
-            case SECTOR_STATUS_MAGIC_EMPUT:
-                return SECTOR_STATUS_USING;
-            case SECTOR_STATUS_MAGIC_USING:
-                return SECTOR_STATUS_HEADER_ERROR;
-            case SECTOR_STATUS_MAGIC_FULL:
-                return SECTOR_STATUS_FULL;
-            default:
-                return SECTOR_STATUS_HEADER_ERROR;
-            }
+    if(sector_magic == LOG_SECTOR_MAGIC){
+        if((status_use_magic == SECTOR_STATUS_MAGIC_EMPUT) && (status_full_magic == SECTOR_STATUS_MAGIC_EMPUT)) {
+            return SECTOR_STATUS_EMPUT;
+        } else if((status_use_magic == SECTOR_STATUS_MAGIC_USING) && (status_full_magic == SECTOR_STATUS_MAGIC_EMPUT)) {
+             return SECTOR_STATUS_USING;
+        } else if((status_use_magic == SECTOR_STATUS_MAGIC_USING) && (status_full_magic == SECTOR_STATUS_MAGIC_FULL)) {
+             return SECTOR_STATUS_FULL;
+        } else {
+            return SECTOR_STATUS_HEADER_ERROR;
         }
-        case SECTOR_STATUS_MAGIC_FULL:
-            return SECTOR_STATUS_HEADER_ERROR;
-        default:
-            return SECTOR_STATUS_HEADER_ERROR;
-    }  
     } else {
         return SECTOR_STATUS_HEADER_ERROR;
     }
+
 }
 
 /**
@@ -170,30 +158,31 @@ static SectorStatus get_sector_status(uint32_t addr) {
  * @return result
  */
 static EfErrCode write_sector_status(uint32_t addr, SectorStatus status) {
-    uint32_t header_buf[3] = {0}, header_addr = 0;
+    uint32_t header_buf[LOG_SECTOR_HEADER_WORD_SIZE] = {0}, header_addr = 0;
 
     /* calculate the sector header address */
     header_addr = addr / EF_ERASE_MIN_SIZE * EF_ERASE_MIN_SIZE;
 
+    /* calculate the sector staus magic */
     switch (status) {
     case SECTOR_STATUS_EMPUT: {
-        header_buf[SECTOR_STATUS_USING] = SECTOR_STATUS_MAGIC_EMPUT;
-        header_buf[SECTOR_STATUS_FULL] = SECTOR_STATUS_MAGIC_EMPUT;
+        header_buf[SECTOR_HEADER_USING_INDEX] = SECTOR_STATUS_MAGIC_EMPUT;
+        header_buf[SECTOR_HEADER_FULL_INDEX] = SECTOR_STATUS_MAGIC_EMPUT;
         break;
     }
     case SECTOR_STATUS_USING: {
-        header_buf[SECTOR_STATUS_USING] = SECTOR_STATUS_MAGIC_USING;
-        header_buf[SECTOR_STATUS_FULL] = SECTOR_STATUS_MAGIC_EMPUT;
+        header_buf[SECTOR_HEADER_USING_INDEX] = SECTOR_STATUS_MAGIC_USING;
+        header_buf[SECTOR_HEADER_FULL_INDEX] = SECTOR_STATUS_MAGIC_EMPUT;
         break;
     }
     case SECTOR_STATUS_FULL: {
-        header_buf[SECTOR_STATUS_USING] = SECTOR_STATUS_MAGIC_USING;
-        header_buf[SECTOR_STATUS_FULL] = SECTOR_STATUS_MAGIC_FULL;
+        header_buf[SECTOR_HEADER_USING_INDEX] = SECTOR_STATUS_MAGIC_USING;
+        header_buf[SECTOR_HEADER_FULL_INDEX] = SECTOR_STATUS_MAGIC_FULL;
         break;
     }
     }
     
-    header_buf[0] = LOG_SECTOR_MAGIC;
+    header_buf[SECTOR_HEADER_MAGIC_INDEX] = LOG_SECTOR_MAGIC;
     
     return ef_port_write(header_addr, header_buf, sizeof(header_buf));
 }
