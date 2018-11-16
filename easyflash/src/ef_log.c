@@ -51,10 +51,9 @@
  * State transition relationship: empty->using->full
  * The FULL status will change to EMPTY after sector clean.
  */
-#define   SECTOR_STATUS_MAGIC_EMPUT    0xFFFFFFFF
-#define   SECTOR_STATUS_MAGIC_USING    0xFEFEFEFE
-#define   SECTOR_STATUS_MAGIC_FULL     0xFCFCFCFC
-
+#define SECTOR_STATUS_MAGIC_EMPUT     0xFFFFFFFF
+#define SECTOR_STATUS_MAGIC_USING     0xFEFEFEFE
+#define SECTOR_STATUS_MAGIC_FULL      0xFCFCFCFC
 
 typedef enum {
     SECTOR_STATUS_EMPUT,
