@@ -588,7 +588,7 @@ void ef_print_env(void) {
         for (j = 0; j < 4; j++) {
             c = (*env_cache_detail_addr) >> (8 * j);
             ef_print("%c", c);
-            if (c == NULL) {
+            if (c == '\0') {
                 ef_print("\n");
                 break;
             }
