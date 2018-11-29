@@ -132,7 +132,7 @@ static SectorStatus get_sector_status(uint32_t addr) {
     }
 
     /* compare header magic code */
-    if(sector_magic == LOG_SECTOR_MAGIC){
+    if(sector_header_magic == LOG_SECTOR_MAGIC){
         if((status_use_magic == SECTOR_STATUS_MAGIC_EMPUT) && (status_full_magic == SECTOR_STATUS_MAGIC_EMPUT)) {
             return SECTOR_STATUS_EMPUT;
         } else if((status_use_magic == SECTOR_STATUS_MAGIC_USING) && (status_full_magic == SECTOR_STATUS_MAGIC_EMPUT)) {
