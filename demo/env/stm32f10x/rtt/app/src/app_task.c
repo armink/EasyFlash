@@ -112,7 +112,7 @@ int rt_application_init(void)
     rt_thread_startup(&thread_sys_monitor);
 
     init_thread = rt_thread_create("sys init", sys_init_thread,
-            NULL, 512, 10, 10);
+            NULL, 1024, 10, 10);
     if (init_thread != NULL) {
         rt_thread_startup(init_thread);
     }
