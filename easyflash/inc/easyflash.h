@@ -76,8 +76,8 @@ if (!(EXPR))                                                                  \
 #endif
 
 /* EasyFlash software version number */
-#define EF_SW_VERSION                  "3.2.4"
-#define EF_SW_VERSION_NUM              0x30204
+#define EF_SW_VERSION                  "3.3.0"
+#define EF_SW_VERSION_NUM              0x30300
 
 typedef struct _ef_env {
     char *key;
