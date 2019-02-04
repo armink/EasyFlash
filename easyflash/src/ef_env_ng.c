@@ -55,8 +55,14 @@
 #define EF_STR_ENV_VALUE_MAX_SIZE                128
 #endif
 
+/* the sector remain max threshold before full status */
+#ifndef EF_SEC_REMAIN_THRESHOLD
+#define EF_SEC_REMAIN_THRESHOLD                  (ENV_HDR_DATA_SIZE + EF_ENV_NAME_MAX)
+#endif
+
 /* the sector is not combined value */
 #define SECTOR_NOT_COMBINED                      0xFFFFFFFF
+/* the next address is get failed */
 #define GET_NEXT_FAILED                          0xFFFFFFFF
 
 /* Return the most contiguous size aligned at specified width. RT_ALIGN(13, 4)
@@ -144,9 +150,10 @@ typedef struct env_hdr_data *env_hdr_data_t;
 struct env_meta_data {
     bool crc_is_ok;                              /**< ENV node CRC32 check is OK */
     env_status_t status;                         /**< ENV node status, @see node_status_t */
+    uint8_t name_len;                            /**< name length */
     uint32_t len;                                /**< ENV node total length (header + name + value), must align by EF_WRITE_GRAN */
-    char name[EF_ENV_NAME_MAX];                  /**< name */
     uint32_t value_len;                          /**< value length */
+    char name[EF_ENV_NAME_MAX];                  /**< name */
     struct {
         uint32_t start;                          /**< ENV node start address */
         uint32_t value;                          /**< value start address */
@@ -213,30 +220,33 @@ static size_t get_status(uint8_t status_table[], size_t status_num)
 
 static uint32_t get_next_env_addr(sector_meta_data_t sector, env_meta_data_t pre_env)
 {
+    struct env_hdr_data env_hdr;
+    uint32_t addr = GET_NEXT_FAILED;
+
     if (sector->status.store == SECTOR_STORE_EMPTY) {
         return GET_NEXT_FAILED;
     }
 
     if (pre_env->addr.start == GET_NEXT_FAILED) {
         /* the first ENV address */
-        return sector->addr + SECTOR_HDR_DATA_SIZE;
+        addr = sector->addr + SECTOR_HDR_DATA_SIZE;
     } else {
         if (pre_env->addr.start <= sector->addr + SECTOR_SIZE) {
-            struct env_hdr_data env_hdr;
-            /* read ENV header raw data */
-            ef_port_read(pre_env->addr.start + pre_env->len, (uint32_t *) &env_hdr, sizeof(struct env_hdr_data));
-            /* check ENV status, it's ENV_UNUSED when not using */
-            if (get_status(env_hdr.status_table, ENV_STATUS_NUM) != ENV_UNUSED) {
-                /* next ENV address */
-                return pre_env->addr.start + pre_env->len;
-            } else {
-                /* no ENV */
-                return GET_NEXT_FAILED;
-            }
+            /* next ENV address */
+            addr = pre_env->addr.start + pre_env->len;
         } else {
             /* no ENV */
             return GET_NEXT_FAILED;
         }
+    }
+    /* read ENV header raw data */
+    ef_port_read(addr, (uint32_t *) &env_hdr, sizeof(struct env_hdr_data));
+    /* check ENV status, it's ENV_UNUSED when not using */
+    if (get_status(env_hdr.status_table, ENV_STATUS_NUM) != ENV_UNUSED) {
+        return addr;
+    } else {
+        /* no ENV */
+        return GET_NEXT_FAILED;
     }
 }
 
@@ -263,7 +273,7 @@ static EfErrCode read_env(env_meta_data_t env)
             size = crc_data_len - len;
         }
 
-        ef_port_read(env->addr.start + ENV_NAME_LEN_OFFSET + len, (uint32_t *) buf, sizeof(buf));
+        ef_port_read(env->addr.start + ENV_NAME_LEN_OFFSET + len, (uint32_t *) buf, size);
         calc_crc32 = ef_calc_crc32(calc_crc32, buf, size);
     }
     /* check CRC32 */
@@ -273,11 +283,12 @@ static EfErrCode read_env(env_meta_data_t env)
     } else {
         env->crc_is_ok = true;
         /* the name is behind aligned ENV header */
-        env_name_addr = env->addr.start + SECTOR_HDR_DATA_SIZE;
+        env_name_addr = env->addr.start + ENV_HDR_DATA_SIZE;
         ef_port_read(env_name_addr, (uint32_t *) env->name, EF_ENV_NAME_MAX);
         /* the value is behind aligned name */
         env->addr.value = env_name_addr + EF_WG_ALIGN(env_hdr.name_len);
         env->value_len = env_hdr.value_len;
+        env->name_len = env_hdr.name_len;
     }
 
     return result;
@@ -322,7 +333,7 @@ static EfErrCode read_sector_meta_data(uint32_t addr, sector_meta_data_t sector,
                     sector->remain -= env_meta.len;
                     //TODO 大块数据占用连续扇区情形的处理
                 } else {
-                    EF_INFO("The ENV (%.*s) CRC32 check failed!\n", EF_ENV_NAME_MAX, env_meta.name);
+                    EF_INFO("ERROR: The ENV (@0x%08x) CRC32 check failed!\n", env_meta.addr.start);
                     sector->remain = 0;
                     result = EF_READ_ERR;
                     //TODO 完善 CRC 校验出错后的处理，比如标记扇区已经损坏
@@ -338,6 +349,7 @@ static EfErrCode read_sector_meta_data(uint32_t addr, sector_meta_data_t sector,
 static uint32_t get_next_sector_addr(sector_meta_data_t pre_sec)
 {
     uint32_t next_addr;
+
     if (pre_sec->addr == GET_NEXT_FAILED) {
         return env_start_addr;
     } else {
@@ -357,7 +369,8 @@ static uint32_t get_next_sector_addr(sector_meta_data_t pre_sec)
     }
 }
 
-static bool find_env(const char *key, env_meta_data_t env)
+static void env_iterator(env_meta_data_t env, void *arg1, void *arg2,
+        bool *(callback)(env_meta_data_t env, void *arg1, void *arg2))
 {
     struct sector_meta_data sector;
     uint32_t sec_addr;
@@ -377,15 +390,46 @@ static bool find_env(const char *key, env_meta_data_t env)
             /* search all ENV */
             while ((env->addr.start = get_next_env_addr(&sector, env)) != GET_NEXT_FAILED) {
                 read_env(env);
-                /* check ENV */
-                if (env->crc_is_ok && env->status == ENV_WRITE && !strncmp(env->name, key, EF_ENV_NAME_MAX)) {
-                    return true;
+                /* iterator is interrupted when callback return true */
+                if (callback(env, arg1, arg2)) {
+                    return;
                 }
             }
         }
     }
+}
 
+static bool find_env_cb(env_meta_data_t env, void *arg1, void *arg2)
+{
+    const char *key = arg1;
+    bool *find_ok = arg2;
+    /* check ENV */
+    if (env->crc_is_ok && env->status == ENV_WRITE && !strncmp(env->name, key, EF_ENV_NAME_MAX)) {
+        *find_ok = true;
+        return true;
+    }
     return false;
+}
+
+static bool find_env(const char *key, env_meta_data_t env)
+{
+    bool find_ok = false;
+
+    env_iterator(env, key, &find_ok, find_env_cb);
+
+    return find_ok;
+}
+
+static bool ef_is_str(uint8_t *value, size_t len)
+{
+#define __is_print(ch)       ((unsigned int)((ch) - ' ') < 127u - ' ')
+
+    for (size_t i; i < len; i++) {
+        if (!__is_print(value[i])) {
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
@@ -404,9 +448,14 @@ char *ef_get_env(const char *key)
     struct env_meta_data env;
 
     if (find_env(key, &env) == true) {
-        ef_port_read(env.addr.value, (uint32_t *)value, EF_STR_ENV_VALUE_MAX_SIZE);
-        //TODO 找到后检查其是否为字符串，否则弹出警告
-        return value;
+        ef_port_read(env.addr.value, (uint32_t *)value, env.value_len);
+        /* the return value must be string */
+        if (ef_is_str((uint8_t *)value, env.value_len)) {
+            return value;
+        } else {
+            EF_INFO("Warning: The ENV value isn't string. Could not be returned\n");
+            return NULL;
+        }
     }
 
     return NULL;
@@ -423,14 +472,17 @@ static EfErrCode write_status(uint32_t env_addr, uint8_t status_table[], size_t 
     EF_ASSERT(status_index < total_num);
     EF_ASSERT(status_table);
 
+    /* set the status first */
+    set_status(status_table, total_num, status_index);
+
 #if (EF_WRITE_GRAN == 1)
     byte_index = status_index / 8;
     result = ef_port_write(env_addr + byte_index, (uint32_t *)&status_table[byte_index], 1);
 #else /*  (EF_WRITE_GRAN == 8) ||  (EF_WRITE_GRAN == 32) ||  (EF_WRITE_GRAN == 64) */
-    byte_index = status_index * (EF_WRITE_GRAN / 8);
+    byte_index = total_num - status_index * (EF_WRITE_GRAN / 8);
     /* write the status by write granularity
      * some flash (like stm32 onchip) NOT supported repeated write before erase */
-    result = ef_port_write(env_addr + byte_index, (uint32_t *)&status_table[byte_index], EF_WRITE_GRAN / 8);
+    result = ef_port_write(env_addr + byte_index, (uint32_t *) &status_table[byte_index], EF_WRITE_GRAN / 8);
 #endif /* EF_WRITE_GRAN == 1 */
 
     return result;
@@ -453,8 +505,7 @@ static EfErrCode create_env_blob(const char *key, const void *value, size_t len)
 {
     EfErrCode result = EF_NO_ERR;
     struct env_hdr_data env_hdr;
-    uint8_t ff[] = { 0xFF };
-    struct sector_meta_data sector;
+    static struct sector_meta_data sector;
     uint32_t sec_addr;
 
     memset(&env_hdr, 0xFF, sizeof(struct env_hdr_data));
@@ -480,24 +531,32 @@ static EfErrCode create_env_blob(const char *key, const void *value, size_t len)
             uint32_t env_addr = sector.empty_env;
             /* change the sector status to SECTOR_STORE_USING */
             if (result == EF_NO_ERR) {
-                //TODO 修改状态为正在使用
-                //TODO 超过剩余容量阈值后，设定为已满
-                result = write_status(sec_addr, sector.status.store, STORE_STATUS_TABLE_SIZE, SECTOR_STORE_USING);
+                uint8_t status_table[STORE_STATUS_TABLE_SIZE];
+                /* change the current sector status */
+                if (sector.status.store == SECTOR_STORE_EMPTY) {
+                    /* change the sector status to using */
+                    result = write_status(sec_addr, status_table, STORE_STATUS_TABLE_SIZE, SECTOR_STORE_USING);
+                } else if (sector.status.store == SECTOR_STORE_USING) {
+                    /* check remain size */
+                    if (sector.remain - env_hdr.len < EF_SEC_REMAIN_THRESHOLD) {
+                        /* change the sector status to full */
+                        result = write_status(sec_addr, status_table, STORE_STATUS_TABLE_SIZE, SECTOR_STORE_FULL);
+                    }
+                }
             }
             if (result == EF_NO_ERR) {
+                uint8_t ff = 0xFF;
                 /* start calculate CRC32 */
-                env_hdr.crc32 = 0;
-                env_hdr.crc32 = ef_calc_crc32(env_hdr.crc32, &env_hdr.name_len, sizeof(env_hdr.name_len));
-                env_hdr.crc32 = ef_calc_crc32(env_hdr.crc32, &env_hdr.value_len, sizeof(env_hdr.value_len));
+                env_hdr.crc32 = ef_calc_crc32(0, &env_hdr.name_len, ENV_HDR_DATA_SIZE - ENV_NAME_LEN_OFFSET);
                 env_hdr.crc32 = ef_calc_crc32(env_hdr.crc32, key, env_hdr.name_len);
                 align_remain = EF_WG_ALIGN(env_hdr.name_len) - env_hdr.name_len;
                 while (align_remain) {
-                    env_hdr.crc32 = ef_calc_crc32(env_hdr.crc32, ff, 1);
+                    env_hdr.crc32 = ef_calc_crc32(env_hdr.crc32, &ff, 1);
                 }
                 env_hdr.crc32 = ef_calc_crc32(env_hdr.crc32, value, env_hdr.value_len);
                 align_remain = EF_WG_ALIGN(env_hdr.value_len) - env_hdr.value_len;
                 while (align_remain) {
-                    env_hdr.crc32 = ef_calc_crc32(env_hdr.crc32, ff, 1);
+                    env_hdr.crc32 = ef_calc_crc32(env_hdr.crc32, &ff, 1);
                 }
                 /* write ENV header data */
                 result = write_env_hdr(env_addr, &env_hdr);
@@ -697,12 +756,54 @@ __exit:
     return result;
 }
 
+static bool print_env_cb(env_meta_data_t env, void *arg1, void *arg2)
+{
+    uint8_t buf[32];
+    bool value_is_str = true, print_value = false;
+
+    /* check ENV */
+    if (env->crc_is_ok && env->status == ENV_WRITE) {
+        ef_print("%.*s=", env->name_len, env->name);
+        /* check the value is string */
+        if (env->value_len < EF_STR_ENV_VALUE_MAX_SIZE ) {
+__reload:
+            for (size_t len = 0, size = 0; len < env->value_len; len += size) {
+                if (len + sizeof(buf) < env->value_len) {
+                    size = sizeof(buf);
+                } else {
+                    size = env->value_len - len;
+                }
+                ef_port_read(env->addr.value + len, (uint32_t *) buf, size);
+                if (print_value) {
+                    ef_print("%.*s", size, buf);
+                } else if (!ef_is_str(buf, size)) {
+                    value_is_str = false;
+                    break;
+                }
+            }
+        } else {
+            value_is_str = false;
+        }
+        if (value_is_str && !print_value) {
+            print_value = true;
+            goto __reload;
+        } else if (!value_is_str) {
+            ef_print("blob @0x%08x %dbytes", env->addr.value, env->value_len);
+        }
+        ef_print("\n");
+    }
+    return false;
+}
+
+
 /**
  * Print ENV.
  */
 void ef_print_env(void)
 {
+    struct env_meta_data env;
 
+    env_iterator(&env, NULL, NULL, print_env_cb);
 }
 
 #ifdef EF_ENV_AUTO_UPDATE
