@@ -71,16 +71,24 @@
 #define EF_ALIGN(size, align)                    (((size) + (align) - 1) & ~((align) - 1))
 /* align by write granularity */
 #define EF_WG_ALIGN(size)                        (EF_ALIGN(size, (EF_WRITE_GRAN + 7)/8))
+/**
+ * Return the down number of aligned at specified width. RT_ALIGN_DOWN(13, 4)
+ * would return 12.
+ */
+#define EF_ALIGN_DOWN(size, align)               ((size) & ~((align) - 1))
 
-#define STATUS_MASK                              ((1UL << EF_WRITE_GRAN) - 1)
-
-#define STATUS_TABLE_SIZE(status_number)         ((status_number * EF_WRITE_GRAN + 7) / 8)
+#if (EF_WRITE_GRAN == 1)
+#define STATUS_TABLE_SIZE(status_number)         ((status_number * EF_WRITE_GRAN + 7)/8)
+#else
+#define STATUS_TABLE_SIZE(status_number)         (((status_number - 1) * EF_WRITE_GRAN + 7)/8)
+#endif
 
 #define STORE_STATUS_TABLE_SIZE                  STATUS_TABLE_SIZE(SECTOR_STORE_STATUS_NUM)
 #define DIRTY_STATUS_TABLE_SIZE                  STATUS_TABLE_SIZE(SECTOR_DIRTY_STATUS_NUM)
 #define ENV_STATUS_TABLE_SIZE                    STATUS_TABLE_SIZE(ENV_STATUS_NUM)
 
 #define SECTOR_HDR_DATA_SIZE                     (EF_WG_ALIGN(sizeof(struct sector_hdr_data)))
+#define SECTOR_DIRTY_OFFSET                      ((unsigned long)(&((struct sector_hdr_data *)0)->status_table.dirty))
 #define SECTOR_SIZE                              EF_ERASE_MIN_SIZE
 #define ENV_HDR_DATA_SIZE                        (EF_WG_ALIGN(sizeof(struct env_hdr_data)))
 #define ENV_NAME_LEN_OFFSET                      ((unsigned long)(&((struct env_hdr_data *)0)->name_len))
@@ -218,9 +226,42 @@ static size_t get_status(uint8_t status_table[], size_t status_num)
     return status_num_bak - i;
 }
 
+static EfErrCode write_status(uint32_t addr, uint8_t status_table[], size_t status_num, size_t status_index)
+{
+    EfErrCode result = EF_NO_ERR;
+    size_t byte_index;
+
+    EF_ASSERT(status_index < status_num);
+    EF_ASSERT(status_table);
+
+    /* set the status first */
+    set_status(status_table, status_num, status_index);
+
+#if (EF_WRITE_GRAN == 1)
+    byte_index = status_index / 8;
+    result = ef_port_write(addr + byte_index, (uint32_t *)&status_table[byte_index], 1);
+#else /*  (EF_WRITE_GRAN == 8) ||  (EF_WRITE_GRAN == 32) ||  (EF_WRITE_GRAN == 64) */
+    byte_index = (status_num - 1 - status_index) * (EF_WRITE_GRAN / 8);
+    /* write the status by write granularity
+     * some flash (like stm32 onchip) NOT supported repeated write before erase */
+    result = ef_port_write(addr + byte_index, (uint32_t *) &status_table[byte_index], EF_WRITE_GRAN / 8);
+#endif /* EF_WRITE_GRAN == 1 */
+
+    return result;
+}
+
+static size_t read_status(uint32_t addr, uint8_t status_table[], size_t total_num)
+{
+    EF_ASSERT(status_table);
+
+    ef_port_read(addr, (uint32_t *) status_table, total_num);
+
+    return get_status(status_table, total_num);
+}
+
 static uint32_t get_next_env_addr(sector_meta_data_t sector, env_meta_data_t pre_env)
 {
-    struct env_hdr_data env_hdr;
+    uint8_t status_table[ENV_STATUS_TABLE_SIZE];
     uint32_t addr = GET_NEXT_FAILED;
 
     if (sector->status.store == SECTOR_STORE_EMPTY) {
@@ -239,10 +280,8 @@ static uint32_t get_next_env_addr(sector_meta_data_t sector, env_meta_data_t pre
             return GET_NEXT_FAILED;
         }
     }
-    /* read ENV header raw data */
-    ef_port_read(addr, (uint32_t *) &env_hdr, sizeof(struct env_hdr_data));
     /* check ENV status, it's ENV_UNUSED when not using */
-    if (get_status(env_hdr.status_table, ENV_STATUS_NUM) != ENV_UNUSED) {
+    if (read_status(addr, status_table, ENV_STATUS_NUM) != ENV_UNUSED) {
         return addr;
     } else {
         /* no ENV */
@@ -261,6 +300,11 @@ static EfErrCode read_env(env_meta_data_t env)
     EfErrCode result = EF_NO_ERR;
     /* read ENV header raw data */
     ef_port_read(env->addr.start, (uint32_t *)&env_hdr, sizeof(struct env_hdr_data));
+    if (env_hdr.len > ENV_AREA_SIZE) {
+        EF_INFO("Error: The ENV length is too big. May be the flash data has some errors.\n");
+        env->crc_is_ok = false;
+        return EF_READ_ERR;
+    }
     env->len = env_hdr.len;
     env->status = get_status(env_hdr.status_table, ENV_STATUS_NUM);
     /* CRC32 data len(header.name_len + header.value_len + name + value) */
@@ -284,7 +328,7 @@ static EfErrCode read_env(env_meta_data_t env)
         env->crc_is_ok = true;
         /* the name is behind aligned ENV header */
         env_name_addr = env->addr.start + ENV_HDR_DATA_SIZE;
-        ef_port_read(env_name_addr, (uint32_t *) env->name, EF_ENV_NAME_MAX);
+        ef_port_read(env_name_addr, (uint32_t *) env->name, env_hdr.name_len);
         /* the value is behind aligned name */
         env->addr.value = env_name_addr + EF_WG_ALIGN(env_hdr.name_len);
         env->value_len = env_hdr.value_len;
@@ -333,7 +377,7 @@ static EfErrCode read_sector_meta_data(uint32_t addr, sector_meta_data_t sector,
                     sector->remain -= env_meta.len;
                     //TODO 大块数据占用连续扇区情形的处理
                 } else {
-                    EF_INFO("ERROR: The ENV (@0x%08x) CRC32 check failed!\n", env_meta.addr.start);
+                    EF_INFO("Error: The ENV (@0x%08x) CRC32 check failed!\n", env_meta.addr.start);
                     sector->remain = 0;
                     result = EF_READ_ERR;
                     //TODO 完善 CRC 校验出错后的处理，比如标记扇区已经损坏
@@ -370,12 +414,11 @@ static uint32_t get_next_sector_addr(sector_meta_data_t pre_sec)
 }
 
 static void env_iterator(env_meta_data_t env, void *arg1, void *arg2,
-        bool *(callback)(env_meta_data_t env, void *arg1, void *arg2))
+        bool (*callback)(env_meta_data_t env, void *arg1, void *arg2))
 {
     struct sector_meta_data sector;
     uint32_t sec_addr;
 
-    //TODO 遍历所有正在使用及已满扇区
     //TODO 支持从缓存中进行遍历
 
     sector.addr = GET_NEXT_FAILED;
@@ -403,8 +446,13 @@ static bool find_env_cb(env_meta_data_t env, void *arg1, void *arg2)
 {
     const char *key = arg1;
     bool *find_ok = arg2;
+    uint8_t max_len = strlen(key);
+
+    if (max_len < env->name_len) {
+        max_len = env->name_len;
+    }
     /* check ENV */
-    if (env->crc_is_ok && env->status == ENV_WRITE && !strncmp(env->name, key, EF_ENV_NAME_MAX)) {
+    if (env->crc_is_ok && env->status == ENV_WRITE && !strncmp(env->name, key, max_len)) {
         *find_ok = true;
         return true;
     }
@@ -415,7 +463,7 @@ static bool find_env(const char *key, env_meta_data_t env)
 {
     bool find_ok = false;
 
-    env_iterator(env, key, &find_ok, find_env_cb);
+    env_iterator(env, (void *)key, &find_ok, find_env_cb);
 
     return find_ok;
 }
@@ -447,7 +495,7 @@ char *ef_get_env(const char *key)
     static char value[EF_STR_ENV_VALUE_MAX_SIZE];
     struct env_meta_data env;
 
-    if (find_env(key, &env) == true) {
+    if (find_env(key, &env)) {
         ef_port_read(env.addr.value, (uint32_t *)value, env.value_len);
         /* the return value must be string */
         if (ef_is_str((uint8_t *)value, env.value_len)) {
@@ -461,37 +509,10 @@ char *ef_get_env(const char *key)
     return NULL;
 }
 
-static EfErrCode write_status(uint32_t env_addr, uint8_t status_table[], size_t total_num, size_t status_index)
-{
-    EfErrCode result = EF_NO_ERR;
-    size_t byte_index;
-    //TODO 1位的处理
-    //TODO 写字节情况的处理
-    //TODO 检查状态
-
-    EF_ASSERT(status_index < total_num);
-    EF_ASSERT(status_table);
-
-    /* set the status first */
-    set_status(status_table, total_num, status_index);
-
-#if (EF_WRITE_GRAN == 1)
-    byte_index = status_index / 8;
-    result = ef_port_write(env_addr + byte_index, (uint32_t *)&status_table[byte_index], 1);
-#else /*  (EF_WRITE_GRAN == 8) ||  (EF_WRITE_GRAN == 32) ||  (EF_WRITE_GRAN == 64) */
-    byte_index = total_num - status_index * (EF_WRITE_GRAN / 8);
-    /* write the status by write granularity
-     * some flash (like stm32 onchip) NOT supported repeated write before erase */
-    result = ef_port_write(env_addr + byte_index, (uint32_t *) &status_table[byte_index], EF_WRITE_GRAN / 8);
-#endif /* EF_WRITE_GRAN == 1 */
-
-    return result;
-}
-
 static EfErrCode write_env_hdr(uint32_t addr, env_hdr_data_t env_hdr) {
     EfErrCode result = EF_NO_ERR;
     /* write the status will by write granularity */
-    result = write_status(addr, env_hdr->status_table, ENV_STATUS_TABLE_SIZE, ENV_PRE_WRITE);
+    result = write_status(addr, env_hdr->status_table, ENV_STATUS_NUM, ENV_PRE_WRITE);
     if (result != EF_NO_ERR) {
         return result;
     }
@@ -508,13 +529,18 @@ static EfErrCode create_env_blob(const char *key, const void *value, size_t len)
     static struct sector_meta_data sector;
     uint32_t sec_addr;
 
+    if (strlen(key) > EF_ENV_NAME_MAX) {
+        EF_INFO("Error: The ENV name length is more than %d\n", EF_ENV_NAME_MAX);
+        return EF_ENV_NAME_ERR;
+    }
+
     memset(&env_hdr, 0xFF, sizeof(struct env_hdr_data));
     env_hdr.name_len = strlen(key);
     env_hdr.value_len = len;
     env_hdr.len = ENV_HDR_DATA_SIZE + EF_WG_ALIGN(env_hdr.name_len) + EF_WG_ALIGN(env_hdr.value_len);
 
     if (env_hdr.len > SECTOR_SIZE - SECTOR_HDR_DATA_SIZE) {
-        EF_INFO("ERROR: The ENV size is too big\n");
+        EF_INFO("Error: The ENV size is too big\n");
         return EF_ENV_FULL;
     }
 
@@ -535,12 +561,12 @@ static EfErrCode create_env_blob(const char *key, const void *value, size_t len)
                 /* change the current sector status */
                 if (sector.status.store == SECTOR_STORE_EMPTY) {
                     /* change the sector status to using */
-                    result = write_status(sec_addr, status_table, STORE_STATUS_TABLE_SIZE, SECTOR_STORE_USING);
+                    result = write_status(sec_addr, status_table, SECTOR_STORE_STATUS_NUM, SECTOR_STORE_USING);
                 } else if (sector.status.store == SECTOR_STORE_USING) {
                     /* check remain size */
                     if (sector.remain - env_hdr.len < EF_SEC_REMAIN_THRESHOLD) {
                         /* change the sector status to full */
-                        result = write_status(sec_addr, status_table, STORE_STATUS_TABLE_SIZE, SECTOR_STORE_FULL);
+                        result = write_status(sec_addr, status_table, SECTOR_STORE_STATUS_NUM, SECTOR_STORE_FULL);
                     }
                 }
             }
@@ -550,12 +576,12 @@ static EfErrCode create_env_blob(const char *key, const void *value, size_t len)
                 env_hdr.crc32 = ef_calc_crc32(0, &env_hdr.name_len, ENV_HDR_DATA_SIZE - ENV_NAME_LEN_OFFSET);
                 env_hdr.crc32 = ef_calc_crc32(env_hdr.crc32, key, env_hdr.name_len);
                 align_remain = EF_WG_ALIGN(env_hdr.name_len) - env_hdr.name_len;
-                while (align_remain) {
+                while (align_remain--) {
                     env_hdr.crc32 = ef_calc_crc32(env_hdr.crc32, &ff, 1);
                 }
                 env_hdr.crc32 = ef_calc_crc32(env_hdr.crc32, value, env_hdr.value_len);
                 align_remain = EF_WG_ALIGN(env_hdr.value_len) - env_hdr.value_len;
-                while (align_remain) {
+                while (align_remain--) {
                     env_hdr.crc32 = ef_calc_crc32(env_hdr.crc32, &ff, 1);
                 }
                 /* write ENV header data */
@@ -572,7 +598,7 @@ static EfErrCode create_env_blob(const char *key, const void *value, size_t len)
             }
             /* change the ENV status to ENV_WRITE */
             if (result == EF_NO_ERR) {
-                result = write_status(env_addr, env_hdr.status_table, ENV_STATUS_TABLE_SIZE, ENV_WRITE);
+                result = write_status(env_addr, env_hdr.status_table, ENV_STATUS_NUM, ENV_WRITE);
             }
             //TODO 更新 using_sec_table
             break;
@@ -584,26 +610,38 @@ static EfErrCode create_env_blob(const char *key, const void *value, size_t len)
 
 static EfErrCode del_env(const char *key, env_meta_data_t old_env, bool pre_del) {
     EfErrCode result = EF_NO_ERR;
-    struct env_meta_data env;
+    uint32_t dirty_status_addr;
+
+#if (ENV_STATUS_TABLE_SIZE >= DIRTY_STATUS_TABLE_SIZE)
     uint8_t status_table[ENV_STATUS_TABLE_SIZE];
+#else
+    uint8_t status_table[ENV_STATUS_TABLE_SIZE];
+#endif
+
     /* need find ENV */
     if (!old_env) {
+        struct env_meta_data env;
         /* find ENV */
         if (find_env(key, &env)) {
             old_env = &env;
         } else {
-            EF_INFO("Error: Not found '%s' in ENV.\n", key);
+            EF_DEBUG("Not found '%s' in ENV.\n", key);
             return EF_ENV_NAME_ERR;
         }
     }
-    set_status(status_table, ENV_STATUS_TABLE_SIZE, old_env->status);
     /* change and save the new status */
     if (pre_del) {
-        result = write_status(old_env->addr.start, status_table, ENV_STATUS_TABLE_SIZE, ENV_PRE_DELETE);
+        result = write_status(old_env->addr.start, status_table, ENV_STATUS_NUM, ENV_PRE_DELETE);
     } else {
-        result = write_status(old_env->addr.start, status_table, ENV_STATUS_TABLE_SIZE, ENV_DELETED);
+        result = write_status(old_env->addr.start, status_table, ENV_STATUS_NUM, ENV_DELETED);
     }
-    //TODO 标记脏
+
+    dirty_status_addr = EF_ALIGN_DOWN(old_env->addr.start, SECTOR_SIZE) + SECTOR_DIRTY_OFFSET;
+    /* read and change the sector dirty status */
+    if (result == EF_NO_ERR
+            && read_status(dirty_status_addr, status_table, SECTOR_DIRTY_STATUS_NUM) == SECTOR_DIRTY_FALSE) {
+        result = write_status(dirty_status_addr, status_table, SECTOR_DIRTY_STATUS_NUM, SECTOR_DIRTY_TRUE);
+    }
 
     return result;
 }
@@ -620,7 +658,7 @@ EfErrCode ef_del_env(const char *key)
     EfErrCode result = EF_NO_ERR;
 
     if (!init_ok) {
-        EF_INFO("ERROR: ENV isn't initialize OK.\n");
+        EF_INFO("Error: ENV isn't initialize OK.\n");
         return EF_ENV_INIT_FAILED;
     }
 
@@ -648,6 +686,7 @@ EfErrCode ef_set_env(const char *key, const char *value)
 {
     EfErrCode result = EF_NO_ERR;
     struct env_meta_data env;
+    bool env_is_found = false;
 
     if (!init_ok) {
         EF_INFO("ENV isn't initialize OK.\n");
@@ -660,8 +699,9 @@ EfErrCode ef_set_env(const char *key, const char *value)
     if (value == NULL) {
         result = del_env(key, NULL, false);
     } else {
+        env_is_found = find_env(key, &env);
         /* prepare to delete the old ENV */
-        if (find_env(key, &env) == true) {
+        if (env_is_found) {
             result = del_env(key, &env, true);
         }
         /* create the new ENV */
@@ -669,7 +709,7 @@ EfErrCode ef_set_env(const char *key, const char *value)
             result = create_env_blob(key, value, strlen(value));
         }
         /* delete the old ENV */
-        if (result == EF_NO_ERR) {
+        if (env_is_found && result == EF_NO_ERR) {
             result = del_env(key, &env, false);
         }
     }
@@ -860,7 +900,6 @@ EfErrCode ef_load_env(void)
             if (env.crc_is_ok && env.status == ENV_PRE_DELETE) {
                 //TODO 增加新节点存储旧 ENV
                 //TODO 标记旧 ENV 为已删除
-                return true;
             }
         }
         /* calculate next sector address */
