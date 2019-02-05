@@ -87,9 +87,11 @@
 #define DIRTY_STATUS_TABLE_SIZE                  STATUS_TABLE_SIZE(SECTOR_DIRTY_STATUS_NUM)
 #define ENV_STATUS_TABLE_SIZE                    STATUS_TABLE_SIZE(ENV_STATUS_NUM)
 
+#define SECTOR_SIZE                              EF_ERASE_MIN_SIZE
+#define SECTOR_NUM                               (ENV_AREA_SIZE / EF_ERASE_MIN_SIZE)
+
 #define SECTOR_HDR_DATA_SIZE                     (EF_WG_ALIGN(sizeof(struct sector_hdr_data)))
 #define SECTOR_DIRTY_OFFSET                      ((unsigned long)(&((struct sector_hdr_data *)0)->status_table.dirty))
-#define SECTOR_SIZE                              EF_ERASE_MIN_SIZE
 #define ENV_HDR_DATA_SIZE                        (EF_WG_ALIGN(sizeof(struct env_hdr_data)))
 #define ENV_NAME_LEN_OFFSET                      ((unsigned long)(&((struct env_hdr_data *)0)->name_len))
 #define ENV_LEN_OFFSET                           ((unsigned long)(&((struct env_hdr_data *)0)->len))
@@ -169,7 +171,6 @@ struct env_meta_data {
 };
 typedef struct env_meta_data *env_meta_data_t;
 
-static const uint64_t status_mask = ((1UL << EF_WRITE_GRAN) - 1);
 /* ENV start address in flash */
 static uint32_t env_start_addr = 0;
 /* default ENV set, must be initialized by user */
@@ -800,38 +801,45 @@ static bool print_env_cb(env_meta_data_t env, void *arg1, void *arg2)
 {
     uint8_t buf[32];
     bool value_is_str = true, print_value = false;
+    size_t *using_size = arg1;
 
-    /* check ENV */
-    if (env->crc_is_ok && env->status == ENV_WRITE) {
-        ef_print("%.*s=", env->name_len, env->name);
-        /* check the value is string */
-        if (env->value_len < EF_STR_ENV_VALUE_MAX_SIZE ) {
+    if (env->crc_is_ok) {
+        /* calculate the total using flash size */
+        *using_size += sizeof(uint32_t) + env->len;
+        /* check ENV */
+        if (env->status == ENV_WRITE) {
+            ef_print("%.*s=", env->name_len, env->name);
+
+            if (env->value_len < EF_STR_ENV_VALUE_MAX_SIZE ) {
 __reload:
-            for (size_t len = 0, size = 0; len < env->value_len; len += size) {
-                if (len + sizeof(buf) < env->value_len) {
-                    size = sizeof(buf);
-                } else {
-                    size = env->value_len - len;
+                /* check the value is string */
+                for (size_t len = 0, size = 0; len < env->value_len; len += size) {
+                    if (len + sizeof(buf) < env->value_len) {
+                        size = sizeof(buf);
+                    } else {
+                        size = env->value_len - len;
+                    }
+                    ef_port_read(env->addr.value + len, (uint32_t *) buf, size);
+                    if (print_value) {
+                        ef_print("%.*s", size, buf);
+                    } else if (!ef_is_str(buf, size)) {
+                        value_is_str = false;
+                        break;
+                    }
                 }
-                ef_port_read(env->addr.value + len, (uint32_t *) buf, size);
-                if (print_value) {
-                    ef_print("%.*s", size, buf);
-                } else if (!ef_is_str(buf, size)) {
-                    value_is_str = false;
-                    break;
-                }
+            } else {
+                value_is_str = false;
             }
-        } else {
-            value_is_str = false;
+            if (value_is_str && !print_value) {
+                print_value = true;
+                goto __reload;
+            } else if (!value_is_str) {
+                ef_print("blob @0x%08x %dbytes", env->addr.value, env->value_len);
+            }
+            ef_print("\n");
         }
-        if (value_is_str && !print_value) {
-            print_value = true;
-            goto __reload;
-        } else if (!value_is_str) {
-            ef_print("blob @0x%08x %dbytes", env->addr.value, env->value_len);
-        }
-        ef_print("\n");
     }
+
     return false;
 }
 
@@ -842,8 +850,17 @@ __reload:
 void ef_print_env(void)
 {
     struct env_meta_data env;
+    size_t using_size = 0;
 
-    env_iterator(&env, NULL, NULL, print_env_cb);
+    /* lock the ENV cache */
+    ef_port_env_lock();
+
+    env_iterator(&env, &using_size, NULL, print_env_cb);
+
+    ef_print("size: %lu/%lu bytes.\n", using_size + SECTOR_NUM * SECTOR_HDR_DATA_SIZE, ENV_AREA_SIZE);
+
+    /* unlock the ENV cache */
+    ef_port_env_unlock();
 }
 
 #ifdef EF_ENV_AUTO_UPDATE
@@ -880,6 +897,9 @@ EfErrCode ef_load_env(void)
     struct sector_meta_data sector;
     struct env_meta_data env;
 
+    /* lock the ENV cache */
+    ef_port_env_lock();
+
     //TODO 检查是否存在未完成的环境变量操作，存在则执行掉电恢复
     //TODO 检查是否存在未完成的垃圾回收工作，存在则继续整理
     //TODO 装载环境变量元数据，using_sec_table
@@ -909,6 +929,9 @@ EfErrCode ef_load_env(void)
             addr += sector.combined * SECTOR_SIZE;
         }
     }
+
+    /* unlock the ENV cache */
+    ef_port_env_unlock();
 
     return result;
 }
