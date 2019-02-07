@@ -81,7 +81,8 @@ if (!(EXPR))                                                                  \
 
 typedef struct _ef_env {
     char *key;
-    char *value;
+    void *value;
+    size_t value_len;
 } ef_env, *ef_env_t;
 
 /* EasyFlash error code */
@@ -110,7 +111,9 @@ EfErrCode easyflash_init(void);
 /* ef_env.c ef_env_wl.c */
 EfErrCode ef_load_env(void);
 void ef_print_env(void);
+size_t ef_get_env_blob(const char *key, void *value_buf, size_t buf_len, size_t *value_len);
 char *ef_get_env(const char *key);
+EfErrCode ef_set_env_blob(const char *key, const void *value_buf, size_t buf_len);
 EfErrCode ef_set_env(const char *key, const char *value);
 EfErrCode ef_del_env(const char *key);
 EfErrCode ef_save_env(void);

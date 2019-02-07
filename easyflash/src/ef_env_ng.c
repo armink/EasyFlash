@@ -96,11 +96,21 @@
 #define SECTOR_SIZE                              EF_ERASE_MIN_SIZE
 #define SECTOR_NUM                               (ENV_AREA_SIZE / EF_ERASE_MIN_SIZE)
 
+#if (SECTOR_NUM < 2)
+#error "The sector number must lager then or equal to 2"
+#endif
+
+#if (EF_GC_EMPTY_SEC_THRESHOLD == 0 || EF_GC_EMPTY_SEC_THRESHOLD >= SECTOR_NUM)
+#error "There is at least one empty sector."
+#endif
+
 #define SECTOR_HDR_DATA_SIZE                     (EF_WG_ALIGN(sizeof(struct sector_hdr_data)))
 #define SECTOR_DIRTY_OFFSET                      ((unsigned long)(&((struct sector_hdr_data *)0)->status_table.dirty))
 #define ENV_HDR_DATA_SIZE                        (EF_WG_ALIGN(sizeof(struct env_hdr_data)))
 #define ENV_LEN_OFFSET                           ((unsigned long)(&((struct env_hdr_data *)0)->len))
 #define ENV_NAME_LEN_OFFSET                      ((unsigned long)(&((struct env_hdr_data *)0)->name_len))
+
+#define VER_NUM_ENV_NAME                         "__ver_num__"
 
 enum sector_store_status {
     SECTOR_STORE_UNUSED,
@@ -313,9 +323,10 @@ static EfErrCode read_env(env_meta_data_t env)
     uint8_t buf[32];
     uint32_t calc_crc32 = 0, crc_data_len, env_name_addr;
     EfErrCode result = EF_NO_ERR;
+    size_t len, size;
     /* read ENV header raw data */
     ef_port_read(env->addr.start, (uint32_t *)&env_hdr, sizeof(struct env_hdr_data));
-    env->status = get_status(env_hdr.status_table, ENV_STATUS_NUM);
+    env->status = (env_status_t) get_status(env_hdr.status_table, ENV_STATUS_NUM);
     if (env_hdr.len > ENV_AREA_SIZE) {
         if (env->status != ENV_ERR_HDR) {
             EF_DEBUG("Error: The ENV length is too big. May be the flash data has some errors.\n");
@@ -327,7 +338,7 @@ static EfErrCode read_env(env_meta_data_t env)
     /* CRC32 data len(header.name_len + header.value_len + name + value) */
     crc_data_len = env->len - ENV_NAME_LEN_OFFSET;
     /* calculate the CRC32 value */
-    for (size_t len = 0, size = 0; len < crc_data_len; len += size) {
+    for (len = 0, size = 0; len < crc_data_len; len += size) {
         if (len + sizeof(buf) < crc_data_len) {
             size = sizeof(buf);
         } else {
@@ -377,8 +388,8 @@ static EfErrCode read_sector_meta_data(uint32_t addr, sector_meta_data_t sector,
     sector->check_ok = true;
     /* get other sector meta data */
     sector->combined = sec_hdr.combined;
-    sector->status.store = get_status(sec_hdr.status_table.store, SECTOR_STORE_STATUS_NUM);
-    sector->status.dirty = get_status(sec_hdr.status_table.dirty, SECTOR_DIRTY_STATUS_NUM);
+    sector->status.store = (sector_store_status_t) get_status(sec_hdr.status_table.store, SECTOR_STORE_STATUS_NUM);
+    sector->status.dirty = (sector_dirty_status_t) get_status(sec_hdr.status_table.dirty, SECTOR_DIRTY_STATUS_NUM);
     /* traversal all ENV and calculate the remain space size */
     if (traversal) {
         sector->remain = 0;
@@ -503,13 +514,64 @@ static bool find_env(const char *key, env_meta_data_t env)
 static bool ef_is_str(uint8_t *value, size_t len)
 {
 #define __is_print(ch)       ((unsigned int)((ch) - ' ') < 127u - ' ')
+    size_t i;
 
-    for (size_t i; i < len; i++) {
+    for (i = 0; i < len; i++) {
         if (!__is_print(value[i])) {
             return false;
         }
     }
     return true;
+}
+
+static size_t get_env(const char *key, void *value_buf, size_t buf_len, size_t *value_len)
+{
+    struct env_meta_data env;
+    size_t read_len = 0;
+
+    if (find_env(key, &env)) {
+        if (value_len) {
+            *value_len = env.value_len;
+        }
+        if (buf_len > env.value_len) {
+            read_len = env.value_len;
+        } else {
+            read_len = buf_len;
+        }
+        ef_port_read(env.addr.value, (uint32_t *) value_buf, read_len);
+    }
+
+    return read_len;
+}
+
+/**
+ * Get a blob ENV value by key name.
+ *
+ * @param key ENV name
+ * @param value_buf ENV blob buffer
+ * @param buf_len ENV blob buffer length
+ * @param value_len return the length of the value saved on the flash, 0: NOT found
+ *
+ * @return the actually get size on successful
+ */
+size_t ef_get_env_blob(const char *key, void *value_buf, size_t buf_len, size_t *value_len)
+{
+    size_t read_len = 0;
+
+    if (!init_ok) {
+        EF_INFO("ENV isn't initialize OK.\n");
+        return 0;
+    }
+
+    /* lock the ENV cache */
+    ef_port_env_lock();
+
+    read_len = get_env(key, value_buf, buf_len, value_len);
+
+    /* unlock the ENV cache */
+    ef_port_env_unlock();
+
+    return read_len;
 }
 
 /**
@@ -525,17 +587,11 @@ static bool ef_is_str(uint8_t *value, size_t len)
 char *ef_get_env(const char *key)
 {
     static char value[EF_STR_ENV_VALUE_MAX_SIZE];
-    struct env_meta_data env;
+    size_t get_size;
 
-    if (!init_ok) {
-        EF_INFO("ENV isn't initialize OK.\n");
-        return NULL;
-    }
-
-    if (find_env(key, &env)) {
-        ef_port_read(env.addr.value, (uint32_t *)value, EF_WG_ALIGN(env.value_len));
+    if ((get_size = ef_get_env_blob(key, value, sizeof(value), NULL)) > 0) {
         /* the return value must be string */
-        if (ef_is_str((uint8_t *)value, env.value_len)) {
+        if (ef_is_str((uint8_t *)value, get_size)) {
             return value;
         } else {
             EF_INFO("Warning: The ENV value isn't string. Could not be returned\n");
@@ -590,8 +646,9 @@ static EfErrCode copy_env(uint32_t to, uint32_t from, size_t env_len)
     result = write_status(to, status_table, ENV_STATUS_NUM, ENV_PRE_WRITE);
     if (result == EF_NO_ERR) {
         uint8_t buf[32];
+        size_t len, size;
         env_len -= ENV_LEN_OFFSET;
-        for (size_t len = 0, size = 0; len < env_len; len += size) {
+        for (len = 0, size = 0; len < env_len; len += size) {
             if (len + sizeof(buf) < env_len) {
                 size = sizeof(buf);
             } else {
@@ -750,16 +807,24 @@ static void gc_collect(void)
 static EfErrCode align_write(uint32_t addr, const uint32_t *buf, size_t size)
 {
     EfErrCode result = EF_NO_ERR;
-    uint8_t align_data[EF_WRITE_GRAN / 8];
     size_t align_remain;
 
-    memset(align_data, 0xFF, sizeof(align_data));
+#if (EF_WRITE_GRAN / 8 > 0)
+    uint8_t align_data[EF_WRITE_GRAN / 8];
+    size_t align_data_size = sizeof(align_data);
+#else
+    /* For compatibility with C89 */
+    uint8_t align_data_u8, *align_data = &align_data_u8;
+    size_t align_data_size = 1;
+#endif
+
+    memset(align_data, 0xFF, align_data_size);
     result = ef_port_write(addr, buf, EF_WG_ALIGN_DOWN(size));
 
     align_remain = size - EF_WG_ALIGN_DOWN(size);
     if (result == EF_NO_ERR && align_remain) {
         memcpy(align_data, (uint8_t *)buf + EF_WG_ALIGN_DOWN(size), align_remain);
-        result = ef_port_write(addr + EF_WG_ALIGN_DOWN(size), (uint32_t *) align_data, sizeof(align_data));
+        result = ef_port_write(addr + EF_WG_ALIGN_DOWN(size), (uint32_t *) align_data, align_data_size);
     }
 
     return result;
@@ -900,30 +965,13 @@ EfErrCode ef_del_env(const char *key)
     return result;
 }
 
-/**
- * Set an ENV.If it value is NULL, delete it.
- * If not find it in ENV table, then create it.
- *
- * @param key ENV name
- * @param value ENV value
- *
- * @return result
- */
-EfErrCode ef_set_env(const char *key, const char *value)
+static EfErrCode set_env(const char *key, const void *value_buf, size_t buf_len)
 {
     EfErrCode result = EF_NO_ERR;
     struct env_meta_data env;
     bool env_is_found = false;
 
-    if (!init_ok) {
-        EF_INFO("ENV isn't initialize OK.\n");
-        return EF_ENV_INIT_FAILED;
-    }
-
-    /* lock the ENV cache */
-    ef_port_env_lock();
-
-    if (value == NULL) {
+    if (value_buf == NULL) {
         result = del_env(key, NULL, true);
     } else {
         env_is_found = find_env(key, &env);
@@ -933,7 +981,7 @@ EfErrCode ef_set_env(const char *key, const char *value)
         }
         /* create the new ENV */
         if (result == EF_NO_ERR) {
-            result = create_env_blob(key, value, strlen(value));
+            result = create_env_blob(key, value_buf, buf_len);
         }
         /* delete the old ENV */
         if (env_is_found && result == EF_NO_ERR) {
@@ -946,10 +994,52 @@ EfErrCode ef_set_env(const char *key, const char *value)
         }
     }
 
+    return result;
+}
+
+/**
+ * Set a blob ENV. If it value is NULL, delete it.
+ * If not find it in flash, then create it.
+ *
+ * @param key ENV name
+ * @param value ENV value
+ * @param len ENV value length
+ *
+ * @return result
+ */
+EfErrCode ef_set_env_blob(const char *key, const void *value_buf, size_t buf_len)
+{
+    EfErrCode result = EF_NO_ERR;
+
+
+    if (!init_ok) {
+        EF_INFO("ENV isn't initialize OK.\n");
+        return EF_ENV_INIT_FAILED;
+    }
+
+    /* lock the ENV cache */
+    ef_port_env_lock();
+
+    result = set_env(key, value_buf, buf_len);
+
     /* unlock the ENV cache */
     ef_port_env_unlock();
 
     return result;
+}
+
+/**
+ * Set a string ENV. If it value is NULL, delete it.
+ * If not find it in flash, then create it.
+ *
+ * @param key ENV name
+ * @param value ENV value
+ *
+ * @return result
+ */
+EfErrCode ef_set_env(const char *key, const char *value)
+{
+    return ef_set_env_blob(key, value, strlen(value));
 }
 
 /**
@@ -1019,9 +1109,10 @@ static bool print_env_cb(env_meta_data_t env, void *arg1, void *arg2)
 
             if (env->value_len < EF_STR_ENV_VALUE_MAX_SIZE ) {
                 uint8_t buf[32];
+                size_t len, size;
 __reload:
                 /* check the value is string */
-                for (size_t len = 0, size = 0; len < env->value_len; len += size) {
+                for (len = 0, size = 0; len < env->value_len; len += size) {
                     if (len + sizeof(buf) < env->value_len) {
                         size = sizeof(buf);
                     } else {
@@ -1078,24 +1169,39 @@ void ef_print_env(void)
 }
 
 #ifdef EF_ENV_AUTO_UPDATE
-/**
- * Auto update ENV to latest default when current EF_ENV_VER is changed.
- *
- * @return result
+/*
+ * Auto update ENV to latest default when current EF_ENV_VER_NUM is changed.
  */
-static EfErrCode env_auto_update(void)
+static void env_auto_update(void)
 {
-    /* lock the ENV cache */
-    ef_port_env_lock();
+    size_t saved_ver_num, setting_ver_num = EF_ENV_VER_NUM;
 
-    //TODO 检查环境变量版本号
-    //TODO 自动升级环境变量
-    //TODO 更新环境变量版本号
+    if (get_env(VER_NUM_ENV_NAME, &saved_ver_num, sizeof(size_t), NULL) > 0) {
+        /* check version number */
+        if (saved_ver_num != setting_ver_num) {
+            struct env_meta_data env;
+            size_t i, value_len;
+            EF_DEBUG("Update the ENV from version %d to %d.\n", saved_ver_num, setting_ver_num);
+            for (i = 0; i < default_env_set_size; i++) {
+                /* add a new ENV when it's not found */
+                if (!find_env(default_env_set[i].key, &env)) {
+                    /* It seems to be a string when value length is 0.
+                     * This mechanism is for compatibility with older versions (less then V4.0). */
+                    if (default_env_set[i].value_len == 0) {
+                        value_len = strlen(default_env_set[i].value);
+                    } else {
+                        value_len = default_env_set[i].value_len;
+                    }
+                    create_env_blob(default_env_set[i].key, default_env_set[i].value, value_len);
+                }
+            }
+        } else {
+            /* version number not changed now return */
+            return;
+        }
+    }
 
-    /* unlock the ENV cache */
-    ef_port_env_unlock();
-
-    return EF_NO_ERR;
+    set_env(VER_NUM_ENV_NAME, &setting_ver_num, sizeof(size_t));
 }
 #endif /* EF_ENV_AUTO_UPDATE */
 
@@ -1163,7 +1269,7 @@ EfErrCode ef_load_env(void)
 
     //TODO 装载环境变量元数据，using_sec_table
     /* check all sector header */
-    sector_iterator(&sector, SECTOR_DIRTY_UNUSED, NULL, NULL, check_sec_hdr_cb, false);
+    sector_iterator(&sector, SECTOR_STORE_UNUSED, NULL, NULL, check_sec_hdr_cb, false);
     /* check all ENV for recovery */
     env_iterator(&env, NULL, NULL, check_and_recovery_env_cb);
 
@@ -1191,11 +1297,6 @@ EfErrCode ef_env_init(ef_env const *default_env, size_t default_env_size) {
     EF_ASSERT(ENV_AREA_SIZE % EF_ERASE_MIN_SIZE == 0);
     /* must be aligned with write granularity */
     EF_ASSERT((EF_STR_ENV_VALUE_MAX_SIZE * 8) % EF_WRITE_GRAN == 0);
-    /* sector number must lager then or equal to 2 */
-    EF_ASSERT(SECTOR_NUM >= 2);
-    /* Check the GC threshold setting. There is at least one empty sector. */
-    EF_ASSERT(EF_GC_EMPTY_SEC_THRESHOLD);
-    EF_ASSERT(SECTOR_NUM > EF_GC_EMPTY_SEC_THRESHOLD);
 
     env_start_addr = EF_START_ADDR;
     default_env_set = default_env;
