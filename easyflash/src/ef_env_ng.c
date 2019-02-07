@@ -33,8 +33,6 @@
 /* the flash write granularity, unit: bit */
 #define EF_WRITE_GRAN                            1
 
-
-
 #if EF_WRITE_GRAN != 1 && EF_WRITE_GRAN != 8 && EF_WRITE_GRAN != 32 && EF_WRITE_GRAN != 64
 #error "the write gran can be only setting as 1, 8, 32 and 64"
 #endif
@@ -67,7 +65,7 @@
 /* the sector is not combined value */
 #define SECTOR_NOT_COMBINED                      0xFFFFFFFF
 /* the next address is get failed */
-#define GET_ADDR_FAILED                          0xFFFFFFFF
+#define FAILED_ADDR                              0xFFFFFFFF
 
 /* Return the most contiguous size aligned at specified width. RT_ALIGN(13, 4)
  * would return 16.
@@ -189,6 +187,8 @@ struct env_meta_data {
 };
 typedef struct env_meta_data *env_meta_data_t;
 
+static void gc_collect(void);
+
 /* ENV start address in flash */
 static uint32_t env_start_addr = 0;
 /* default ENV set, must be initialized by user */
@@ -199,8 +199,8 @@ static size_t default_env_set_size = 0;
 static bool init_ok = false;
 /* the using status sector table */
 static struct sector_meta_data using_sec_table[USING_SECTOR_TABLE_LEN];
-/* ready for GC check */
-static bool gc_check = false;
+/* request a GC check */
+static bool gc_request = false;
 
 static size_t set_status(uint8_t status_table[], size_t status_num, size_t status_index)
 {
@@ -285,27 +285,27 @@ static size_t read_status(uint32_t addr, uint8_t status_table[], size_t total_nu
 static uint32_t get_next_env_addr(sector_meta_data_t sector, env_meta_data_t pre_env)
 {
     uint8_t status_table[ENV_STATUS_TABLE_SIZE];
-    uint32_t addr = GET_ADDR_FAILED;
+    uint32_t addr = FAILED_ADDR;
 
     //TODO 可否直接共用 empty env addr
     if (sector->status.store == SECTOR_STORE_EMPTY) {
-        return GET_ADDR_FAILED;
+        return FAILED_ADDR;
     }
 
-    if (pre_env->addr.start == GET_ADDR_FAILED) {
+    if (pre_env->addr.start == FAILED_ADDR) {
         /* the first ENV address */
         addr = sector->addr + SECTOR_HDR_DATA_SIZE;
     } else {
         if (pre_env->addr.start <= sector->addr + SECTOR_SIZE) {
             /* next ENV address */
             addr = pre_env->addr.start + pre_env->len;
-            if (addr > sector->addr + SECTOR_SIZE) {
+            if (addr > sector->addr + SECTOR_SIZE || pre_env->len == 0) {
                 //TODO 扇区连续模式
-                EF_ASSERT(0);
+                return FAILED_ADDR;
             }
         } else {
             /* no ENV */
-            return GET_ADDR_FAILED;
+            return FAILED_ADDR;
         }
     }
     /* check ENV status, it's ENV_UNUSED when not using */
@@ -313,7 +313,7 @@ static uint32_t get_next_env_addr(sector_meta_data_t sector, env_meta_data_t pre
         return addr;
     } else {
         /* no ENV */
-        return GET_ADDR_FAILED;
+        return FAILED_ADDR;
     }
 }
 
@@ -327,14 +327,24 @@ static EfErrCode read_env(env_meta_data_t env)
     /* read ENV header raw data */
     ef_port_read(env->addr.start, (uint32_t *)&env_hdr, sizeof(struct env_hdr_data));
     env->status = (env_status_t) get_status(env_hdr.status_table, ENV_STATUS_NUM);
-    if (env_hdr.len > ENV_AREA_SIZE) {
+    env->len = env_hdr.len;
+
+    if (env->len == ~0UL || env->len > ENV_AREA_SIZE) {
+        /* the ENV length was not write, so reserved the meta data for current ENV */
+        env->len = ENV_HDR_DATA_SIZE;
         if (env->status != ENV_ERR_HDR) {
-            EF_DEBUG("Error: The ENV length is too big. May be the flash data has some errors.\n");
+            env->status = ENV_ERR_HDR;
+            EF_DEBUG("Error: The ENV @0x%08X length has an error.\n", env->addr.start);
+            write_status(env->addr.start, env_hdr.status_table, ENV_STATUS_NUM, ENV_ERR_HDR);
         }
         env->crc_is_ok = false;
         return EF_READ_ERR;
+    } else if (env->len > SECTOR_SIZE - SECTOR_HDR_DATA_SIZE && env->len < ENV_AREA_SIZE) {
+        //TODO 扇区连续模式，或者写入长度没有写入完整
+        EF_ASSERT(0);
+        return EF_READ_ERR;
     }
-    env->len = env_hdr.len;
+
     /* CRC32 data len(header.name_len + header.value_len + name + value) */
     crc_data_len = env->len - ENV_NAME_LEN_OFFSET;
     /* calculate the CRC32 value */
@@ -399,22 +409,13 @@ static EfErrCode read_sector_meta_data(uint32_t addr, sector_meta_data_t sector,
         } else if (sector->status.store == SECTOR_STORE_USING) {
             struct env_meta_data env_meta;
             sector->remain = SECTOR_SIZE - SECTOR_HDR_DATA_SIZE;
-            env_meta.addr.start = GET_ADDR_FAILED;
-            while ((env_meta.addr.start = get_next_env_addr(sector, &env_meta)) != GET_ADDR_FAILED) {
+            env_meta.addr.start = FAILED_ADDR;
+            while ((env_meta.addr.start = get_next_env_addr(sector, &env_meta)) != FAILED_ADDR) {
                 read_env(&env_meta);
                 if (!env_meta.crc_is_ok) {
                     //TODO 完善 CRC 校验出错后的处理，比如标记扇区已经损坏
-                    if (env_meta.status == ENV_PRE_WRITE || env_meta.status == ENV_ERR_HDR) {
-                        /* ENV length was not write */
-                        if (env_meta.len == ~0UL) {
-                            /* the ENV length was not write */
-                            env_meta.len = ENV_LEN_OFFSET;
-                        } else if (env_meta.len > SECTOR_SIZE - SECTOR_HDR_DATA_SIZE && env_meta.len < ENV_AREA_SIZE) {
-                            //TODO 扇区连续模式，或者写入长度没有写入完整
-                            EF_ASSERT(0);
-                        }
-                    } else {
-                        EF_INFO("Error: The ENV (@0x%08x) CRC32 check failed!\n", env_meta.addr.start);
+                    if (env_meta.status != ENV_PRE_WRITE && env_meta.status!= ENV_ERR_HDR) {
+                        EF_INFO("Error: The ENV (@0x%08X) CRC32 check failed!\n", env_meta.addr.start);
                         sector->remain = 0;
                         result = EF_READ_ERR;
                         break;
@@ -433,7 +434,7 @@ static uint32_t get_next_sector_addr(sector_meta_data_t pre_sec)
 {
     uint32_t next_addr;
 
-    if (pre_sec->addr == GET_ADDR_FAILED) {
+    if (pre_sec->addr == FAILED_ADDR) {
         return env_start_addr;
     } else {
         /* check ENV sector combined */
@@ -447,7 +448,7 @@ static uint32_t get_next_sector_addr(sector_meta_data_t pre_sec)
             return next_addr;
         } else {
             /* no sector */
-            return GET_ADDR_FAILED;
+            return FAILED_ADDR;
         }
     }
 }
@@ -460,9 +461,9 @@ static void env_iterator(env_meta_data_t env, void *arg1, void *arg2,
 
     //TODO 支持通过 using_sec_table 遍历
 
-    sector.addr = GET_ADDR_FAILED;
+    sector.addr = FAILED_ADDR;
     /* search all sectors */
-    while ((sec_addr = get_next_sector_addr(&sector)) != GET_ADDR_FAILED) {
+    while ((sec_addr = get_next_sector_addr(&sector)) != FAILED_ADDR) {
         //TODO 检查所有扇区的剩余空间，是否有合适的扇区，优先 using_sec_table
         if (read_sector_meta_data(sec_addr, &sector, false) != EF_NO_ERR) {
             continue;
@@ -472,9 +473,9 @@ static void env_iterator(env_meta_data_t env, void *arg1, void *arg2,
         }
         /* sector has ENV */
         if (sector.status.store == SECTOR_STORE_USING || sector.status.store == SECTOR_STORE_FULL) {
-            env->addr.start = GET_ADDR_FAILED;
+            env->addr.start = FAILED_ADDR;
             /* search all ENV */
-            while ((env->addr.start = get_next_env_addr(&sector, env)) != GET_ADDR_FAILED) {
+            while ((env->addr.start = get_next_env_addr(&sector, env)) != FAILED_ADDR) {
                 read_env(env);
                 /* iterator is interrupted when callback return true */
                 if (callback(env, arg1, arg2)) {
@@ -638,82 +639,6 @@ static EfErrCode format_sector(uint32_t addr, uint32_t combined_value)
     return result;
 }
 
-static EfErrCode copy_env(uint32_t to, uint32_t from, size_t env_len)
-{
-    EfErrCode result = EF_NO_ERR;
-    uint8_t status_table[ENV_STATUS_TABLE_SIZE];
-
-    result = write_status(to, status_table, ENV_STATUS_NUM, ENV_PRE_WRITE);
-    if (result == EF_NO_ERR) {
-        uint8_t buf[32];
-        size_t len, size;
-        env_len -= ENV_LEN_OFFSET;
-        for (len = 0, size = 0; len < env_len; len += size) {
-            if (len + sizeof(buf) < env_len) {
-                size = sizeof(buf);
-            } else {
-                size = env_len - len;
-            }
-            ef_port_read(from + ENV_LEN_OFFSET + len, (uint32_t *) buf, EF_WG_ALIGN(size));
-            result = ef_port_write(to + ENV_LEN_OFFSET + len, (uint32_t *) buf, size);
-            if (result != EF_NO_ERR) {
-                return result;
-            }
-        }
-        result = write_status(to, status_table, ENV_STATUS_NUM, ENV_WRITE);
-    }
-
-    return result;
-}
-
-static void sector_iterator(sector_meta_data_t sector, sector_store_status_t status, void *arg1, void *arg2,
-        bool (*callback)(sector_meta_data_t sector, void *arg1, void *arg2), bool traversal_env) {
-    uint32_t sec_addr;
-
-    /* search all sectors */
-    sector->addr = GET_ADDR_FAILED;
-    while ((sec_addr = get_next_sector_addr(sector)) != GET_ADDR_FAILED) {
-        //TODO 检查所有扇区的剩余空间，是否有合适的扇区，优先 using_sec_table
-        read_sector_meta_data(sec_addr, sector, false);
-        if (status == SECTOR_STORE_UNUSED || status == sector->status.store) {
-            if (traversal_env) {
-                read_sector_meta_data(sec_addr, sector, traversal_env);
-            }
-            /* iterator is interrupted when callback return true */
-            if (callback && callback(sector, arg1, arg2)) {
-                return;
-            }
-        }
-    }
-}
-
-static bool alloc_env_cb(sector_meta_data_t sector, void *arg1, void *arg2)
-{
-    size_t *env_size = arg1;
-    uint32_t *empty_env = arg2;
-
-    /* sector has space */
-    if (sector->check_ok && sector->remain > *env_size) {
-        *empty_env = sector->empty_env;
-        return true;
-    }
-
-    return false;
-}
-
-static uint32_t alloc_env(sector_meta_data_t sector, size_t env_size)
-{
-    uint32_t empty_env = GET_ADDR_FAILED;
-
-    /* alloc the ENV from the using status sector first */
-    sector_iterator(sector, SECTOR_STORE_USING, &env_size, &empty_env, alloc_env_cb, true);
-    if (empty_env == GET_ADDR_FAILED) {
-        sector_iterator(sector, SECTOR_STORE_EMPTY, &env_size, &empty_env, alloc_env_cb, true);
-    }
-
-    return empty_env;
-}
-
 static EfErrCode update_sec_status(sector_meta_data_t sector, size_t new_env_len, bool *is_full)
 {
     uint8_t status_table[STORE_STATUS_TABLE_SIZE];
@@ -736,6 +661,158 @@ static EfErrCode update_sec_status(sector_meta_data_t sector, size_t new_env_len
     }
 
     return result;
+}
+
+static void sector_iterator(sector_meta_data_t sector, sector_store_status_t status, void *arg1, void *arg2,
+        bool (*callback)(sector_meta_data_t sector, void *arg1, void *arg2), bool traversal_env) {
+    uint32_t sec_addr;
+
+    /* search all sectors */
+    sector->addr = FAILED_ADDR;
+    while ((sec_addr = get_next_sector_addr(sector)) != FAILED_ADDR) {
+        //TODO 检查所有扇区的剩余空间，是否有合适的扇区，优先 using_sec_table
+        read_sector_meta_data(sec_addr, sector, false);
+        if (status == SECTOR_STORE_UNUSED || status == sector->status.store) {
+            if (traversal_env) {
+                read_sector_meta_data(sec_addr, sector, traversal_env);
+            }
+            /* iterator is interrupted when callback return true */
+            if (callback && callback(sector, arg1, arg2)) {
+                return;
+            }
+        }
+    }
+}
+
+static bool sector_statistics_cb(sector_meta_data_t sector, void *arg1, void *arg2)
+{
+    size_t *empty_sector = arg1, *using_sector = arg2;
+
+    if (sector->check_ok && sector->status.store == SECTOR_STORE_EMPTY) {
+        (*empty_sector)++;
+    } else if (sector->check_ok && sector->status.store == SECTOR_STORE_USING) {
+        (*using_sector)++;
+    }
+
+    return false;
+}
+
+static bool alloc_env_cb(sector_meta_data_t sector, void *arg1, void *arg2)
+{
+    size_t *env_size = arg1;
+    uint32_t *empty_env = arg2;
+
+    /* 1. sector has space
+     * 2. the NO dirty sector
+     * 3. the dirty sector only when the gc_request is false */
+    if (sector->check_ok && sector->remain > *env_size
+            && ((sector->status.dirty == SECTOR_DIRTY_FALSE)
+                    || (sector->status.dirty == SECTOR_DIRTY_TRUE && !gc_request))) {
+        *empty_env = sector->empty_env;
+        return true;
+    }
+
+    return false;
+}
+
+static uint32_t alloc_env(sector_meta_data_t sector, size_t env_size)
+{
+    uint32_t empty_env = FAILED_ADDR;
+    size_t empty_sector = 0, using_sector = 0;
+
+    /* sector status statistics */
+    sector_iterator(sector, SECTOR_STORE_UNUSED, &empty_sector, &using_sector, sector_statistics_cb, false);
+    if (using_sector > 0) {
+        /* alloc the ENV from the using status sector first */
+        sector_iterator(sector, SECTOR_STORE_USING, &env_size, &empty_env, alloc_env_cb, true);
+    }
+    if (empty_sector > 0 && empty_env == FAILED_ADDR) {
+        if (empty_sector > EF_GC_EMPTY_SEC_THRESHOLD || gc_request) {
+            sector_iterator(sector, SECTOR_STORE_EMPTY, &env_size, &empty_env, alloc_env_cb, true);
+        } else {
+            /* no space for new ENV now will GC and retry */
+            EF_DEBUG("Trigger a GC check after alloc ENV failed.\n");
+            gc_request = true;
+        }
+    }
+
+    return empty_env;
+}
+
+/*
+ * duplicate the ENV which status is NOT write
+ */
+//TODO dup 可能不太贴切，毕竟系统中只允许一个 ENV 同名存在
+static EfErrCode envdup(env_meta_data_t env)
+{
+    EfErrCode result = EF_NO_ERR;
+    uint8_t status_table[ENV_STATUS_TABLE_SIZE];
+    uint32_t env_addr;
+    struct sector_meta_data sector;
+
+    if ((env_addr = alloc_env(&sector, env->len)) != FAILED_ADDR) {
+        struct env_meta_data env_bak;
+        char name[EF_ENV_NAME_MAX + 1] = { 0 };
+        strncpy(name, env->name, env->name_len);
+        /* check the ENV is already create success */
+        if (find_env(name, &env_bak)) {
+            /* already create success, don't need to duplicate */
+            return EF_NO_ERR;
+        }
+    } else {
+        return EF_ENV_FULL;
+    }
+    result = write_status(env_addr, status_table, ENV_STATUS_NUM, ENV_PRE_WRITE);
+    if (result == EF_NO_ERR) {
+        uint8_t buf[32];
+        size_t len, size, env_len = env->len;
+        env_len -= ENV_LEN_OFFSET;
+        for (len = 0, size = 0; len < env_len; len += size) {
+            if (len + sizeof(buf) < env_len) {
+                size = sizeof(buf);
+            } else {
+                size = env_len - len;
+            }
+            ef_port_read(env->addr.start + ENV_LEN_OFFSET + len, (uint32_t *) buf, EF_WG_ALIGN(size));
+            result = ef_port_write(env_addr + ENV_LEN_OFFSET + len, (uint32_t *) buf, size);
+            if (result != EF_NO_ERR) {
+                return result;
+            }
+        }
+        result = write_status(env_addr, status_table, ENV_STATUS_NUM, ENV_WRITE);
+    }
+
+    /* update the new ENV sector status */
+    update_sec_status(&sector, env->len, NULL);
+
+    EF_DEBUG("Duplicated the ENV (%.*s) from 0x%08X to 0x%08X.\n", env->name_len, env->name, env->addr.start, env_addr);
+
+    return result;
+}
+
+static uint32_t new_env(sector_meta_data_t sector, size_t env_size)
+{
+    bool already_gc = false;
+    uint32_t empty_env = FAILED_ADDR;
+
+__retry:
+
+    if ((empty_env = alloc_env(sector, env_size)) == FAILED_ADDR && gc_request && !already_gc) {
+        EF_DEBUG("Warning: Alloc an ENV (size %d) failed when new ENV. Now will GC and retry.\n", env_size);
+        gc_collect();
+        already_gc = true;
+        goto __retry;
+    }
+
+    return empty_env;
+}
+
+static uint32_t new_env_by_kv(size_t key_len, size_t buf_len)
+{
+    size_t env_len = ENV_HDR_DATA_SIZE + EF_WG_ALIGN(key_len) + EF_WG_ALIGN(buf_len);
+    struct sector_meta_data sector;
+
+    return new_env(&sector, env_len);
 }
 
 static bool gc_check_cb(sector_meta_data_t sector, void *arg1, void *arg2)
@@ -764,20 +841,15 @@ static bool do_gc(sector_meta_data_t sector, void *arg1, void *arg2)
         /* change the sector status to GC */
         write_status(sector->addr + SECTOR_DIRTY_OFFSET, status_table, SECTOR_DIRTY_STATUS_NUM, SECTOR_DIRTY_GC);
         /* search all ENV */
-        env.addr.start = GET_ADDR_FAILED;
-        while ((env.addr.start = get_next_env_addr(sector, &env)) != GET_ADDR_FAILED) {
+        env.addr.start = FAILED_ADDR;
+        while ((env.addr.start = get_next_env_addr(sector, &env)) != FAILED_ADDR) {
             read_env(&env);
             if (env.crc_is_ok && (env.status == ENV_WRITE || env.status == ENV_PRE_DELETE)) {
-                uint32_t env_addr;
-                struct sector_meta_data new_sector;
                 /* change the current ENV status to prepare delete */
                 write_status(env.addr.start, status_table, ENV_STATUS_NUM, ENV_PRE_DELETE);
-                /* alloc new space for move the old ENV */
-                if ((env_addr = alloc_env(&new_sector, env.len)) != GET_ADDR_FAILED) {
-                    /* update the new ENV sector status */
-                    update_sec_status(&new_sector, env.len, NULL);
-                    /* copy the old ENV to new space */
-                    copy_env(env_addr, env.addr.start, env.len);
+                /* duplicate the ENV */
+                if (envdup(&env) != EF_NO_ERR) {
+                    EF_DEBUG("Error: Moved the ENV (%.*s) for GC failed.\n", env.name_len, env.name);
                 }
                 write_status(env.addr.start, status_table, ENV_STATUS_NUM, ENV_DELETED);
             }
@@ -789,6 +861,11 @@ static bool do_gc(sector_meta_data_t sector, void *arg1, void *arg2)
     return false;
 }
 
+/*
+ * The GC will be triggered on in the following scene:
+ * 1. alloc an ENV when the flash has enough space
+ * 2. write an ENV then the flash has enough space
+ */
 static void gc_collect(void)
 {
     struct sector_meta_data sector;
@@ -800,8 +877,10 @@ static void gc_collect(void)
     /* do GC collect */
     EF_DEBUG("The remain empty sector is %d, GC threshold is %d.\n", empty_sec, EF_GC_EMPTY_SEC_THRESHOLD);
     if (empty_sec <= EF_GC_EMPTY_SEC_THRESHOLD) {
-        sector_iterator(&sector, SECTOR_STORE_FULL, NULL, NULL, do_gc, false);
+        sector_iterator(&sector, SECTOR_STORE_UNUSED, NULL, NULL, do_gc, false);
     }
+
+    gc_request = false;
 }
 
 static EfErrCode align_write(uint32_t addr, const uint32_t *buf, size_t size)
@@ -830,12 +909,11 @@ static EfErrCode align_write(uint32_t addr, const uint32_t *buf, size_t size)
     return result;
 }
 
-static EfErrCode create_env_blob(const char *key, const void *value, size_t len)
+static EfErrCode create_env_blob(uint32_t env_addr, const char *key, const void *value, size_t len)
 {
     EfErrCode result = EF_NO_ERR;
     struct env_hdr_data env_hdr;
     static struct sector_meta_data sector;
-    uint32_t env_addr;
     bool is_full = false;
 
     if (strlen(key) > EF_ENV_NAME_MAX) {
@@ -853,7 +931,7 @@ static EfErrCode create_env_blob(const char *key, const void *value, size_t len)
         return EF_ENV_FULL;
     }
 
-    if ((env_addr = alloc_env(&sector, env_hdr.len)) != GET_ADDR_FAILED) {
+    if (env_addr != FAILED_ADDR || (env_addr = new_env(&sector, env_hdr.len)) != FAILED_ADDR) {
         size_t align_remain;
         /* update the sector status */
         if (result == EF_NO_ERR) {
@@ -891,10 +969,12 @@ static EfErrCode create_env_blob(const char *key, const void *value, size_t len)
         }
         /* trigger GC collect when current sector is full */
         if (result == EF_NO_ERR && is_full) {
-            EF_DEBUG("Trigger a GC check.\n");
-            gc_check = true;
+            EF_DEBUG("Trigger a GC check after created ENV.\n");
+            gc_request = true;
         }
         //TODO 更新 using_sec_table
+    } else {
+        result = EF_ENV_FULL;
     }
 
     return result;
@@ -907,7 +987,7 @@ static EfErrCode del_env(const char *key, env_meta_data_t old_env, bool complete
 #if (ENV_STATUS_TABLE_SIZE >= DIRTY_STATUS_TABLE_SIZE)
     uint8_t status_table[ENV_STATUS_TABLE_SIZE];
 #else
-    uint8_t status_table[ENV_STATUS_TABLE_SIZE];
+    uint8_t status_table[DIRTY_STATUS_TABLE_SIZE];
 #endif
 
     /* need find ENV */
@@ -970,10 +1050,15 @@ static EfErrCode set_env(const char *key, const void *value_buf, size_t buf_len)
     EfErrCode result = EF_NO_ERR;
     struct env_meta_data env;
     bool env_is_found = false;
+    uint32_t env_addr = FAILED_ADDR;
 
     if (value_buf == NULL) {
         result = del_env(key, NULL, true);
     } else {
+        /* make sure the flash has enough space */
+        if ((env_addr = new_env_by_kv(strlen(key), buf_len)) == FAILED_ADDR) {
+            return EF_ENV_FULL;
+        }
         env_is_found = find_env(key, &env);
         /* prepare to delete the old ENV */
         if (env_is_found) {
@@ -981,16 +1066,15 @@ static EfErrCode set_env(const char *key, const void *value_buf, size_t buf_len)
         }
         /* create the new ENV */
         if (result == EF_NO_ERR) {
-            result = create_env_blob(key, value_buf, buf_len);
+            result = create_env_blob(env_addr, key, value_buf, buf_len);
         }
         /* delete the old ENV */
         if (env_is_found && result == EF_NO_ERR) {
             result = del_env(key, &env, true);
         }
         /* process the GC after set ENV */
-        if (result == EF_NO_ERR && gc_check) {
+        if (gc_request) {
             gc_collect();
-            gc_check = false;
         }
     }
 
@@ -1082,7 +1166,7 @@ EfErrCode ef_env_set_default(void)
         } else {
             value_len = default_env_set[i].value_len;
         }
-        create_env_blob(default_env_set[i].key, default_env_set[i].value, value_len);
+        create_env_blob(FAILED_ADDR, default_env_set[i].key, default_env_set[i].value, value_len);
         if (result != EF_NO_ERR) {
             goto __exit;
         }
@@ -1133,7 +1217,8 @@ __reload:
                 print_value = true;
                 goto __reload;
             } else if (!value_is_str) {
-                ef_print("blob @0x%08x %dbytes", env->addr.value, env->value_len);
+                //TODO 减去 GC 扇区
+                ef_print("blob @0x%08X %dbytes", env->addr.value, env->value_len);
             }
             ef_print("\n");
         }
@@ -1192,7 +1277,7 @@ static void env_auto_update(void)
                     } else {
                         value_len = default_env_set[i].value_len;
                     }
-                    create_env_blob(default_env_set[i].key, default_env_set[i].value, value_len);
+                    create_env_blob(FAILED_ADDR, default_env_set[i].key, default_env_set[i].value, value_len);
                 }
             }
         } else {
@@ -1214,6 +1299,8 @@ static bool check_sec_hdr_cb(sector_meta_data_t sector, void *arg1, void *arg2)
         ef_port_env_lock();
         return true;
     } else if (sector->status.dirty == SECTOR_DIRTY_GC) {
+        /* make sure the GC request flag to true */
+        gc_request = true;
         /* resume the GC operate */
         gc_collect();
     }
@@ -1223,24 +1310,17 @@ static bool check_sec_hdr_cb(sector_meta_data_t sector, void *arg1, void *arg2)
 
 static bool check_and_recovery_env_cb(env_meta_data_t env, void *arg1, void *arg2)
 {
-    uint32_t env_addr;
-
     /* recovery the prepare deleted ENV */
     if (env->crc_is_ok && env->status == ENV_PRE_DELETE) {
-        struct sector_meta_data sector;
-        EF_INFO("Found a ENV (%.*s) which has changed value failed. Now will recovery it.\n", env->name_len, env->name);
-        if ((env_addr = alloc_env(&sector, env->len)) != GET_ADDR_FAILED) {
-            struct env_meta_data env_bak;
-            char name[EF_ENV_NAME_MAX + 1] = { 0 };
-            strncpy(name, env->name, env->name_len);
-            /* check the ENV is already create success */
-            if (!find_env(name, &env_bak)) {
-                /* recovery the old ENV by flash copy */
-                copy_env(env_addr, env->addr.start, env->len);
-            }
+        EF_INFO("Found an ENV (%.*s) which has changed value failed. Now will recovery it.\n", env->name_len, env->name);
+        /* recovery the old ENV by envdup */
+        if (envdup(env) == EF_NO_ERR) {
             /* delete the old ENV */
-            del_env(name, env, true);
-            EF_INFO("Recovery the ENV to 0x%08X successful.\n", env_addr);
+            del_env(NULL, env, true);
+            EF_DEBUG("Recovery the ENV successful.\n");
+        } else {
+            EF_DEBUG("Warning: Duplicate an ENV (size %d) failed when recovery. Now will GC and retry.\n", env->len);
+            return true;
         }
     } else if (env->status == ENV_PRE_WRITE) {
         uint8_t status_table[ENV_STATUS_TABLE_SIZE];
@@ -1270,8 +1350,14 @@ EfErrCode ef_load_env(void)
     //TODO 装载环境变量元数据，using_sec_table
     /* check all sector header */
     sector_iterator(&sector, SECTOR_STORE_UNUSED, NULL, NULL, check_sec_hdr_cb, false);
+
+__retry:
     /* check all ENV for recovery */
     env_iterator(&env, NULL, NULL, check_and_recovery_env_cb);
+    if (gc_request) {
+        gc_collect();
+        goto __retry;
+    }
 
     /* unlock the ENV cache */
     ef_port_env_unlock();
