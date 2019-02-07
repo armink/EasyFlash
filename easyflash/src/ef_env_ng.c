@@ -31,8 +31,7 @@
 #if defined(EF_USING_ENV)
 
 /* the flash write granularity, unit: bit */
-//#define EF_WRITE_GRAN                          1
-#define EF_WRITE_GRAN                            8
+#define EF_WRITE_GRAN                            1
 
 
 
@@ -190,8 +189,8 @@ static size_t default_env_set_size = 0;
 static bool init_ok = false;
 /* the using status sector table */
 static struct sector_meta_data using_sec_table[USING_SECTOR_TABLE_LEN];
-/* the GC is triggered */
-static bool gc_is_triggered = false;
+/* ready for GC check */
+static bool gc_check = false;
 
 static size_t set_status(uint8_t status_table[], size_t status_num, size_t status_index)
 {
@@ -706,7 +705,7 @@ static bool do_gc(sector_meta_data_t sector, void *arg1, void *arg2)
 #endif
         //TODO 重复写入安全性验证
         /* change the sector status to GC */
-        write_status(sector->addr, status_table, SECTOR_DIRTY_STATUS_NUM, SECTOR_DIRTY_GC);
+        write_status(sector->addr + SECTOR_DIRTY_OFFSET, status_table, SECTOR_DIRTY_STATUS_NUM, SECTOR_DIRTY_GC);
         /* search all ENV */
         env.addr.start = GET_ADDR_FAILED;
         while ((env.addr.start = get_next_env_addr(sector, &env)) != GET_ADDR_FAILED) {
@@ -714,7 +713,6 @@ static bool do_gc(sector_meta_data_t sector, void *arg1, void *arg2)
             if (env.crc_is_ok && (env.status == ENV_WRITE || env.status == ENV_PRE_DELETE)) {
                 uint32_t env_addr;
                 struct sector_meta_data new_sector;
-                //TODO 异常掉电测试
                 /* change the current ENV status to prepare delete */
                 write_status(env.addr.start, status_table, ENV_STATUS_NUM, ENV_PRE_DELETE);
                 /* alloc new space for move the old ENV */
@@ -743,8 +741,8 @@ static void gc_collect(void)
     sector_iterator(&sector, SECTOR_STORE_EMPTY, &empty_sec, NULL, gc_check_cb, false);
 
     /* do GC collect */
+    EF_DEBUG("The remain empty sector is %d, GC threshold is %d.\n", empty_sec, EF_GC_EMPTY_SEC_THRESHOLD);
     if (empty_sec <= EF_GC_EMPTY_SEC_THRESHOLD) {
-        EF_DEBUG("The remain empty sector is %d, GC threshold is %d.\n", empty_sec, EF_GC_EMPTY_SEC_THRESHOLD);
         sector_iterator(&sector, SECTOR_STORE_FULL, NULL, NULL, do_gc, false);
     }
 }
@@ -792,7 +790,6 @@ static EfErrCode create_env_blob(const char *key, const void *value, size_t len)
 
     if ((env_addr = alloc_env(&sector, env_hdr.len)) != GET_ADDR_FAILED) {
         size_t align_remain;
-        uint32_t sec_addr = EF_ALIGN_DOWN(env_addr, SECTOR_SIZE);
         /* update the sector status */
         if (result == EF_NO_ERR) {
             result = update_sec_status(&sector, env_hdr.len, &is_full);
@@ -829,11 +826,8 @@ static EfErrCode create_env_blob(const char *key, const void *value, size_t len)
         }
         /* trigger GC collect when current sector is full */
         if (result == EF_NO_ERR && is_full) {
-            uint8_t status_table[DIRTY_STATUS_TABLE_SIZE];
-            /* change the sector status to GC */
-            write_status(sector.addr, status_table, SECTOR_DIRTY_STATUS_NUM, SECTOR_DIRTY_GC);
-            EF_DEBUG("Trigger a GC collect.\n");
-            gc_is_triggered = true;
+            EF_DEBUG("Trigger a GC check.\n");
+            gc_check = true;
         }
         //TODO 更新 using_sec_table
     }
@@ -946,9 +940,9 @@ EfErrCode ef_set_env(const char *key, const char *value)
             result = del_env(key, &env, true);
         }
         /* process the GC after set ENV */
-        if (result == EF_NO_ERR && gc_is_triggered) {
+        if (result == EF_NO_ERR && gc_check) {
             gc_collect();
-            gc_is_triggered = false;
+            gc_check = false;
         }
     }
 
@@ -1113,7 +1107,7 @@ static bool check_sec_hdr_cb(sector_meta_data_t sector, void *arg1, void *arg2)
         ef_env_set_default();
         ef_port_env_lock();
         return true;
-    } else if(sector->status.dirty == SECTOR_DIRTY_GC) {
+    } else if (sector->status.dirty == SECTOR_DIRTY_GC) {
         /* resume the GC operate */
         gc_collect();
     }
@@ -1168,7 +1162,6 @@ EfErrCode ef_load_env(void)
     ef_port_env_lock();
 
     //TODO 装载环境变量元数据，using_sec_table
-    //TODO 检查是否存在未完成的垃圾回收工作，存在则垃圾回收
     /* check all sector header */
     sector_iterator(&sector, SECTOR_DIRTY_UNUSED, NULL, NULL, check_sec_hdr_cb, false);
     /* check all ENV for recovery */
@@ -1198,8 +1191,11 @@ EfErrCode ef_env_init(ef_env const *default_env, size_t default_env_size) {
     EF_ASSERT(ENV_AREA_SIZE % EF_ERASE_MIN_SIZE == 0);
     /* must be aligned with write granularity */
     EF_ASSERT((EF_STR_ENV_VALUE_MAX_SIZE * 8) % EF_WRITE_GRAN == 0);
-
-    //TODO GC 扇区数量的检查
+    /* sector number must lager then or equal to 2 */
+    EF_ASSERT(SECTOR_NUM >= 2);
+    /* Check the GC threshold setting. There is at least one empty sector. */
+    EF_ASSERT(EF_GC_EMPTY_SEC_THRESHOLD);
+    EF_ASSERT(SECTOR_NUM > EF_GC_EMPTY_SEC_THRESHOLD);
 
     env_start_addr = EF_START_ADDR;
     default_env_set = default_env;
