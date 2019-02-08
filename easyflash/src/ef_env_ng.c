@@ -26,6 +26,7 @@
  * Created on: 2019-02-02
  */
 
+#include <string.h>
 #include <easyflash.h>
 
 #if defined(EF_USING_ENV)
@@ -99,7 +100,7 @@
 #endif
 
 #if (EF_GC_EMPTY_SEC_THRESHOLD == 0 || EF_GC_EMPTY_SEC_THRESHOLD >= SECTOR_NUM)
-#error "There is at least one empty sector."
+#error "There is at least one empty sector for GC."
 #endif
 
 #define SECTOR_HDR_DATA_SIZE                     (EF_WG_ALIGN(sizeof(struct sector_hdr_data)))
@@ -197,8 +198,6 @@ static ef_env const *default_env_set;
 static size_t default_env_set_size = 0;
 /* initialize OK flag */
 static bool init_ok = false;
-/* the using status sector table */
-static struct sector_meta_data using_sec_table[USING_SECTOR_TABLE_LEN];
 /* request a GC check */
 static bool gc_request = false;
 
@@ -287,7 +286,6 @@ static uint32_t get_next_env_addr(sector_meta_data_t sector, env_meta_data_t pre
     uint8_t status_table[ENV_STATUS_TABLE_SIZE];
     uint32_t addr = FAILED_ADDR;
 
-    //TODO 可否直接共用 empty env addr
     if (sector->status.store == SECTOR_STORE_EMPTY) {
         return FAILED_ADDR;
     }
@@ -384,7 +382,6 @@ static EfErrCode read_sector_meta_data(uint32_t addr, sector_meta_data_t sector,
     EF_ASSERT(addr % SECTOR_SIZE == 0);
     EF_ASSERT(sector);
 
-    //TODO 支持通过 using_sec_table 获取
     /* read sector header raw data */
     ef_port_read(addr, (uint32_t *)&sec_hdr, sizeof(struct sector_hdr_data));
 
@@ -413,7 +410,6 @@ static EfErrCode read_sector_meta_data(uint32_t addr, sector_meta_data_t sector,
             while ((env_meta.addr.start = get_next_env_addr(sector, &env_meta)) != FAILED_ADDR) {
                 read_env(&env_meta);
                 if (!env_meta.crc_is_ok) {
-                    //TODO 完善 CRC 校验出错后的处理，比如标记扇区已经损坏
                     if (env_meta.status != ENV_PRE_WRITE && env_meta.status!= ENV_ERR_HDR) {
                         EF_INFO("Error: The ENV (@0x%08X) CRC32 check failed!\n", env_meta.addr.start);
                         sector->remain = 0;
@@ -459,12 +455,9 @@ static void env_iterator(env_meta_data_t env, void *arg1, void *arg2,
     struct sector_meta_data sector;
     uint32_t sec_addr;
 
-    //TODO 支持通过 using_sec_table 遍历
-
     sector.addr = FAILED_ADDR;
     /* search all sectors */
     while ((sec_addr = get_next_sector_addr(&sector)) != FAILED_ADDR) {
-        //TODO 检查所有扇区的剩余空间，是否有合适的扇区，优先 using_sec_table
         if (read_sector_meta_data(sec_addr, &sector, false) != EF_NO_ERR) {
             continue;
         }
@@ -670,7 +663,6 @@ static void sector_iterator(sector_meta_data_t sector, sector_store_status_t sta
     /* search all sectors */
     sector->addr = FAILED_ADDR;
     while ((sec_addr = get_next_sector_addr(sector)) != FAILED_ADDR) {
-        //TODO 检查所有扇区的剩余空间，是否有合适的扇区，优先 using_sec_table
         read_sector_meta_data(sec_addr, sector, false);
         if (status == SECTOR_STORE_UNUSED || status == sector->status.store) {
             if (traversal_env) {
@@ -739,16 +731,58 @@ static uint32_t alloc_env(sector_meta_data_t sector, size_t env_size)
     return empty_env;
 }
 
+static EfErrCode del_env(const char *key, env_meta_data_t old_env, bool complete_del) {
+    EfErrCode result = EF_NO_ERR;
+    uint32_t dirty_status_addr;
+
+#if (ENV_STATUS_TABLE_SIZE >= DIRTY_STATUS_TABLE_SIZE)
+    uint8_t status_table[ENV_STATUS_TABLE_SIZE];
+#else
+    uint8_t status_table[DIRTY_STATUS_TABLE_SIZE];
+#endif
+
+    /* need find ENV */
+    if (!old_env) {
+        struct env_meta_data env;
+        /* find ENV */
+        if (find_env(key, &env)) {
+            old_env = &env;
+        } else {
+            EF_DEBUG("Not found '%s' in ENV.\n", key);
+            return EF_ENV_NAME_ERR;
+        }
+    }
+    /* change and save the new status */
+    if (!complete_del) {
+        result = write_status(old_env->addr.start, status_table, ENV_STATUS_NUM, ENV_PRE_DELETE);
+    } else {
+        result = write_status(old_env->addr.start, status_table, ENV_STATUS_NUM, ENV_DELETED);
+    }
+
+    dirty_status_addr = EF_ALIGN_DOWN(old_env->addr.start, SECTOR_SIZE) + SECTOR_DIRTY_OFFSET;
+    /* read and change the sector dirty status */
+    if (result == EF_NO_ERR
+            && read_status(dirty_status_addr, status_table, SECTOR_DIRTY_STATUS_NUM) == SECTOR_DIRTY_FALSE) {
+        result = write_status(dirty_status_addr, status_table, SECTOR_DIRTY_STATUS_NUM, SECTOR_DIRTY_TRUE);
+    }
+
+    return result;
+}
+
 /*
- * duplicate the ENV which status is NOT write
+ * move the ENV to new space
  */
-//TODO dup 可能不太贴切，毕竟系统中只允许一个 ENV 同名存在
-static EfErrCode envdup(env_meta_data_t env)
+static EfErrCode move_env(env_meta_data_t env)
 {
     EfErrCode result = EF_NO_ERR;
     uint8_t status_table[ENV_STATUS_TABLE_SIZE];
     uint32_t env_addr;
     struct sector_meta_data sector;
+
+    /* prepare to delete the current ENV */
+    if (env->status == ENV_WRITE) {
+        del_env(NULL, env, false);
+    }
 
     if ((env_addr = alloc_env(&sector, env->len)) != FAILED_ADDR) {
         struct env_meta_data env_bak;
@@ -757,15 +791,18 @@ static EfErrCode envdup(env_meta_data_t env)
         /* check the ENV is already create success */
         if (find_env(name, &env_bak)) {
             /* already create success, don't need to duplicate */
-            return EF_NO_ERR;
+            result = EF_NO_ERR;
+            goto __exit;
         }
     } else {
         return EF_ENV_FULL;
     }
-    result = write_status(env_addr, status_table, ENV_STATUS_NUM, ENV_PRE_WRITE);
-    if (result == EF_NO_ERR) {
+    /* start move the ENV */
+    {
         uint8_t buf[32];
         size_t len, size, env_len = env->len;
+
+        write_status(env_addr, status_table, ENV_STATUS_NUM, ENV_PRE_WRITE);
         env_len -= ENV_LEN_OFFSET;
         for (len = 0, size = 0; len < env_len; len += size) {
             if (len + sizeof(buf) < env_len) {
@@ -775,17 +812,16 @@ static EfErrCode envdup(env_meta_data_t env)
             }
             ef_port_read(env->addr.start + ENV_LEN_OFFSET + len, (uint32_t *) buf, EF_WG_ALIGN(size));
             result = ef_port_write(env_addr + ENV_LEN_OFFSET + len, (uint32_t *) buf, size);
-            if (result != EF_NO_ERR) {
-                return result;
-            }
         }
-        result = write_status(env_addr, status_table, ENV_STATUS_NUM, ENV_WRITE);
+        write_status(env_addr, status_table, ENV_STATUS_NUM, ENV_WRITE);
     }
-
     /* update the new ENV sector status */
     update_sec_status(&sector, env->len, NULL);
 
-    EF_DEBUG("Duplicated the ENV (%.*s) from 0x%08X to 0x%08X.\n", env->name_len, env->name, env->addr.start, env_addr);
+    EF_DEBUG("Moved the ENV (%.*s) from 0x%08X to 0x%08X.\n", env->name_len, env->name, env->addr.start, env_addr);
+
+__exit:
+    del_env(NULL, env, true);
 
     return result;
 }
@@ -798,7 +834,7 @@ static uint32_t new_env(sector_meta_data_t sector, size_t env_size)
 __retry:
 
     if ((empty_env = alloc_env(sector, env_size)) == FAILED_ADDR && gc_request && !already_gc) {
-        EF_DEBUG("Warning: Alloc an ENV (size %d) failed when new ENV. Now will GC and retry.\n", env_size);
+        EF_DEBUG("Warning: Alloc an ENV (size %d) failed when new ENV. Now will GC then retry.\n", env_size);
         gc_collect();
         already_gc = true;
         goto __retry;
@@ -832,11 +868,7 @@ static bool do_gc(sector_meta_data_t sector, void *arg1, void *arg2)
     struct env_meta_data env;
 
     if (sector->check_ok && (sector->status.dirty == SECTOR_DIRTY_TRUE || sector->status.dirty == SECTOR_DIRTY_GC)) {
-#if (ENV_STATUS_TABLE_SIZE >= DIRTY_STATUS_TABLE_SIZE)
-        uint8_t status_table[ENV_STATUS_TABLE_SIZE];
-#else
         uint8_t status_table[DIRTY_STATUS_TABLE_SIZE];
-#endif
         //TODO 重复写入安全性验证
         /* change the sector status to GC */
         write_status(sector->addr + SECTOR_DIRTY_OFFSET, status_table, SECTOR_DIRTY_STATUS_NUM, SECTOR_DIRTY_GC);
@@ -845,13 +877,10 @@ static bool do_gc(sector_meta_data_t sector, void *arg1, void *arg2)
         while ((env.addr.start = get_next_env_addr(sector, &env)) != FAILED_ADDR) {
             read_env(&env);
             if (env.crc_is_ok && (env.status == ENV_WRITE || env.status == ENV_PRE_DELETE)) {
-                /* change the current ENV status to prepare delete */
-                write_status(env.addr.start, status_table, ENV_STATUS_NUM, ENV_PRE_DELETE);
-                /* duplicate the ENV */
-                if (envdup(&env) != EF_NO_ERR) {
+                /* move the ENV to new space */
+                if (move_env(&env) != EF_NO_ERR) {
                     EF_DEBUG("Error: Moved the ENV (%.*s) for GC failed.\n", env.name_len, env.name);
                 }
-                write_status(env.addr.start, status_table, ENV_STATUS_NUM, ENV_DELETED);
             }
         }
         format_sector(sector->addr, SECTOR_NOT_COMBINED);
@@ -972,47 +1001,8 @@ static EfErrCode create_env_blob(uint32_t env_addr, const char *key, const void 
             EF_DEBUG("Trigger a GC check after created ENV.\n");
             gc_request = true;
         }
-        //TODO 更新 using_sec_table
     } else {
         result = EF_ENV_FULL;
-    }
-
-    return result;
-}
-
-static EfErrCode del_env(const char *key, env_meta_data_t old_env, bool complete_del) {
-    EfErrCode result = EF_NO_ERR;
-    uint32_t dirty_status_addr;
-
-#if (ENV_STATUS_TABLE_SIZE >= DIRTY_STATUS_TABLE_SIZE)
-    uint8_t status_table[ENV_STATUS_TABLE_SIZE];
-#else
-    uint8_t status_table[DIRTY_STATUS_TABLE_SIZE];
-#endif
-
-    /* need find ENV */
-    if (!old_env) {
-        struct env_meta_data env;
-        /* find ENV */
-        if (find_env(key, &env)) {
-            old_env = &env;
-        } else {
-            EF_DEBUG("Not found '%s' in ENV.\n", key);
-            return EF_ENV_NAME_ERR;
-        }
-    }
-    /* change and save the new status */
-    if (!complete_del) {
-        result = write_status(old_env->addr.start, status_table, ENV_STATUS_NUM, ENV_PRE_DELETE);
-    } else {
-        result = write_status(old_env->addr.start, status_table, ENV_STATUS_NUM, ENV_DELETED);
-    }
-
-    dirty_status_addr = EF_ALIGN_DOWN(old_env->addr.start, SECTOR_SIZE) + SECTOR_DIRTY_OFFSET;
-    /* read and change the sector dirty status */
-    if (result == EF_NO_ERR
-            && read_status(dirty_status_addr, status_table, SECTOR_DIRTY_STATUS_NUM) == SECTOR_DIRTY_FALSE) {
-        result = write_status(dirty_status_addr, status_table, SECTOR_DIRTY_STATUS_NUM, SECTOR_DIRTY_TRUE);
     }
 
     return result;
@@ -1313,13 +1303,11 @@ static bool check_and_recovery_env_cb(env_meta_data_t env, void *arg1, void *arg
     /* recovery the prepare deleted ENV */
     if (env->crc_is_ok && env->status == ENV_PRE_DELETE) {
         EF_INFO("Found an ENV (%.*s) which has changed value failed. Now will recovery it.\n", env->name_len, env->name);
-        /* recovery the old ENV by envdup */
-        if (envdup(env) == EF_NO_ERR) {
-            /* delete the old ENV */
-            del_env(NULL, env, true);
+        /* recovery the old ENV */
+        if (move_env(env) == EF_NO_ERR) {
             EF_DEBUG("Recovery the ENV successful.\n");
         } else {
-            EF_DEBUG("Warning: Duplicate an ENV (size %d) failed when recovery. Now will GC and retry.\n", env->len);
+            EF_DEBUG("Warning: Moved an ENV (size %d) failed when recovery. Now will GC then retry.\n", env->len);
             return true;
         }
     } else if (env->status == ENV_PRE_WRITE) {
@@ -1347,7 +1335,6 @@ EfErrCode ef_load_env(void)
     /* lock the ENV cache */
     ef_port_env_lock();
 
-    //TODO 装载环境变量元数据，using_sec_table
     /* check all sector header */
     sector_iterator(&sector, SECTOR_STORE_UNUSED, NULL, NULL, check_sec_hdr_cb, false);
 
@@ -1383,6 +1370,10 @@ EfErrCode ef_env_init(ef_env const *default_env, size_t default_env_size) {
     EF_ASSERT(ENV_AREA_SIZE % EF_ERASE_MIN_SIZE == 0);
     /* must be aligned with write granularity */
     EF_ASSERT((EF_STR_ENV_VALUE_MAX_SIZE * 8) % EF_WRITE_GRAN == 0);
+
+    if (init_ok) {
+        return EF_NO_ERR;
+    }
 
     env_start_addr = EF_START_ADDR;
     default_env_set = default_env;
