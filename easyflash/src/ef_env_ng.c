@@ -1035,6 +1035,19 @@ EfErrCode ef_del_env(const char *key)
     return result;
 }
 
+/**
+ * The same to ef_del_env on this mode
+ * It's compatibility with older versions (less then V4.0).
+ *
+ * @param key ENV name
+ *
+ * @return result
+ */
+EfErrCode ef_del_and_save_env(const char *key)
+{
+    return ef_del_env(key);
+}
+
 static EfErrCode set_env(const char *key, const void *value_buf, size_t buf_len)
 {
     EfErrCode result = EF_NO_ERR;
@@ -1112,6 +1125,20 @@ EfErrCode ef_set_env_blob(const char *key, const void *value_buf, size_t buf_len
  * @return result
  */
 EfErrCode ef_set_env(const char *key, const char *value)
+{
+    return ef_set_env_blob(key, value, strlen(value));
+}
+
+/**
+ * The same to ef_set_env on this mode.
+ * It's compatibility with older versions (less then V4.0).
+ *
+ * @param key ENV name
+ * @param value ENV value
+ *
+ * @return result
+ */
+EfErrCode ef_set_and_save_env(const char *key, const char *value)
 {
     return ef_set_env_blob(key, value, strlen(value));
 }
@@ -1207,7 +1234,6 @@ __reload:
                 print_value = true;
                 goto __reload;
             } else if (!value_is_str) {
-                //TODO 减去 GC 扇区
                 ef_print("blob @0x%08X %dbytes", env->addr.value, env->value_len);
             }
             ef_print("\n");
@@ -1237,7 +1263,8 @@ void ef_print_env(void)
     env_iterator(&env, &using_size, NULL, print_env_cb);
 
     ef_print("\nmode: next generation\n");
-    ef_print("size: %lu/%lu bytes.\n", using_size + SECTOR_NUM * SECTOR_HDR_DATA_SIZE, ENV_AREA_SIZE);
+    ef_print("size: %lu/%lu bytes.\n", using_size + (SECTOR_NUM - EF_GC_EMPTY_SEC_THRESHOLD) * SECTOR_HDR_DATA_SIZE,
+            ENV_AREA_SIZE - SECTOR_SIZE * EF_GC_EMPTY_SEC_THRESHOLD);
 
     /* unlock the ENV cache */
     ef_port_env_unlock();
