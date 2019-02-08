@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2014-2018, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2014-2019, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -39,24 +39,13 @@
 extern "C" {
 #endif
 
-#if defined(EF_USING_ENV) && (!defined(ENV_USER_SETTING_SIZE) || !defined(ENV_AREA_SIZE))
-#error "Please configure user setting ENV size or ENV area size (in ef_cfg.h)"
-#endif
-
-#if defined(EF_USING_LOG) && !defined(LOG_AREA_SIZE)
-#error "Please configure log area size (in ef_cfg.h)"
-#endif
-
-#if !defined(EF_START_ADDR)
-#error "Please configure backup area start address (in ef_cfg.h)"
-#endif
-
-#if !defined(EF_ERASE_MIN_SIZE)
-#error "Please configure minimum size of flash erasure (in ef_cfg.h)"
-#endif
 
 /* EasyFlash debug print function. Must be implement by user. */
+#ifdef PRINT_DEBUG
 #define EF_DEBUG(...) ef_log_debug(__FILE__, __LINE__, __VA_ARGS__)
+#else
+#define EF_DEBUG(...)
+#endif
 /* EasyFlash routine print function. Must be implement by user. */
 #define EF_INFO(...)  ef_log_info(__VA_ARGS__)
 /* EasyFlash assert for developer. */
@@ -108,12 +97,14 @@ typedef enum {
 EfErrCode easyflash_init(void);
 
 #ifdef EF_USING_ENV
-/* ef_env.c ef_env_wl.c */
+/* only supported on ef_env.c */
+size_t ef_get_env_blob(const char *key, void *value_buf, size_t buf_len, size_t *value_len);
+EfErrCode ef_set_env_blob(const char *key, const void *value_buf, size_t buf_len);
+
+/* ef_env.c, ef_env_legacy_wl.c and ef_env_legacy.c */
 EfErrCode ef_load_env(void);
 void ef_print_env(void);
-size_t ef_get_env_blob(const char *key, void *value_buf, size_t buf_len, size_t *value_len);
 char *ef_get_env(const char *key);
-EfErrCode ef_set_env_blob(const char *key, const void *value_buf, size_t buf_len);
 EfErrCode ef_set_env(const char *key, const char *value);
 EfErrCode ef_del_env(const char *key);
 EfErrCode ef_save_env(void);

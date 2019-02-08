@@ -30,9 +30,13 @@
 #include <string.h>
 #include <stdlib.h>
 
-#ifdef EF_USING_ENV
+#if defined(EF_USING_ENV) && defined(EF_ENV_USING_LEGACY_MODE)
 
 #ifndef EF_ENV_USING_WL_MODE
+
+#if defined(EF_USING_ENV) && (!defined(ENV_USER_SETTING_SIZE) || !defined(ENV_AREA_SIZE))
+#error "Please configure user setting ENV size or ENV area size (in ef_cfg.h)"
+#endif
 
 /**
  * ENV area has 2 sections
@@ -915,4 +919,4 @@ static EfErrCode env_auto_update(void)
 
 #endif /* EF_ENV_USING_WL_MODE */
 
-#endif /* EF_USING_ENV */
+#endif /* defined(EF_USING_ENV) && defined(EF_ENV_USING_LEGACY_MODE) */

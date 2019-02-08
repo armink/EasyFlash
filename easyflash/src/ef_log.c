@@ -30,6 +30,10 @@
 
 #ifdef EF_USING_LOG
 
+#if defined(EF_USING_LOG) && !defined(LOG_AREA_SIZE)
+#error "Please configure log area size (in ef_cfg.h)"
+#endif
+
 /* magic code on every sector header. 'EF' is 0xEF30EF30 */
 #define LOG_SECTOR_MAGIC               0xEF30EF30
 /* sector header size, includes the sector magic code and status magic code */
