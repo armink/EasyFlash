@@ -29,10 +29,11 @@
 #include <string.h>
 #include <easyflash.h>
 
-#if defined(EF_USING_ENV)
+#if defined(EF_USING_ENV) && !defined(EF_ENV_USING_LEGACY_MODE)
 
-/* the flash write granularity, unit: bit */
-#define EF_WRITE_GRAN                            1
+#ifndef EF_WRITE_GRAN
+#error "Please configure flash write granularity (in ef_cfg.h)"
+#endif
 
 #if EF_WRITE_GRAN != 1 && EF_WRITE_GRAN != 8 && EF_WRITE_GRAN != 32 && EF_WRITE_GRAN != 64
 #error "the write gran can be only setting as 1, 8, 32 and 64"
@@ -93,7 +94,7 @@
 #define ENV_STATUS_TABLE_SIZE                    STATUS_TABLE_SIZE(ENV_STATUS_NUM)
 
 #define SECTOR_SIZE                              EF_ERASE_MIN_SIZE
-#define SECTOR_NUM                               (ENV_AREA_SIZE / EF_ERASE_MIN_SIZE)
+#define SECTOR_NUM                               (ENV_AREA_SIZE / (EF_ERASE_MIN_SIZE))
 
 #if (SECTOR_NUM < 2)
 #error "The sector number must lager then or equal to 2"
@@ -340,7 +341,6 @@ static EfErrCode read_env(env_meta_data_t env)
     } else if (env->len > SECTOR_SIZE - SECTOR_HDR_DATA_SIZE && env->len < ENV_AREA_SIZE) {
         //TODO 扇区连续模式，或者写入长度没有写入完整
         EF_ASSERT(0);
-        return EF_READ_ERR;
     }
 
     /* CRC32 data len(header.name_len + header.value_len + name + value) */
@@ -642,7 +642,7 @@ static EfErrCode update_sec_status(sector_meta_data_t sector, size_t new_env_len
         result = write_status(sector->addr, status_table, SECTOR_STORE_STATUS_NUM, SECTOR_STORE_USING);
     } else if (sector->status.store == SECTOR_STORE_USING) {
         /* check remain size */
-        if (sector->remain - new_env_len < EF_SEC_REMAIN_THRESHOLD) {
+        if (sector->remain < EF_SEC_REMAIN_THRESHOLD || sector->remain - new_env_len < EF_SEC_REMAIN_THRESHOLD) {
             /* change the sector status to full */
             result = write_status(sector->addr, status_table, SECTOR_STORE_STATUS_NUM, SECTOR_STORE_FULL);
             if (is_full) {
@@ -843,12 +843,11 @@ __retry:
     return empty_env;
 }
 
-static uint32_t new_env_by_kv(size_t key_len, size_t buf_len)
+static uint32_t new_env_by_kv(sector_meta_data_t sector, size_t key_len, size_t buf_len)
 {
     size_t env_len = ENV_HDR_DATA_SIZE + EF_WG_ALIGN(key_len) + EF_WG_ALIGN(buf_len);
-    struct sector_meta_data sector;
 
-    return new_env(&sector, env_len);
+    return new_env(sector, env_len);
 }
 
 static bool gc_check_cb(sector_meta_data_t sector, void *arg1, void *arg2)
@@ -891,9 +890,9 @@ static bool do_gc(sector_meta_data_t sector, void *arg1, void *arg2)
 }
 
 /*
- * The GC will be triggered on in the following scene:
- * 1. alloc an ENV when the flash has enough space
- * 2. write an ENV then the flash has enough space
+ * The GC will be triggered on the following scene:
+ * 1. alloc an ENV when the flash not has enough space
+ * 2. write an ENV then the flash not has enough space
  */
 static void gc_collect(void)
 {
@@ -938,12 +937,12 @@ static EfErrCode align_write(uint32_t addr, const uint32_t *buf, size_t size)
     return result;
 }
 
-static EfErrCode create_env_blob(uint32_t env_addr, const char *key, const void *value, size_t len)
+static EfErrCode create_env_blob(sector_meta_data_t sector, const char *key, const void *value, size_t len)
 {
     EfErrCode result = EF_NO_ERR;
     struct env_hdr_data env_hdr;
-    static struct sector_meta_data sector;
     bool is_full = false;
+    uint32_t env_addr = sector->empty_env;
 
     if (strlen(key) > EF_ENV_NAME_MAX) {
         EF_INFO("Error: The ENV name length is more than %d\n", EF_ENV_NAME_MAX);
@@ -960,11 +959,11 @@ static EfErrCode create_env_blob(uint32_t env_addr, const char *key, const void 
         return EF_ENV_FULL;
     }
 
-    if (env_addr != FAILED_ADDR || (env_addr = new_env(&sector, env_hdr.len)) != FAILED_ADDR) {
+    if (env_addr != FAILED_ADDR || (env_addr = new_env(sector, env_hdr.len)) != FAILED_ADDR) {
         size_t align_remain;
         /* update the sector status */
         if (result == EF_NO_ERR) {
-            result = update_sec_status(&sector, env_hdr.len, &is_full);
+            result = update_sec_status(sector, env_hdr.len, &is_full);
         }
         if (result == EF_NO_ERR) {
             uint8_t ff = 0xFF;
@@ -1051,15 +1050,15 @@ EfErrCode ef_del_and_save_env(const char *key)
 static EfErrCode set_env(const char *key, const void *value_buf, size_t buf_len)
 {
     EfErrCode result = EF_NO_ERR;
-    struct env_meta_data env;
+    static struct env_meta_data env;
+    static struct sector_meta_data sector;
     bool env_is_found = false;
-    uint32_t env_addr = FAILED_ADDR;
 
     if (value_buf == NULL) {
         result = del_env(key, NULL, true);
     } else {
         /* make sure the flash has enough space */
-        if ((env_addr = new_env_by_kv(strlen(key), buf_len)) == FAILED_ADDR) {
+        if (new_env_by_kv(&sector, strlen(key), buf_len) == FAILED_ADDR) {
             return EF_ENV_FULL;
         }
         env_is_found = find_env(key, &env);
@@ -1069,7 +1068,7 @@ static EfErrCode set_env(const char *key, const void *value_buf, size_t buf_len)
         }
         /* create the new ENV */
         if (result == EF_NO_ERR) {
-            result = create_env_blob(env_addr, key, value_buf, buf_len);
+            result = create_env_blob(&sector, key, value_buf, buf_len);
         }
         /* delete the old ENV */
         if (env_is_found && result == EF_NO_ERR) {
@@ -1161,6 +1160,7 @@ EfErrCode ef_env_set_default(void)
 {
     EfErrCode result = EF_NO_ERR;
     uint32_t addr, i, value_len;
+    struct sector_meta_data sector;
 
     EF_ASSERT(default_env_set);
     EF_ASSERT(default_env_set_size);
@@ -1183,7 +1183,8 @@ EfErrCode ef_env_set_default(void)
         } else {
             value_len = default_env_set[i].value_len;
         }
-        create_env_blob(FAILED_ADDR, default_env_set[i].key, default_env_set[i].value, value_len);
+        sector.empty_env = FAILED_ADDR;
+        create_env_blob(&sector, default_env_set[i].key, default_env_set[i].value, value_len);
         if (result != EF_NO_ERR) {
             goto __exit;
         }
@@ -1283,6 +1284,7 @@ static void env_auto_update(void)
         if (saved_ver_num != setting_ver_num) {
             struct env_meta_data env;
             size_t i, value_len;
+            struct sector_meta_data sector;
             EF_DEBUG("Update the ENV from version %d to %d.\n", saved_ver_num, setting_ver_num);
             for (i = 0; i < default_env_set_size; i++) {
                 /* add a new ENV when it's not found */
@@ -1294,7 +1296,8 @@ static void env_auto_update(void)
                     } else {
                         value_len = default_env_set[i].value_len;
                     }
-                    create_env_blob(FAILED_ADDR, default_env_set[i].key, default_env_set[i].value, value_len);
+                    sector.empty_env = FAILED_ADDR;
+                    create_env_blob(&sector, default_env_set[i].key, default_env_set[i].value, value_len);
                 }
             }
         } else {
@@ -1423,4 +1426,4 @@ EfErrCode ef_env_init(ef_env const *default_env, size_t default_env_size) {
     return result;
 }
 
-#endif /* defined(EF_USING_ENV) */
+#endif /* defined(EF_USING_ENV) && !defined(EF_ENV_USING_LEGACY_MODE) */
