@@ -6,9 +6,7 @@
 
 名词介绍：
 
-**备份区** ：是EasyFlash定义的一个存放环境变量、已下载程序及日志的Flash区域，详细存储架构可以参考[`\easyflash\src\easyflash.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/src/easyflash.c#L29-L58)文件头位置的注释说明或[移植文档中关于备份区参数配置](https://github.com/armink/EasyFlash/blob/master/docs/zh/port.md#55-备份区)。
-
-**环境变量表** ：负责存放所有的环境变量，该表在Flash及RAM中均存在，上电后需从Flash加载到RAM中，修改后，则需要保存其至Flash中。。
+- **备份区** ：是EasyFlash定义的一个存放环境变量、已下载程序及日志的Flash区域，详细存储架构可以参考[`\easyflash\src\easyflash.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/src/easyflash.c#L29-L58)文件头位置的注释说明或[移植文档中关于备份区参数配置](https://github.com/armink/EasyFlash/blob/master/docs/zh/port.md#55-备份区)。
 
 ## 1、用户使用接口
 
@@ -22,25 +20,43 @@ EfErrCode easyflash_init(void)
 
 ### 1.2 环境变量
 
-#### 1.2.1 加载环境变量
+在 V4.0 以后，环境变量在 EasyFlash 底层都是按照二进制数据格式进行存储，即 blob 格式，这样上层支持传入任意类型。而在 V4.0 之前底层使用的是字符串格式进行存储，字符串格式的环境变量也可以转换为 blob 格式，所以 V4.0 能做到完全兼容以前的 API 。 
 
-加载Flash中的所有环境变量到系统内存中。
+#### 1.2.1 获取环境变量
 
-```C
-void ef_load_env(void)
-```
+通过环境变量的名字来获取其对应的值。支持两种接口
 
-#### 1.2.2 打印环境变量
-
-通过在移植接口([`\easyflash\port\ef_port.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/port/ef_port.c))中定义的`ef_print`打印方法，来将Flash中的所有环境变量输出出来。
+##### 1.2.1.1 获取 blob 类型环境变量
 
 ```C
-void ef_print_env(void)
+size_t ef_get_env_blob(const char *key, void *value_buf, size_t buf_len, size_t *value_len)
 ```
 
-#### 1.2.3 获取环境变量
+|参数                                    |描述|
+|:-----                                  |:----|
+|key                                     |环境变量名称|
+|value_buf |存放环境变量的缓冲区|
+|buf_len |该缓冲区的大小|
+|value_len |返回该环境变量实际存储的大小|
+|返回 |成功存放至缓冲区中的数据长度|
 
-通过环境变量的名字来获取其对应的值。（注意：此处的环境变量指代的已加载到内存中的环境变量）
+示例：
+
+```C
+char value[32];
+size_t len;
+/* 如果环境变量长度未知，可以先获取 Flash 上存储的实际长度，将通过 len 返回 */
+ef_get_env_blob("key", NULL, 0, &len);
+/* 如果长度已知，使用 value 缓冲区，存放读取回来的环境变量值数据，并将实际长度返回 */
+len = ef_get_env_blob("key", value, sizeof(value) , NULL);
+```
+
+##### 1.2.1.2 获取字符串类型环境变量
+
+**注意** ：
+
+- 该函数不推荐继续使用，可以使用上面的函数替代；
+- 该函数不支持可重入，返回的值位于函数内部缓冲区，出于安全考虑，请加锁保护。
 
 ```C
 char *ef_get_env(const char *key)
@@ -49,14 +65,30 @@ char *ef_get_env(const char *key)
 |参数                                    |描述|
 |:-----                                  |:----|
 |key                                     |环境变量名称|
+|返回 |环境变量值|
 
-#### 1.2.4 设置环境变量
 
-使用此方法可以实现对环境变量的增加、修改及删除功能。（注意：此处的环境变量指代的已加载到内存中的环境变量）
+#### 1.2.2 设置环境变量
+
+使用此方法可以实现对环境变量的增加、修改及删除功能。
 
 - **增加** ：当环境变量表中不存在该名称的环境变量时，则会执行新增操作；
 - **修改** ：入参中的环境变量名称在当前环境变量表中存在，则把该环境变量值修改为入参中的值；
 - **删除**：当入参中的value为NULL时，则会删除入参名对应的环境变量。 
+
+##### 1.2.1.1 设置 blob 类型环境变量
+
+```C
+EfErrCode ef_set_env_blob(const char *key, const void *value_buf, size_t buf_len)
+```
+
+|参数                                    |描述|
+|:-----                                  |:----|
+|key                                     |环境变量名称|
+|value_buf                                   |环境变量值缓冲区|
+|buf_len |缓冲区长度，即值的长度|
+
+##### 1.2.1.2 设置字符串类型环境变量
 
 
 ```C
@@ -68,9 +100,9 @@ EfErrCode ef_set_env(const char *key, const char *value)
 |key                                     |环境变量名称|
 |value                                   |环境变量值|
 
-#### 1.2.5 删除环境变量
+#### 1.2.3 删除环境变量
 
-使用此方法可以实现对环境变量的删除功能。（注意：此处的环境变量指代的已加载到内存中的环境变量）
+使用此方法可以实现对环境变量的删除功能。
 
 ```c
 EfErrCode ef_del_env(const char *key)
@@ -80,51 +112,22 @@ EfErrCode ef_del_env(const char *key)
 | :--- | :----------- |
 | key  | 环境变量名称 |
 
-#### 1.2.6 保存环境变量
 
-保存内存中的环境变量表到Flash中。
-
-```C
-EfErrCode ef_save_env(void)
-```
-
-#### 1.2.7 重置环境变量
+#### 1.2.4 重置环境变量
 将内存中的环境变量表重置为默认值。
 
 ```C
 EfErrCode ef_env_set_default(void)
 ```
 
-#### 1.2.8 获取当前环境变量写入到Flash的字节大小
+#### 1.2.5 打印环境变量
+
+通过在移植接口([`\easyflash\port\ef_port.c`](https://github.com/armink/EasyFlash/blob/master/easyflash/port/ef_port.c))中定义的`ef_print`打印方法，来将Flash中的所有环境变量输出出来。
 
 ```C
-size_t ef_get_env_write_bytes(void)
+void ef_print_env(void)
 ```
 
-#### 1.2.9 设置并保存环境变量
-
-设置环境变量成功后立刻保存。设置功能参考`ef_set_env`方法。
-
-```C
-EfErrCode ef_set_and_save_env(const char *key, const char *value)
-```
-
-|参数                                    |描述|
-|:-----                                  |:----|
-|key                                     |环境变量名称|
-|value                                   |环境变量值|
-
-#### 1.2.10 删除并保存环境变量
-
-删除环境变量成功后立刻保存。删除功能参考`ef_del_env`方法。
-
-```c
-EfErrCode ef_del_and_save_env(const char *key)
-```
-
-| 参数 | 描述         |
-| :--- | :----------- |
-| key  | 环境变量名称 |
 
 ### 1.3 在线升级
 
@@ -287,6 +290,5 @@ size_t ef_log_get_used_size(void);
 ## 3、注意
 
 - 写数据前务必记得先擦除
-- 环境变量设置完后，只有调用`ef_save_env`才会保存在Flash中，否则开机会丢失修改的内容
 - 不要在应用程序及Bootloader中执行擦除及拷贝自身的动作
-- ENV及Log功能对Flash擦除和写入要求4个字节对齐，擦除的最小单位则需根据用户的平台来确定
+- Log功能对Flash擦除和写入要求4个字节对齐，擦除的最小单位则需根据用户的平台来确定
