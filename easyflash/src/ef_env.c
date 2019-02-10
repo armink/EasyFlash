@@ -626,7 +626,7 @@ static EfErrCode format_sector(uint32_t addr, uint32_t combined_value)
         sec_hdr.combined = combined_value;
         sec_hdr.reserved = 0xFFFFFFFF;
         /* save the header */
-        ef_port_write(addr, (uint32_t *)&sec_hdr, sizeof(struct sector_hdr_data));
+        result = ef_port_write(addr, (uint32_t *)&sec_hdr, sizeof(struct sector_hdr_data));
     }
 
     return result;
