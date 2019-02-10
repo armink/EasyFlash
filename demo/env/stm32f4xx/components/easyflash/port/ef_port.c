@@ -102,12 +102,12 @@ EfErrCode ef_port_init(ef_env const **default_env, size_t *default_env_size) {
  */
 EfErrCode ef_port_read(uint32_t addr, uint32_t *buf, size_t size) {
     EfErrCode result = EF_NO_ERR;
-
-    EF_ASSERT(size % 4 == 0);
+    uint8_t *buf_8 = (uint8_t *)buf;
+    size_t i;
 
     /*copy from flash to ram */
-    for (; size > 0; size -= 4, addr += 4, buf++) {
-        *buf = *(uint32_t *) addr;
+    for (i = 0; i < size; i++, addr ++, buf_8++) {
+        *buf_8 = *(uint8_t *) addr;
     }
 
     return result;
@@ -165,18 +165,19 @@ EfErrCode ef_port_write(uint32_t addr, const uint32_t *buf, size_t size) {
     EfErrCode result = EF_NO_ERR;
     size_t i;
     uint32_t read_data;
-
-    EF_ASSERT(size % 4 == 0);
+    uint8_t *buf_8 = (uint8_t *)buf;
 
     FLASH_Unlock();
-    FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR
-                    | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
-    for (i = 0; i < size; i += 4, buf++, addr += 4) {
+    FLASH_ClearFlag(
+            FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR
+                    | FLASH_FLAG_PGSERR);
+    for (i = 0; i < size; i++, buf_8++, addr++)
+    {
         /* write data */
-        FLASH_ProgramWord(addr, *buf);
-        read_data = *(uint32_t *)addr;
+        FLASH_ProgramByte(addr, *buf_8);
+        read_data = *(uint8_t *) addr;
         /* check data */
-        if (read_data != *buf) {
+        if (read_data != *buf_8) {
             result = EF_WRITE_ERR;
             break;
         }
