@@ -81,8 +81,8 @@ void sys_init_thread(void* parameter){
     if (easyflash_init() == EF_NO_ERR) {
         /* initialize OK and switch to running status */
         set_system_status(SYSTEM_STATUS_RUN);
-		/* test Env demo */
-		test_env();
+        /* test Env demo */
+        test_env();
     } else {
         /* initialize fail and switch to fault status */
         set_system_status(SYSTEM_STATUS_FAULT);
@@ -104,7 +104,7 @@ int rt_application_init(void)
     rt_thread_startup(&thread_sys_monitor);
 
     init_thread = rt_thread_create("sys init", sys_init_thread,
-            NULL, 512, 10, 10);
+            NULL, 1024, 10, 10);
     if (init_thread != NULL) {
         rt_thread_startup(init_thread);
     }
