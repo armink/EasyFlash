@@ -1038,6 +1038,8 @@ EfErrCode ef_del_env(const char *key)
  * The same to ef_del_env on this mode
  * It's compatibility with older versions (less then V4.0).
  *
+ * @note this function is DEPRECATED
+ *
  * @param key ENV name
  *
  * @return result
@@ -1132,6 +1134,8 @@ EfErrCode ef_set_env(const char *key, const char *value)
  * The same to ef_set_env on this mode.
  * It's compatibility with older versions (less then V4.0).
  *
+ * @note this function is DEPRECATED
+ *
  * @param key ENV name
  * @param value ENV value
  *
@@ -1144,6 +1148,8 @@ EfErrCode ef_set_and_save_env(const char *key, const char *value)
 
 /**
  * Save ENV to flash.
+ *
+ * @note this function is DEPRECATED
  */
 EfErrCode ef_save_env(void)
 {

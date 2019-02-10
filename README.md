@@ -77,7 +77,7 @@ V4.0 设计及内部原理，V4.0 迁移指南等更多内容请继续阅读下�
 - API 文档：[`\docs\zh\api.md`](/docs/zh/api.md)
 - 移植文档：[`\docs\zh\port.md`](/docs/zh/port.md)
 - V4.0 迁移指南：[`\docs\zh\v4_migrate.md`](/docs/zh/v4_migrate.md)
-- V4.0 设计及实现细节：[`\docs\zh\design.md`](/docs/zh/design.md)
+- V4.0 ENV 功能设计与实现：[`\docs\zh\design.md`](/docs/zh/design.md)
 
 务必保证在 **阅读文档** 后再移植使用。
 
