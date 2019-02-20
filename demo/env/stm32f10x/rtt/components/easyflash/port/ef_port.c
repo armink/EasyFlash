@@ -77,8 +77,6 @@ EfErrCode ef_port_read(uint32_t addr, uint32_t *buf, size_t size) {
     uint8_t *buf_8 = (uint8_t *)buf;
     size_t i;
 
-    EF_ASSERT(addr % 4 == 0);
-
     /*copy from flash to ram */
     for (i = 0; i < size; i++, addr ++, buf_8++) {
         *buf_8 = *(uint8_t *) addr;
@@ -140,8 +138,6 @@ EfErrCode ef_port_write(uint32_t addr, const uint32_t *buf, size_t size) {
     EfErrCode result = EF_NO_ERR;
     size_t i;
     uint32_t read_data;
-
-    EF_ASSERT(addr % 4 == 0);
 
     FLASH_Unlock();
     FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);

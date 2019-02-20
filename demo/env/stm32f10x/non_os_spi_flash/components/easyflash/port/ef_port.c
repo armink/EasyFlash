@@ -77,8 +77,6 @@ EfErrCode ef_port_read(uint32_t addr, uint32_t *buf, size_t size) {
     EfErrCode result = EF_NO_ERR;
     const sfud_flash *flash = sfud_get_device_table() + SFUD_SST25_DEVICE_INDEX;
 
-    EF_ASSERT(size % 4 == 0);
-
     sfud_read(flash, addr, size, (uint8_t *)buf);
 
     return result;
@@ -125,8 +123,6 @@ EfErrCode ef_port_write(uint32_t addr, const uint32_t *buf, size_t size) {
     EfErrCode result = EF_NO_ERR;
     sfud_err sfud_result = SFUD_SUCCESS;
     const sfud_flash *flash = sfud_get_device_table() + SFUD_SST25_DEVICE_INDEX;
-
-    EF_ASSERT(size % 4 == 0);
 
     sfud_result = sfud_write(flash, addr, size, (const uint8_t *)buf);
 
