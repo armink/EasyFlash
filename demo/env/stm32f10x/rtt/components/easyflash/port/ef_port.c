@@ -143,13 +143,16 @@ EfErrCode ef_port_write(uint32_t addr, const uint32_t *buf, size_t size) {
     FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
     for (i = 0; i < size; i += 4, buf++, addr += 4) {
         /* write data */
-        FLASH_ProgramWord(addr, *buf);
-        read_data = *(uint32_t *)addr;
-        /* check data */
-        if (read_data != *buf) {
-            result = EF_WRITE_ERR;
-            break;
-        }
+		read_data = *(uint32_t *)addr;
+		if (read_data != *buf) {
+			FLASH_ProgramWord(addr, *buf);
+			read_data = *(uint32_t *)addr;
+			/* check data */
+			if (read_data != *buf) {
+				result = EF_WRITE_ERR;
+				break;
+			}
+		}
     }
     FLASH_Lock();
 

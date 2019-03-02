@@ -239,7 +239,7 @@ static uint32_t find_sec_using_end_addr(uint32_t addr) {
         return sector_start + EF_ERASE_MIN_SIZE - continue_ff;
     } else {
         /* all sector not has continuous 0xFF, so the sector is full */
-        return sector_start + EF_ERASE_MIN_SIZE;
+        return sector_start + EF_ERASE_MIN_SIZE+LOG_SECTOR_HEADER_SIZE;
     }
 }
 
