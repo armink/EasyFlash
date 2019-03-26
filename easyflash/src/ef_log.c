@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2015-2017, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2015-2019, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -161,7 +161,7 @@ static SectorStatus get_sector_status(uint32_t addr) {
  * @return result
  */
 static EfErrCode write_sector_status(uint32_t addr, SectorStatus status) {
-    uint32_t header_buf[LOG_SECTOR_HEADER_WORD_SIZE] = {0}, header_addr = 0;
+    uint32_t header, header_addr = 0;
 
     /* calculate the sector header address */
     header_addr = addr / EF_ERASE_MIN_SIZE * EF_ERASE_MIN_SIZE;
@@ -169,25 +169,20 @@ static EfErrCode write_sector_status(uint32_t addr, SectorStatus status) {
     /* calculate the sector staus magic */
     switch (status) {
     case SECTOR_STATUS_EMPUT: {
-        header_buf[SECTOR_HEADER_USING_INDEX] = SECTOR_STATUS_MAGIC_EMPUT;
-        header_buf[SECTOR_HEADER_FULL_INDEX] = SECTOR_STATUS_MAGIC_EMPUT;
-        break;
+        header = LOG_SECTOR_MAGIC;
+        return ef_port_write(header_addr, &header, sizeof(header));
     }
     case SECTOR_STATUS_USING: {
-        header_buf[SECTOR_HEADER_USING_INDEX] = SECTOR_STATUS_MAGIC_USING;
-        header_buf[SECTOR_HEADER_FULL_INDEX] = SECTOR_STATUS_MAGIC_EMPUT;
-        break;
+        header = SECTOR_STATUS_MAGIC_USING;
+        return ef_port_write(header_addr + sizeof(header), &header, sizeof(header));
     }
     case SECTOR_STATUS_FULL: {
-        header_buf[SECTOR_HEADER_USING_INDEX] = SECTOR_STATUS_MAGIC_USING;
-        header_buf[SECTOR_HEADER_FULL_INDEX] = SECTOR_STATUS_MAGIC_FULL;
-        break;
+        header = SECTOR_STATUS_MAGIC_FULL;
+        return ef_port_write(header_addr + sizeof(header) * 2, &header, sizeof(header));
     }
+    default:
+        return EF_WRITE_ERR;
     }
-    
-    header_buf[SECTOR_HEADER_MAGIC_INDEX] = LOG_SECTOR_MAGIC;
-    
-    return ef_port_write(header_addr, header_buf, sizeof(header_buf));
 }
 
 /**
@@ -280,7 +275,6 @@ static void find_start_and_end_addr(void) {
     /* get the first sector status */
     cur_sec_status = get_sector_status(log_area_start_addr);
     last_sec_status = cur_sec_status;
-    
 
     for (cur_size = EF_ERASE_MIN_SIZE; cur_size < LOG_AREA_SIZE; cur_size += EF_ERASE_MIN_SIZE) {
         /* get current sector status */
@@ -638,7 +632,8 @@ EfErrCode ef_log_write(const uint32_t *log, size_t size) {
         if (result != EF_NO_ERR) {
             goto exit;
         }
-        /* change the sector status to USING when write begin sector start address */
+        /* change the sector status to EMPTY and USING when write begin sector start address */
+        result = write_sector_status(write_addr, SECTOR_STATUS_EMPUT);
         result = write_sector_status(write_addr, SECTOR_STATUS_USING);
         if (result == EF_NO_ERR) {
             write_addr += LOG_SECTOR_HEADER_SIZE;
@@ -710,7 +705,8 @@ EfErrCode ef_log_clean(void) {
     if (result != EF_NO_ERR) {
         goto exit;
     }
-    /* setting first sector is USING */
+    /* setting first sector is EMPTY to USING */
+    write_sector_status(write_addr, SECTOR_STATUS_EMPUT);
     write_sector_status(write_addr, SECTOR_STATUS_USING);
     if (result != EF_NO_ERR) {
         goto exit;
