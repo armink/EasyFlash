@@ -52,7 +52,7 @@ static char* cJSON_strdup(const char* str)
       char* copy;
 
       len = strlen(str) + 1;
-      if (!(copy = (char*)cJSON_malloc(len))) return 0;
+      if ((copy = (char*)cJSON_malloc(len)) == NULL) return 0;
       memcpy(copy,str,len);
       return copy;
 }
@@ -276,8 +276,27 @@ static char *print_string_ptr(const char *str,printbuffer *p)
 		strcpy(out,"\"\"");
 		return out;
 	}
-	ptr=str;while ((token=*ptr) && ++len) {if (strchr("\"\\\b\f\n\r\t",token)) len++; else if (token<32) len+=5;ptr++;}
-	
+    
+	ptr=str;
+#if 0
+    while ((token=*ptr) && ++len) 
+    {
+        if (strchr("\"\\\b\f\n\r\t",token)) 
+            len++; 
+        else if (token<32) 
+            len+=5;
+        ptr++;
+    }
+#else
+    do {
+        token=*ptr;
+        if (strchr("\"\\\b\f\n\r\t",token)) 
+            len++; 
+        else if (token<32) 
+            len+=5;
+        ptr++;
+    } while (token && ++len);
+#endif	
 	if (p)	out=ensure(p,len+3);
 	else	out=(char*)cJSON_malloc(len+3);
 	if (!out) return 0;
@@ -350,7 +369,7 @@ char *cJSON_PrintBuffered(cJSON *item,int prebuffer,int fmt)
 	p.length=prebuffer;
 	p.offset=0;
 	return print_value(item,0,fmt,&p);
-	return p.buffer;
+	//return p.buffer;
 }
 
 
@@ -421,7 +440,7 @@ static const char *parse_array(cJSON *item,const char *value)
 	while (*value==',')
 	{
 		cJSON *new_item;
-		if (!(new_item=cJSON_New_Item())) return 0; 	/* memory fail */
+		if ((new_item=cJSON_New_Item()) == NULL) return 0; 	/* memory fail */
 		child->next=new_item;new_item->prev=child;child=new_item;
 		value=skip(parse_value(child,skip(value+1)));
 		if (!value) return 0;	/* memory fail */
@@ -533,7 +552,7 @@ static const char *parse_object(cJSON *item,const char *value)
 	while (*value==',')
 	{
 		cJSON *new_item;
-		if (!(new_item=cJSON_New_Item()))	return 0; /* memory fail */
+		if ((new_item=cJSON_New_Item()) == NULL)	return 0; /* memory fail */
 		child->next=new_item;new_item->prev=child;child=new_item;
 		value=skip(parse_string(child,skip(value+1)));
 		if (!value) return 0;
