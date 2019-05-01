@@ -124,7 +124,7 @@ static SectorStatus get_sector_status(uint32_t addr) {
     uint32_t status_full_magic = 0, status_use_magic = 0;
 
     /* calculate the sector header address */
-    header_addr = addr / EF_ERASE_MIN_SIZE * EF_ERASE_MIN_SIZE;
+    header_addr = addr & (~(EF_ERASE_MIN_SIZE - 1));
 
     if (ef_port_read(header_addr, header_buf, sizeof(header_buf)) == EF_NO_ERR) {
         sector_header_magic = header_buf[SECTOR_HEADER_MAGIC_INDEX];
@@ -164,7 +164,7 @@ static EfErrCode write_sector_status(uint32_t addr, SectorStatus status) {
     uint32_t header, header_addr = 0;
 
     /* calculate the sector header address */
-    header_addr = addr / EF_ERASE_MIN_SIZE * EF_ERASE_MIN_SIZE;
+    header_addr = addr & (~(EF_ERASE_MIN_SIZE - 1));
 
     /* calculate the sector staus magic */
     switch (status) {
