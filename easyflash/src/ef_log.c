@@ -201,7 +201,7 @@ static uint32_t find_sec_using_end_addr(uint32_t addr) {
 
     EF_ASSERT(READ_BUF_SIZE % 4 == 0);
     /* calculate the sector start and data start address */
-    sector_start = addr / EF_ERASE_MIN_SIZE * EF_ERASE_MIN_SIZE;
+    sector_start = addr & (~(EF_ERASE_MIN_SIZE - 1));
     data_start = sector_start + LOG_SECTOR_HEADER_SIZE;
 
     /* counts continuous 0xFF which is end of sector */
@@ -384,7 +384,7 @@ static void find_start_and_end_addr(void) {
         /* find the end address */
         log_end_addr = find_sec_using_end_addr(cur_using_sec_addr);
     }
-    
+
 }
 
 /**
