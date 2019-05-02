@@ -159,6 +159,24 @@ void ef_print(const char *format, ...)
 |format                                  |打印格式|
 |...                                     |不定参|
 
+### 4.10 默认环境变量集合
+
+在 ef_port.c 文件顶部定义有 `static const ef_env default_env_set[]` ，我们可以将产品上需要的默认环境变量集中定义在这里。当 flash 第一次初始化时会将默认的环境变量写入。
+
+默认环境变量内部采用 void * 类型，所以支持任意类型，可参考如下示例：
+
+```C
+static uint32_t boot_count = 0;
+static time_t boot_time[10] = {0, 1, 2, 3};
+static const ef_env default_env_set[] = {
+//      {   key  , value, value_len }，
+        {"username", "armink", 0},   //类型为字符串的环境变量可以设定值的长度为 0 ，此时会在初始化时会自动检测其长度
+        {"password", "123456", 0},
+        {"boot_count", &boot_count, sizeof(boot_count)},  //整形
+        {"boot_time", &boot_time, sizeof(boot_time)},  //数组类型，其他类型使用方式类似
+};
+```
+
 ## 5、设置参数
 
 配置时需要修改项目中的`ef_cfg.h`文件，开启、关闭、修改对应的宏即可。
@@ -210,7 +228,8 @@ void ef_print(const char *format, ...)
 在配置时需要注意以下几点：
 
 - 1、所有的区域必须按照`EF_ERASE_MIN_SIZE`对齐；
-- 2、从 V4.0 开始 ENV 的模式命名为 NG 模式，V4.0 之前的称之为 LEGACY 遗留模式；
+- 2、环境变量分区大少至少为两倍以上 `EF_ERASE_MIN_SIZE`；
+- 3、从 V4.0 开始 ENV 的模式命名为 NG 模式，V4.0 之前的称之为 LEGACY 遗留模式；
   - 遗留模式已经被废弃，不再建议继续使用；
   - 如果需要继续使用遗留模式，请 EasyFlash 的 V3.X 版本。
 

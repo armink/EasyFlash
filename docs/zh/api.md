@@ -115,7 +115,7 @@ EfErrCode ef_del_env(const char *key)
 
 
 #### 1.2.4 重置环境变量
-将内存中的环境变量表重置为默认值。
+将内存中的环境变量表重置为默认值。关于默认环境变量的设定方法可以参考移植文档。
 
 ```C
 EfErrCode ef_env_set_default(void)
