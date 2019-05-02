@@ -1402,9 +1402,10 @@ EfErrCode ef_env_init(ef_env const *default_env, size_t default_env_size) {
 
     EF_ASSERT(default_env);
     EF_ASSERT(ENV_AREA_SIZE);
-    EF_ASSERT(EF_ERASE_MIN_SIZE);
     /* must be aligned with erase_min_size */
     EF_ASSERT(ENV_AREA_SIZE % EF_ERASE_MIN_SIZE == 0);
+    /* sector number must be greater than or equal to 2 */
+    EF_ASSERT(SECTOR_NUM >= 2);
     /* must be aligned with write granularity */
     EF_ASSERT((EF_STR_ENV_VALUE_MAX_SIZE * 8) % EF_WRITE_GRAN == 0);
 
