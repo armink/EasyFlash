@@ -370,7 +370,9 @@ static bool get_sector_from_cache(uint32_t sec_addr, uint32_t *empty_addr)
 
     for (i = 0; i < EF_SECTOR_CACHE_TABLE_SIZE; i++) {
         if (sector_cache_table[i].addr == sec_addr) {
-            *empty_addr = sector_cache_table[i].empty_addr;
+            if (empty_addr) {
+                *empty_addr = sector_cache_table[i].empty_addr;
+            }
             return true;
         }
     }
@@ -451,9 +453,7 @@ static bool get_env_from_cache(const char *name, size_t name_len, uint32_t *addr
 //TODO 注释
 static uint32_t continue_ff_addr(uint32_t start, uint32_t end)
 {
-
-
-    uint8_t buf[8], last_data = 0x00;
+    uint8_t buf[32], last_data = 0x00;
     size_t i, addr = start;
 
     for (; start < end; start += sizeof(buf)) {
@@ -476,19 +476,21 @@ static uint32_t continue_ff_addr(uint32_t start, uint32_t end)
 //TODO 注释
 static uint32_t find_next_env_addr(uint32_t start, uint32_t end)
 {
+    uint8_t buf[32];
+    uint32_t start_bak = start, i;
     uint32_t magic;
-    uint32_t start_bak = start, tick = rt_tick_get();
 
-    for (; start < end + sizeof(magic); start++) {
-        ef_port_read(start, &magic, sizeof(magic));
-        if (magic == ENV_MAGIC_WORD) {
-            rt_kprintf("%d-%d=>%d %d\n", start_bak, end, start - ENV_MAGIC_OFFSET, rt_tick_get()- tick);
-            return start - ENV_MAGIC_OFFSET;
+    for (; start < end; start += (sizeof(buf) - sizeof(uint32_t))) {
+        ef_port_read(start, (uint32_t *) buf, sizeof(buf));
+        for (i = 0; i < sizeof(buf) - sizeof(uint32_t) && start + i < end; i++) {
+            magic = buf[i] + (buf[i + 1] << 8) + (buf[i + 2] << 16) + (buf[i + 3] << 24);
+            if (magic == ENV_MAGIC_WORD && (start + i - ENV_MAGIC_OFFSET) >= start_bak) {
+                return start + i - ENV_MAGIC_OFFSET;
+            }
         }
     }
 
-    rt_kprintf("%d-%d=>%d %d\n", start_bak, end, end, rt_tick_get()- tick);
-    return end;
+    return FAILED_ADDR;
 }
 
 static uint32_t get_next_env_addr(sector_meta_data_t sector, env_meta_data_t pre_env)
@@ -505,8 +507,12 @@ static uint32_t get_next_env_addr(sector_meta_data_t sector, env_meta_data_t pre
         addr = sector->addr + SECTOR_HDR_DATA_SIZE;
     } else {
         if (pre_env->addr.start <= sector->addr + SECTOR_SIZE) {
-            /* next ENV address */
-            addr = pre_env->addr.start + pre_env->len;
+            if (pre_env->crc_is_ok) {
+                addr = pre_env->addr.start + pre_env->len;
+            } else {
+                //TODO 注释
+                addr = pre_env->addr.start + EF_WG_ALIGN(1);
+            }
 
             /* check and find next ENV address */
             addr = find_next_env_addr(addr, sector->addr + SECTOR_SIZE - SECTOR_HDR_DATA_SIZE);
@@ -520,13 +526,8 @@ static uint32_t get_next_env_addr(sector_meta_data_t sector, env_meta_data_t pre
             return FAILED_ADDR;
         }
     }
-    /* check ENV status, it's ENV_UNUSED when not using */
-    if (read_status(addr, status_table, ENV_STATUS_NUM) != ENV_UNUSED) {
-        return addr;
-    } else {
-        /* no ENV */
-        return FAILED_ADDR;
-    }
+
+    return addr;
 }
 
 static EfErrCode read_env(env_meta_data_t env)
@@ -648,11 +649,15 @@ static EfErrCode read_sector_meta_data(uint32_t addr, sector_meta_data_t sector,
                 ff_addr = continue_ff_addr(sector->empty_env, sector->addr + SECTOR_SIZE);
                 /* check the flash data is clean */
                 if (sector->empty_env != ff_addr) {
-                    /* update the sector infomation */
+                    /* update the sector information */
                     sector->empty_env = ff_addr;
                     sector->remain = SECTOR_SIZE - (ff_addr - sector->addr);
                 }
             }
+
+#ifdef EF_ENV_USING_CACHE
+            update_sector_cache(sector->addr, sector->empty_env);
+#endif
         }
     }
 
@@ -1075,9 +1080,14 @@ static EfErrCode move_env(env_meta_data_t env)
             goto __exit;
         }
     } else {
+        //TODO 删除
         EF_DEBUG("EF_ENV_FULL.\n");
         return EF_ENV_FULL;
     }
+
+    /* update the new ENV sector status first */
+    update_sec_status(&sector, env->len, NULL);
+
     /* start move the ENV */
     {
         uint8_t buf[32];
@@ -1102,8 +1112,6 @@ static EfErrCode move_env(env_meta_data_t env)
         update_env_cache(env->name, env->name_len, env_addr);
 #endif
     }
-    /* update the new ENV sector status */
-    update_sec_status(&sector, env->len, NULL);
 
     EF_DEBUG("Moved the ENV (%.*s) from 0x%08X to 0x%08X.\n", env->name_len, env->name, env->addr.start, env_addr);
 
@@ -1621,9 +1629,6 @@ static bool check_sec_hdr_cb(sector_meta_data_t sector, void *arg1, void *arg2)
         EF_INFO("Warning: Sector header check failed. Format this sector (0x%08x).\n", sector->addr);
         (*failed_count) ++;
         format_sector(sector->addr, SECTOR_NOT_COMBINED);
-    } else {
-        //TODO 删除
-        EF_INFO("Sector header check OK\n");
     }
 
     return false;
