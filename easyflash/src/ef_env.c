@@ -240,6 +240,8 @@ static size_t default_env_set_size = 0;
 static bool init_ok = false;
 /* request a GC check */
 static bool gc_request = false;
+/* is in recovery check status when first reboot */
+static bool in_recovery_check = false;
 
 #ifdef EF_ENV_USING_CACHE
 /* ENV cache table */
@@ -481,6 +483,14 @@ static uint32_t find_next_env_addr(uint32_t start, uint32_t end)
     uint8_t buf[32];
     uint32_t start_bak = start, i;
     uint32_t magic;
+
+#ifdef EF_ENV_USING_CACHE
+    uint32_t empty_env;
+
+    if (get_sector_from_cache(EF_ALIGN_DOWN(start, SECTOR_SIZE), &empty_env) && start == empty_env) {
+        return FAILED_ADDR;
+    }
+#endif /* EF_ENV_USING_CACHE */
 
     for (; start < end; start += (sizeof(buf) - sizeof(uint32_t))) {
         ef_port_read(start, (uint32_t *) buf, sizeof(buf));
@@ -1035,12 +1045,12 @@ static EfErrCode del_env(const char *key, env_meta_data_t old_env, bool complete
     } else {
         result = write_status(old_env->addr.start, status_table, ENV_STATUS_NUM, ENV_DELETED);
 
-#ifdef EF_ENV_USING_CACHE
         if (!last_is_complete_del && result == EF_NO_ERR) {
+#ifdef EF_ENV_USING_CACHE
             /* only delete the ENV in flash and cache when only using del_env(key, env, true) in ef_del_env() */
             update_env_cache(key, strlen(key), FAILED_ADDR);
-        }
 #endif /* EF_ENV_USING_CACHE */
+        }
 
         last_is_complete_del = false;
     }
@@ -1071,14 +1081,16 @@ static EfErrCode move_env(env_meta_data_t env)
     }
 
     if ((env_addr = alloc_env(&sector, env->len)) != FAILED_ADDR) {
-        struct env_meta_data env_bak;
-        char name[EF_ENV_NAME_MAX + 1] = { 0 };
-        strncpy(name, env->name, env->name_len);
-        /* check the ENV in flash is already create success */
-        if (find_env_no_cache(name, &env_bak)) {
-            /* already create success, don't need to duplicate */
-            result = EF_NO_ERR;
-            goto __exit;
+        if (in_recovery_check) {
+            struct env_meta_data env_bak;
+            char name[EF_ENV_NAME_MAX + 1] = { 0 };
+            strncpy(name, env->name, env->name_len);
+            /* check the ENV in flash is already create success */
+            if (find_env_no_cache(name, &env_bak)) {
+                /* already create success, don't need to duplicate */
+                result = EF_NO_ERR;
+                goto __exit;
+            }
         }
     } else {
         return EF_ENV_FULL;
@@ -1680,6 +1692,8 @@ EfErrCode ef_load_env(void)
 
     /* lock the ENV cache */
     ef_port_env_lock();
+
+    in_recovery_check = true;
     /* check all sector header */
     sector_iterator(&sector, SECTOR_STORE_UNUSED, &check_failed_count, NULL, check_sec_hdr_cb, false);
     /* all sector header check failed */
@@ -1697,6 +1711,8 @@ __retry:
         gc_collect();
         goto __retry;
     }
+
+    in_recovery_check = false;
 
     /* unlock the ENV cache */
     ef_port_env_unlock();

@@ -98,7 +98,7 @@ EfErrCode easyflash_init(void);
 
 #ifdef EF_USING_ENV
 /* only supported on ef_env.c */
-size_t ef_get_env_blob(const char *key, void *value_buf, size_t buf_len, size_t *value_len);
+size_t ef_get_env_blob(const char *key, void *value_buf, size_t buf_len, size_t *saved_value_len);
 EfErrCode ef_set_env_blob(const char *key, const void *value_buf, size_t buf_len);
 
 /* ef_env.c, ef_env_legacy_wl.c and ef_env_legacy.c */
