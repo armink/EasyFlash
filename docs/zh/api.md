@@ -14,13 +14,17 @@
 
 初始化的EasyFlash的各个组件，初始化后才可以使用下面的API。
 
+针对环境变量组件，如果 flash 第一次初始化，会自动调用 `ef_env_set_default` ，恢复移植文件中定义的默认环境变量（详见移植文档），之后每次启动会自动检查 flash 中的环境变量状态，flash 出现严重损坏时也会恢复环境变量至默认。如果开启增量升级功能，还会做增量升级的检查，版本号不一致时执行增量升级。
+
 ```C
 EfErrCode easyflash_init(void)
 ```
 
 ### 1.2 环境变量
 
-在 V4.0 以后，环境变量在 EasyFlash 底层都是按照二进制数据格式进行存储，即 blob 格式，这样上层支持传入任意类型。而在 V4.0 之前底层使用的是字符串格式进行存储，字符串格式的环境变量也可以转换为 blob 格式，所以 V4.0 能做到完全兼容以前的 API 。 
+在 V4.0 以后，环境变量在 EasyFlash 底层都是按照二进制数据格式进行存储，即 **blob 格式** ，这样上层支持传入任意类型。而在 V4.0 之前底层使用的是字符串格式进行存储，字符串格式的环境变量也可以转换为 blob 格式，所以 V4.0 能做到完全兼容以前的 API ，例如：`ef_get_env/ef_set_env` ，这些 API **只能** 给字符串 ENV 使用。
+
+另外字符串 ENV 也有长度的限制，默认 `EF_STR_ENV_VALUE_MAX_SIZE` 配置为 128 字节，超过长度的可能无法使用 `ef_get_env` 获取，只能使用 `ef_get_env_blob` 获取。
 
 #### 1.2.1 获取环境变量
 
@@ -29,7 +33,7 @@ EfErrCode easyflash_init(void)
 ##### 1.2.1.1 获取 blob 类型环境变量
 
 ```C
-size_t ef_get_env_blob(const char *key, void *value_buf, size_t buf_len, size_t *value_len)
+size_t ef_get_env_blob(const char *key, void *value_buf, size_t buf_len, size_t *save_value_len)
 ```
 
 |参数                                    |描述|
@@ -37,7 +41,7 @@ size_t ef_get_env_blob(const char *key, void *value_buf, size_t buf_len, size_t 
 |key                                     |环境变量名称|
 |value_buf |存放环境变量的缓冲区|
 |buf_len |该缓冲区的大小|
-|value_len |返回该环境变量实际存储的大小|
+|save_value_len |返回该环境变量实际存储在 flash 中的大小|
 |返回 |成功存放至缓冲区中的数据长度|
 
 示例：
