@@ -41,7 +41,7 @@
  */
 #define EF_ENV_VER_NUM            /* @note you must define it for a value, such as 0 */
 
-#define LITTLE_ENDIAN             1     /* @note you must define it reference to MCU Order*/
+#define EF_LITTLE_ENDIAN             1     /* @note you must define it reference to MCU Order*/
 
 #endif /* EF_USING_ENV */
 
