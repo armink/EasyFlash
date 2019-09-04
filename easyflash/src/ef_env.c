@@ -495,7 +495,11 @@ static uint32_t find_next_env_addr(uint32_t start, uint32_t end)
     for (; start < end; start += (sizeof(buf) - sizeof(uint32_t))) {
         ef_port_read(start, (uint32_t *) buf, sizeof(buf));
         for (i = 0; i < sizeof(buf) - sizeof(uint32_t) && start + i < end; i++) {
+#if LITTLE_ENDIAN            // Little Endian Order
             magic = buf[i] + (buf[i + 1] << 8) + (buf[i + 2] << 16) + (buf[i + 3] << 24);
+#else                       // Big Endian Order
+            magic = buf[i + 3] + (buf[i + 2] << 8) + (buf[i + 1] << 16) + (buf[i] << 24);
+#endif
             if (magic == ENV_MAGIC_WORD && (start + i - ENV_MAGIC_OFFSET) >= start_bak) {
                 return start + i - ENV_MAGIC_OFFSET;
             }
