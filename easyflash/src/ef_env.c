@@ -1694,9 +1694,6 @@ EfErrCode ef_load_env(void)
     struct sector_meta_data sector;
     size_t check_failed_count = 0;
 
-    /* lock the ENV cache */
-    ef_port_env_lock();
-
     in_recovery_check = true;
     /* check all sector header */
     sector_iterator(&sector, SECTOR_STORE_UNUSED, &check_failed_count, NULL, check_sec_hdr_cb, false);
@@ -1705,6 +1702,9 @@ EfErrCode ef_load_env(void)
         EF_INFO("Warning: All sector header check failed. Set it to default.\n");
         ef_env_set_default();
     }
+    
+    /* lock the ENV cache */
+    ef_port_env_lock();
     /* check all sector header for recovery GC */
     sector_iterator(&sector, SECTOR_STORE_UNUSED, NULL, NULL, check_and_recovery_gc_cb, false);
 
