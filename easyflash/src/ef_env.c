@@ -619,6 +619,7 @@ static EfErrCode read_sector_meta_data(uint32_t addr, sector_meta_data_t sector,
     /* check magic word */
     if (sector->magic != SECTOR_MAGIC_WORD) {
         sector->check_ok = false;
+        sector->combined = SECTOR_NOT_COMBINED;
         return EF_ENV_INIT_FAILED;
     }
     sector->check_ok = true;
@@ -809,7 +810,9 @@ static size_t get_env(const char *key, void *value_buf, size_t buf_len, size_t *
         } else {
             read_len = buf_len;
         }
-        ef_port_read(env.addr.value, (uint32_t *) value_buf, read_len);
+        if (value_buf){
+            ef_port_read(env.addr.value, (uint32_t *) value_buf, read_len);
+        }
     }
 
     return read_len;
