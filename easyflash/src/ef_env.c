@@ -456,11 +456,16 @@ static bool get_env_from_cache(const char *name, size_t name_len, uint32_t *addr
 static uint32_t continue_ff_addr(uint32_t start, uint32_t end)
 {
     uint8_t buf[32], last_data = 0x00;
-    size_t i, addr = start;
+    size_t i, addr = start, read_size;
 
     for (; start < end; start += sizeof(buf)) {
-        ef_port_read(start, (uint32_t *) buf, sizeof(buf));
-        for (i = 0; i < sizeof(buf) && start + i < end; i++) {
+        if (start + sizeof(buf) < end) {
+            read_size = sizeof(buf);
+        } else {
+            read_size = end - start;
+        }
+        ef_port_read(start, (uint32_t *) buf, read_size);
+        for (i = 0; i < read_size; i++) {
             if (last_data != 0xFF && buf[i] == 0xFF) {
                 addr = start + i;
             }
