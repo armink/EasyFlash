@@ -56,7 +56,7 @@
 #define EF_ERASE_MIN_SIZE         /* @note you must define it for a value */
 
 /* the flash write granularity, unit: bit
- * only support 1(nor flash)/ 8(stm32f4)/ 32(stm32f1)/ 64(stm32l4) */
+ * only support 1(nor flash)/ 8(stm32f4)/ 32(stm32f1) */
 #define EF_WRITE_GRAN             /* @note you must define it for a value */
 
 /*
