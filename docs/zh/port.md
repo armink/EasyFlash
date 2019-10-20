@@ -47,7 +47,9 @@
 | STM32F2/F4 片内 Flash  | 1byte    | 16K/64K/128K | 最大的有128K，最小的有16K |
 | Nor Flash（SPI-Flash） | 1bit     | 4K           | 均匀分布                  |
 
-> **注意** ：务必保证熟悉Flash规格后，再继续下章节。
+> **注意** ：
+> - 1、务必保证熟悉Flash规格后，再继续下章节；
+> - 2、V4.0 新模式暂时无法使用在 STM32L4 片内 Flash 上，L4 只能使用 V3.0 版本或者 V4.0 的 EF_ENV_USING_LEGACY_MODE 模式
 
 ## 4、移植接口
 
@@ -216,7 +218,7 @@ static const ef_env default_env_set[] = {
 
 ### 5.5 Flash 写入粒度
 
-- 操作方法：修改`EF_WRITE_GRAN`宏对应值即可，单位：bit，仅支持：1/8/32/64
+- 操作方法：修改`EF_WRITE_GRAN`宏对应值即可，单位：bit，仅支持：1/8/32
 
 ### 5.5 备份区
 
