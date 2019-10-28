@@ -215,6 +215,13 @@ struct env_meta_data {
 };
 typedef struct env_meta_data *env_meta_data_t;
 
+struct env_iterator_obj
+{
+    struct sector_meta_data sector;
+    struct env_meta_data env;
+};
+typedef struct env_iterator_obj *env_iterator_obj_t;
+
 struct env_cache_node {
     uint16_t name_crc;                           /**< ENV name's CRC32 low 16bit value */
     uint16_t active;                             /**< ENV node access active degree */
@@ -1159,7 +1166,79 @@ __retry:
 
     return empty_env;
 }
+static struct env_iterator_obj obj;
+/**
+ * @brief Traversing from scratch
+ *
+ */
+void env_iterator_to_first()
+{
+    obj.sector.addr = FAILED_ADDR;
+    obj.env.addr.start = FAILED_ADDR;
+}
 
+/**
+ * @brief Get next blob ENV
+ * 
+ * @param key ENV name buffer
+ * @param value_buf ENV blob buffer
+ * @param value_len ENV blob buffer length
+ * @return char 1:Traversal complete 0:Traversal not complete
+ */
+char env_iterator_next(char *key, void *value_buf, size_t *value_len)
+{
+    uint32_t sec_addr;
+    ef_port_env_lock();
+    if (obj.sector.addr == FAILED_ADDR)
+    {
+_reload:
+        if ((sec_addr = get_next_sector_addr(&obj.sector)) == FAILED_ADDR)
+        {
+            ef_port_env_unlock();
+            return 1;
+        }
+        if (read_sector_meta_data(sec_addr, &obj.sector, false) != EF_NO_ERR)
+        {
+            goto _reload;
+        }
+    }
+
+    if (obj.sector.status.store == SECTOR_STORE_USING || obj.sector.status.store == SECTOR_STORE_FULL)
+    {
+        /* search all ENV */
+_next:
+        if ((obj.env.addr.start = get_next_env_addr(&obj.sector, &obj.env)) != FAILED_ADDR)
+        {
+            read_env(&obj.env);
+            /* iterator is interrupted when callback return true */
+            if (obj.env.status == ENV_WRITE)
+            {
+                //key = obj.env.name;
+                memcpy(key, obj.env.name, obj.env.name_len);
+                key[obj.env.name_len] = 0;
+                *value_len = obj.env.value_len;
+                ef_port_read(obj.env.addr.value, (uint32_t *) value_buf, *value_len);
+
+                ef_port_env_unlock();
+                return 0;
+            }
+            else
+            {
+                goto _next;
+            }
+
+        }
+        else
+        {
+            goto _reload;
+        }
+
+    }
+    else
+    {
+        goto _reload;
+    }
+}
 static uint32_t new_env_by_kv(sector_meta_data_t sector, size_t key_len, size_t buf_len)
 {
     size_t env_len = ENV_HDR_DATA_SIZE + EF_WG_ALIGN(key_len) + EF_WG_ALIGN(buf_len);
