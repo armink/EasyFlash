@@ -1166,17 +1166,56 @@ __retry:
 
     return empty_env;
 }
-static struct env_iterator_obj obj;
+static struct env_iterator_obj  _g_env_iter_obj;
 /**
  * @brief Traversing from scratch
  *
  */
-void env_iterator_to_first()
+void ef_env_iterator_to_first()
 {
-    obj.sector.addr = FAILED_ADDR;
-    obj.env.addr.start = FAILED_ADDR;
+    _g_env_iter_obj.sector.addr = FAILED_ADDR;
+    _g_env_iter_obj.env.addr.start = FAILED_ADDR;
 }
-
+/**
+ * @brief get the name of env now
+ * 
+ * @return char* name
+ */
+char *ef_env_iterator_now_name()
+{
+    return _g_env_iter_obj.env.name;
+}
+/**
+ * @brief get the size of value
+ * 
+ * @return size_t the size of value
+ */
+size_t ef_env_iterator_now_value_len()
+{
+    return _g_env_iter_obj.env.value_len;
+}
+/**
+ * @brief get value of env now
+ * 
+ * @param value_buf ENV blob buffer
+ * @param buf_len value_buf length
+ * @return size_t 0:Read the complete;nonzero:unread length
+ */
+size_t f_env_iterator_now_value(void *value_buf, size_t buf_len)
+{
+    if(buf_len < _g_env_iter_obj.env.value_len)
+    {
+        ef_port_read(_g_env_iter_obj.env.addr.value, (uint32_t *) value_buf, buf_len);
+        return _g_env_iter_obj.env.value_len - buf_len;
+    }
+    else
+    {
+        ef_port_read(_g_env_iter_obj.env.addr.value, (uint32_t *) value_buf, _g_env_iter_obj.env.value_len);
+        return 0;
+    }
+    
+    
+}
 /**
  * @brief Get next blob ENV
  * 
@@ -1185,40 +1224,34 @@ void env_iterator_to_first()
  * @param value_len ENV blob buffer length
  * @return char 1:Traversal complete 0:Traversal not complete
  */
-char env_iterator_next(char *key, void *value_buf, size_t *value_len)
+char ef_env_iterator_next()
 {
     uint32_t sec_addr;
     ef_port_env_lock();
-    if (obj.sector.addr == FAILED_ADDR)
+    if (_g_env_iter_obj.sector.addr == FAILED_ADDR)
     {
 _reload:
-        if ((sec_addr = get_next_sector_addr(&obj.sector)) == FAILED_ADDR)
+        if ((sec_addr = get_next_sector_addr(&_g_env_iter_obj.sector)) == FAILED_ADDR)
         {
             ef_port_env_unlock();
             return 1;
         }
-        if (read_sector_meta_data(sec_addr, &obj.sector, false) != EF_NO_ERR)
+        if (read_sector_meta_data(sec_addr, &_g_env_iter_obj.sector, false) != EF_NO_ERR)
         {
             goto _reload;
         }
     }
-
-    if (obj.sector.status.store == SECTOR_STORE_USING || obj.sector.status.store == SECTOR_STORE_FULL)
+    if (_g_env_iter_obj.sector.status.store == SECTOR_STORE_USING || _g_env_iter_obj.sector.status.store == SECTOR_STORE_FULL)
     {
         /* search all ENV */
 _next:
-        if ((obj.env.addr.start = get_next_env_addr(&obj.sector, &obj.env)) != FAILED_ADDR)
+        if ((_g_env_iter_obj.env.addr.start = get_next_env_addr(&_g_env_iter_obj.sector, &_g_env_iter_obj.env)) != FAILED_ADDR)
         {
-            read_env(&obj.env);
+            read_env(&_g_env_iter_obj.env);
             /* iterator is interrupted when callback return true */
-            if (obj.env.status == ENV_WRITE)
+            if (_g_env_iter_obj.env.status == ENV_WRITE)
             {
-                //key = obj.env.name;
-                memcpy(key, obj.env.name, obj.env.name_len);
-                key[obj.env.name_len] = 0;
-                *value_len = obj.env.value_len;
-                ef_port_read(obj.env.addr.value, (uint32_t *) value_buf, *value_len);
-
+                _g_env_iter_obj.env.name[_g_env_iter_obj.env.name_len] = 0;
                 ef_port_env_unlock();
                 return 0;
             }
@@ -1226,13 +1259,11 @@ _next:
             {
                 goto _next;
             }
-
         }
         else
         {
             goto _reload;
         }
-
     }
     else
     {
