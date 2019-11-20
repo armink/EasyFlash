@@ -30,68 +30,15 @@
 #ifndef EASYFLASH_H_
 #define EASYFLASH_H_
 
-#include <ef_cfg.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <ef_cfg.h>
+#include <ef_def.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
-/* EasyFlash debug print function. Must be implement by user. */
-#ifdef PRINT_DEBUG
-#define EF_DEBUG(...) ef_log_debug(__FILE__, __LINE__, __VA_ARGS__)
-#else
-#define EF_DEBUG(...)
-#endif
-/* EasyFlash routine print function. Must be implement by user. */
-#define EF_INFO(...)  ef_log_info(__VA_ARGS__)
-/* EasyFlash assert for developer. */
-#define EF_ASSERT(EXPR)                                                       \
-if (!(EXPR))                                                                  \
-{                                                                             \
-    EF_DEBUG("(%s) has assert failed at %s.\n", #EXPR, __FUNCTION__);         \
-    while (1);                                                                \
-}
-
-/**
- * ENV version number defined by user.
- * Please change it when your firmware add a new ENV to default_env_set.
- */
-#ifndef EF_ENV_VER_NUM
-#define EF_ENV_VER_NUM                 0
-#endif
-
-/* EasyFlash software version number */
-#define EF_SW_VERSION                  "4.0.99"
-#define EF_SW_VERSION_NUM              0x40099
-
-typedef struct _ef_env {
-    char *key;
-    void *value;
-    size_t value_len;
-} ef_env, *ef_env_t;
-
-/* EasyFlash error code */
-typedef enum {
-    EF_NO_ERR,
-    EF_ERASE_ERR,
-    EF_READ_ERR,
-    EF_WRITE_ERR,
-    EF_ENV_NAME_ERR,
-    EF_ENV_NAME_EXIST,
-    EF_ENV_FULL,
-    EF_ENV_INIT_FAILED,
-} EfErrCode;
-
-/* the flash sector current status */
-typedef enum {
-    EF_SECTOR_EMPTY,
-    EF_SECTOR_USING,
-    EF_SECTOR_FULL,
-} EfSecrorStatus;
 
 /* easyflash.c */
 EfErrCode easyflash_init(void);
@@ -99,6 +46,8 @@ EfErrCode easyflash_init(void);
 #ifdef EF_USING_ENV
 /* only supported on ef_env.c */
 size_t ef_get_env_blob(const char *key, void *value_buf, size_t buf_len, size_t *saved_value_len);
+bool ef_get_env_obj(const char *key, env_node_obj_t env);
+size_t ef_read_env_value(env_node_obj_t env, uint8_t *value_buf, size_t buf_len);
 EfErrCode ef_set_env_blob(const char *key, const void *value_buf, size_t buf_len);
 
 /* ef_env.c, ef_env_legacy_wl.c and ef_env_legacy.c */
