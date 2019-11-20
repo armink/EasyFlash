@@ -117,7 +117,7 @@ void ef_env_iterator_to_first(void);
 char *ef_env_iterator_now_name(void);
 size_t ef_env_iterator_now_value_len(void);
 size_t ef_env_iterator_now_value(void *value_buf, size_t buf_len);
-char ef_env_iterator_next(void);
+char* ef_env_iterator_next(size_t *value_len);
 #endif
 
 #ifdef EF_USING_IAP
