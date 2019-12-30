@@ -711,17 +711,13 @@ static bool find_env_cb(env_node_obj_t env, void *arg1, void *arg2)
 {
     const char *key = arg1;
     bool *find_ok = arg2;
-    uint8_t max_len = strlen(key);
+    size_t key_len = strlen(key);
 
-    if (max_len != env->name_len) {
+    if (key_len != env->name_len) {
         return false;
     }
-
-    if (max_len < env->name_len) {
-        max_len = env->name_len;
-    }
     /* check ENV */
-    if (env->crc_is_ok && env->status == ENV_WRITE && !strncmp(env->name, key, max_len)) {
+    if (env->crc_is_ok && env->status == ENV_WRITE && !strncmp(env->name, key, key_len)) {
         *find_ok = true;
         return true;
     }
