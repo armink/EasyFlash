@@ -1095,8 +1095,14 @@ static EfErrCode del_env(const char *key, env_node_obj_t old_env, bool complete_
 
         if (!last_is_complete_del && result == EF_NO_ERR) {
 #ifdef EF_ENV_USING_CACHE
-            /* only delete the ENV in flash and cache when only using del_env(key, env, true) in ef_del_env() */
-            update_env_cache(key, strlen(key), FAILED_ADDR);
+            /* delete the ENV in flash and cache */
+            if (key != NULL) {
+                /* when using del_env(key, NULL, true) or del_env(key, env, true) in ef_del_env() and set_env() */
+                update_env_cache(key, strlen(key), FAILED_ADDR);
+            } else if (old_env != NULL) {
+                /* when using del_env(NULL, env, true) in move_env() */
+                update_env_cache(old_env->name, old_env->name_len, FAILED_ADDR);
+            }
 #endif /* EF_ENV_USING_CACHE */
         }
 
