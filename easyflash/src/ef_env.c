@@ -184,6 +184,13 @@ struct env_hdr_data {
 };
 typedef struct env_hdr_data *env_hdr_data_t;
 
+
+struct env_iterator_obj {
+    struct sector_meta_data sector;
+    struct env_node_obj env;
+};
+typedef struct env_iterator_obj *env_iterator_obj_t;
+
 struct env_cache_node {
     uint16_t name_crc;                           /**< ENV name's CRC32 low 16bit value */
     uint16_t active;                             /**< ENV node access active degree */
@@ -507,7 +514,7 @@ static uint32_t get_next_env_addr(sector_meta_data_t sector, env_node_obj_t pre_
             addr = find_next_env_addr(addr, sector->addr + SECTOR_SIZE - SECTOR_HDR_DATA_SIZE);
 
             if (addr > sector->addr + SECTOR_SIZE || pre_env->len == 0) {
-                //TODO ÉÈÇøÁ¬ÐøÄ£Ê½
+                //TODO æ‰‡åŒºè¿žç»­æ¨¡å¼
                 return FAILED_ADDR;
             }
         } else {
@@ -542,7 +549,7 @@ static EfErrCode read_env(env_node_obj_t env)
         env->crc_is_ok = false;
         return EF_READ_ERR;
     } else if (env->len > SECTOR_SIZE - SECTOR_HDR_DATA_SIZE && env->len < ENV_AREA_SIZE) {
-        //TODO ÉÈÇøÁ¬ÐøÄ£Ê½£¬»òÕßÐ´Èë³¤¶ÈÃ»ÓÐÐ´ÈëÍêÕû
+        //TODO æ‰‡åŒºè¿žç»­æ¨¡å¼ï¼Œæˆ–è€…å†™å…¥é•¿åº¦æ²¡æœ‰å†™å…¥å®Œæ•´
         EF_ASSERT(0);
     }
 
@@ -1195,7 +1202,94 @@ __retry:
 
     return empty_env;
 }
+static struct env_iterator_obj  _g_env_iter_obj;
+/**
+ * @brief Traversing from scratch
+ *
+ */
+void ef_env_iterator_to_first()
+{
+    _g_env_iter_obj.sector.addr = FAILED_ADDR;
+    _g_env_iter_obj.env.addr.start = FAILED_ADDR;
+}
+/**
+ * @brief get the name of env now
+ *
+ * @return char* name
+ */
+char *ef_env_iterator_now_name()
+{
+    return _g_env_iter_obj.env.name;
+}
+/**
+ * @brief get the size of value
+ *
+ * @return size_t the size of value
+ */
+size_t ef_env_iterator_now_value_len()
+{
+    return _g_env_iter_obj.env.value_len;
+}
+/**
+ * @brief get value of env now
+ *
+ * @param value_buf ENV blob buffer
+ * @param buf_len value_buf length
+ * @return size_t 0:Read the complete;nonzero:unread length
+ */
+size_t f_env_iterator_now_value(void *value_buf, size_t buf_len)
+{
+    if (buf_len < _g_env_iter_obj.env.value_len) {
+        ef_port_read(_g_env_iter_obj.env.addr.value, (uint32_t *) value_buf, buf_len);
+        return _g_env_iter_obj.env.value_len - buf_len;
+    } else {
+        ef_port_read(_g_env_iter_obj.env.addr.value, (uint32_t *) value_buf, _g_env_iter_obj.env.value_len);
+        return 0;
+    }
 
+
+}
+/**
+ * @brief Get next blob ENV
+ *
+ * @param value_len ENV blob buffer length
+ * @return char* 0:Traversal complete nonzero:ENV
+ */
+env_node_obj_t ef_env_iterator_next()
+{
+    uint32_t sec_addr;
+    ef_port_env_lock();
+    if (_g_env_iter_obj.sector.addr == FAILED_ADDR) {
+_reload:
+        if ((sec_addr = get_next_sector_addr(&_g_env_iter_obj.sector)) == FAILED_ADDR) {
+            ef_port_env_unlock();
+            return 0;
+        }
+        if (read_sector_meta_data(sec_addr, &_g_env_iter_obj.sector, false) != EF_NO_ERR) {
+            goto _reload;
+        }
+    }
+    if (_g_env_iter_obj.sector.status.store == SECTOR_STORE_USING || _g_env_iter_obj.sector.status.store == SECTOR_STORE_FULL) {
+        /* search all ENV */
+_next:
+        if ((_g_env_iter_obj.env.addr.start = get_next_env_addr(&_g_env_iter_obj.sector, &_g_env_iter_obj.env)) != FAILED_ADDR) {
+            read_env(&_g_env_iter_obj.env);
+            /* iterator is interrupted when callback return true */
+            if (_g_env_iter_obj.env.status == ENV_WRITE) {
+                _g_env_iter_obj.env.name[_g_env_iter_obj.env.name_len] = 0;
+
+                ef_port_env_unlock();
+                return &_g_env_iter_obj.env;
+            } else {
+                goto _next;
+            }
+        } else {
+            goto _reload;
+        }
+    } else {
+        goto _reload;
+    }
+}
 static uint32_t new_env_by_kv(sector_meta_data_t sector, size_t key_len, size_t buf_len)
 {
     size_t env_len = ENV_HDR_DATA_SIZE + EF_WG_ALIGN(key_len) + EF_WG_ALIGN(buf_len);
@@ -1718,7 +1812,7 @@ static bool check_and_recovery_env_cb(env_node_obj_t env, void *arg1, void *arg2
     } else if (env->status == ENV_PRE_WRITE) {
         uint8_t status_table[ENV_STATUS_TABLE_SIZE];
         /* the ENV has not write finish, change the status to error */
-        //TODO »æÖÆÒì³£´¦ÀíµÄ×´Ì¬×°»»Í¼
+        //TODO ç»˜åˆ¶å¼‚å¸¸å¤„ç†çš„çŠ¶æ€è£…æ¢å›¾
         write_status(env->addr.start, status_table, ENV_STATUS_NUM, ENV_ERR_HDR);
         return true;
     }
