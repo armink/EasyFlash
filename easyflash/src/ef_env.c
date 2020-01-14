@@ -1419,8 +1419,7 @@ size_t f_env_iterator_now_value(void *value_buf, size_t buf_len)
  * @param value_len ENV blob buffer length
  * @return char* 0:Traversal complete nonzero:ENV
  */
-env_node_obj_t ef_env_iterator_next(size_t *value_len)
-//char* ef_env_iterator_next(size_t *value_len)
+env_node_obj_t ef_env_iterator_next()
 {
     uint32_t sec_addr;
     ef_port_env_lock();
@@ -1449,10 +1448,6 @@ _next:
             {
                 _g_env_iter_obj.env.name[_g_env_iter_obj.env.name_len] = 0;
                 
-                if(value_len)
-                {
-                    *value_len = _g_env_iter_obj.env.value_len;
-                }
                 ef_port_env_unlock();
                 return &_g_env_iter_obj.env;
             }
