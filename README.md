@@ -1,6 +1,6 @@
 # EasyFlash 
 
-[![GitHub release](https://img.shields.io/github/release/armink/EasyFlash.svg)](https://github.com/armink/EasyFlash/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/armink/EasyFlash/4.0.0.svg)](https://github.com/armink/EasyFlash/compare/4.0.0...master) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/armink/EasyFlash/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/armink/EasyFlash.svg)](https://github.com/armink/EasyFlash/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/armink/EasyFlash/4.1.0.svg)](https://github.com/armink/EasyFlash/compare/4.1.0...master) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/armink/EasyFlash/master/LICENSE)
 
 ## 1、介绍（[English](#1-introduction)）
 
@@ -27,9 +27,9 @@ EasyFlash不仅能够实现对产品的 **设定参数** 或 **运行日志** �
 - ENV 操作效率比以前的模式高，充分利用剩余空闲区域，擦除次数及操作时间显著降低；
 - **原生支持** 磨损平衡、掉电保护功能 （V4.0 之前需要占用额外的 Flash 扇区）；
 - ENV 支持 **增量升级** ，固件升级后 ENV 也支持升级；
-- 支持大数据存储模式，**长度无限制**，数据可在多个 Flash 扇区上顺序存储。像脚本程序、音频等占用 Flash 超过 1 个扇区的资源也都可以存入 ENV（即将在 V4.1 支持）；
-- 支持 **数据加密** ，提升存储的安全性，物联网时代的必备功能（即将在 V4.2 支持）；
-- 支持 **数据压缩** ，减低 Flash 占用（即将在 V4.3 支持）；
+- 支持大数据存储模式，**长度无限制**，数据可在多个 Flash 扇区上顺序存储。像脚本程序、音频等占用 Flash 超过 1 个扇区的资源也都可以存入 ENV（即将在 V4.2 支持）；
+- 支持 **数据加密** ，提升存储的安全性，物联网时代的必备功能（即将在 V4.3 支持）；
+- 支持 **数据压缩** ，减低 Flash 占用（即将在 V4.4 支持）；
 
 V4.0 设计及内部原理，V4.0 迁移指南等更多内容请继续阅读下面的 [文档章节](#3文档) 
 

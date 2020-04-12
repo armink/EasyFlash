@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2019, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2019-2020, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -34,8 +34,8 @@ extern "C" {
 #endif
 
 /* EasyFlash software version number */
-#define EF_SW_VERSION                  "4.0.99"
-#define EF_SW_VERSION_NUM              0x40099
+#define EF_SW_VERSION                  "4.1.0"
+#define EF_SW_VERSION_NUM              0x40100
 
 /*
  * ENV version number defined by user.
