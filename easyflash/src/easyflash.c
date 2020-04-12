@@ -71,6 +71,11 @@ EfErrCode easyflash_init(void) {
     size_t default_env_set_size = 0;
     const ef_env *default_env_set;
     EfErrCode result = EF_NO_ERR;
+    static bool init_ok = false;
+
+    if (init_ok) {
+        return EF_NO_ERR;
+    }
 
     result = ef_port_init(&default_env_set, &default_env_set_size);
 
@@ -93,6 +98,7 @@ EfErrCode easyflash_init(void) {
 #endif
 
     if (result == EF_NO_ERR) {
+        init_ok = true;
         EF_INFO("EasyFlash V%s is initialize success.\n", EF_SW_VERSION);
     } else {
         EF_INFO("EasyFlash V%s is initialize fail.\n", EF_SW_VERSION);
