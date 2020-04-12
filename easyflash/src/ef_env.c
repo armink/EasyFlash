@@ -787,6 +787,8 @@ static size_t get_env(const char *key, void *value_buf, size_t buf_len, size_t *
         if (value_buf){
             ef_port_read(env.addr.value, (uint32_t *) value_buf, read_len);
         }
+    } else if (value_len) {
+        *value_len = 0;
     }
 
     return read_len;
