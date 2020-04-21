@@ -41,7 +41,7 @@
  */
 #define EF_ENV_VER_NUM            /* @note you must define it for a value, such as 0 */
  
-/* MCU Endian Configuration, default is Little Endian Order.
+/* MCU Endian Configuration, default is Little Endian Order. */
 /* #define EF_BIG_ENDIAN  */         
 
 #endif /* EF_USING_ENV */
