@@ -60,12 +60,10 @@ Query total spent 1621 (ms) for 13528 TSL, min 0, max 1, average: 0.12 ms/per
 ```shell
     Module                  ro code  ro data  rw data
     ------                  -------  -------  -------
-    ...
     easyflash.o                 276      232        1
     ef_kv.o                   4 584      356        1
     ef_ts_log.o               1 160      236
     ef_utils.o                  418    1 024
-    ...
 ```
 
 上面是 IAR 的 map 文件信息，可见 EasyFlash 的资源占用非常低
@@ -80,9 +78,9 @@ EasyFlash 底层依赖于 RT-Thread 的 FAL (Flash Abstraction Layer) Flash 抽�
 
  FAL 移植主要流程：
 
-- 定义 flash 设备，详见（[GitHub](https://github.com/RT-Thread-packages/fal#21%E5%AE%9A%E4%B9%89-flash-%E8%AE%BE%E5%A4%87)|[Gitee](https://gitee.com/RT-Thread-Mirror/fal#21%E5%AE%9A%E4%B9%89-flash-%E8%AE%BE%E5%A4%87)）
-- 定义 flash 设备表，详见（[GitHub](https://github.com/RT-Thread-packages/fal#22%E5%AE%9A%E4%B9%89-flash-%E8%AE%BE%E5%A4%87%E8%A1%A8)|[Gitee](https://gitee.com/RT-Thread-Mirror/fal#22%E5%AE%9A%E4%B9%89-flash-%E8%AE%BE%E5%A4%87%E8%A1%A8)）
-- 定义 flash 分区表，详见（[GitHub](https://github.com/RT-Thread-packages/fal#23%E5%AE%9A%E4%B9%89-flash-%E5%88%86%E5%8C%BA%E8%A1%A8)|[Gitee](https://gitee.com/RT-Thread-Mirror/fal#23%E5%AE%9A%E4%B9%89-flash-%E5%88%86%E5%8C%BA%E8%A1%A8)）
+- 定义 flash 设备，详见 ([GitHub](https://github.com/RT-Thread-packages/fal#21%E5%AE%9A%E4%B9%89-flash-%E8%AE%BE%E5%A4%87)|[Gitee](https://gitee.com/RT-Thread-Mirror/fal#21%E5%AE%9A%E4%B9%89-flash-%E8%AE%BE%E5%A4%87))
+- 定义 flash 设备表，详见 ([GitHub](https://github.com/RT-Thread-packages/fal#22%E5%AE%9A%E4%B9%89-flash-%E8%AE%BE%E5%A4%87%E8%A1%A8)|[Gitee](https://gitee.com/RT-Thread-Mirror/fal#22%E5%AE%9A%E4%B9%89-flash-%E8%AE%BE%E5%A4%87%E8%A1%A8))
+- 定义 flash 分区表，详见 ([GitHub](https://github.com/RT-Thread-packages/fal#23%E5%AE%9A%E4%B9%89-flash-%E5%88%86%E5%8C%BA%E8%A1%A8)|[Gitee](https://gitee.com/RT-Thread-Mirror/fal#23%E5%AE%9A%E4%B9%89-flash-%E5%88%86%E5%8C%BA%E8%A1%A8))
 
 ### 示例
 
@@ -96,7 +94,7 @@ EasyFlash 提供了主要功能的示例，直接加入工程即可运行，并�
 
 ## 支持
 
- ![support](E:/Program/STM32/EasyFlash/docs/zh/images/wechat_support.png)
+ ![support](docs/zh/images/wechat_support.png)
 
 如果 EasyFlash 解决了你的问题，不妨扫描上面二维码请我 **喝杯咖啡**~ 
 
