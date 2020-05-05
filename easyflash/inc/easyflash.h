@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2014-2019, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2014-2020, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -33,6 +33,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <time.h>
+#include <fal.h>
 #include <ef_cfg.h>
 #include <ef_def.h>
 
@@ -41,64 +43,39 @@ extern "C" {
 #endif
 
 /* easyflash.c */
-EfErrCode easyflash_init(void);
+void      ef_db_lock_set(ef_db_t db, void (*lock)(ef_db_t db), void (*unlock)(ef_db_t db));
+void      ef_db_sec_size_set(ef_db_t db, uint32_t sec_size);
+EfErrCode ef_kvdb_init(ef_kvdb_t db, const char *name, const char *part_name, struct ef_default_kv *default_kv,
+        void *user_data);
+EfErrCode ef_tsdb_init(ef_tsdb_t db, const char *name, const char *part_name, ef_get_time get_time, size_t max_len,
+        void *user_data);
 
-#ifdef EF_USING_ENV
-/* only supported on ef_env.c */
-size_t ef_get_env_blob(const char *key, void *value_buf, size_t buf_len, size_t *saved_value_len);
-bool ef_get_env_obj(const char *key, env_node_obj_t env);
-size_t ef_read_env_value(env_node_obj_t env, uint8_t *value_buf, size_t buf_len);
-EfErrCode ef_set_env_blob(const char *key, const void *value_buf, size_t buf_len);
+/* blob API */
+ef_blob_t ef_blob_make     (ef_blob_t blob, const void *value_buf, size_t buf_len);
+size_t    ef_blob_read     (ef_db_t db, ef_blob_t blob);
 
-/* ef_env.c, ef_env_legacy_wl.c and ef_env_legacy.c */
-EfErrCode ef_load_env(void);
-void ef_print_env(void);
-char *ef_get_env(const char *key);
-EfErrCode ef_set_env(const char *key, const char *value);
-EfErrCode ef_del_env(const char *key);
-EfErrCode ef_save_env(void);
-EfErrCode ef_env_set_default(void);
-size_t ef_get_env_write_bytes(void);
-EfErrCode ef_set_and_save_env(const char *key, const char *value);
-EfErrCode ef_del_and_save_env(const char *key);
-#endif
+/* Key-Value API like a KV DB */
+EfErrCode ef_kv_set        (ef_kvdb_t db, const char *key, const char *value);
+char     *ef_kv_get        (ef_kvdb_t db, const char *key);
+EfErrCode ef_kv_set_blob   (ef_kvdb_t db, const char *key, ef_blob_t blob);
+size_t    ef_kv_get_blob   (ef_kvdb_t db, const char *key, ef_blob_t blob);
+EfErrCode ef_kv_del        (ef_kvdb_t db, const char *key);
+ef_kv_t   ef_kv_get_obj    (ef_kvdb_t db, const char *key, ef_kv_t kv);
+ef_blob_t ef_kv_to_blob    (ef_kv_t  kv, ef_blob_t blob);
+EfErrCode ef_kv_set_default(ef_kvdb_t db);
+void      ef_kv_print      (ef_kvdb_t db);
 
-#ifdef EF_USING_IAP
-/* ef_iap.c */
-EfErrCode ef_erase_bak_app(size_t app_size);
-EfErrCode ef_erase_user_app(uint32_t user_app_addr, size_t user_app_size);
-EfErrCode ef_erase_spec_user_app(uint32_t user_app_addr, size_t app_size,
-                                 EfErrCode (*app_erase)(uint32_t addr, size_t size));
-EfErrCode ef_erase_bl(uint32_t bl_addr, size_t bl_size);
-EfErrCode ef_write_data_to_bak(uint8_t *data, size_t size, size_t *cur_size,
-                               size_t total_size);
-EfErrCode ef_copy_app_from_bak(uint32_t user_app_addr, size_t app_size);
-EfErrCode ef_copy_spec_app_from_bak(uint32_t user_app_addr, size_t app_size,
-                                    EfErrCode (*app_write)(uint32_t addr, const uint32_t *buf, size_t size));
-EfErrCode ef_copy_bl_from_bak(uint32_t bl_addr, size_t bl_size);
-uint32_t ef_get_bak_app_start_addr(void);
-#endif
-
-#ifdef EF_USING_LOG
-/* ef_log.c */
-EfErrCode ef_log_read(size_t index, uint32_t *log, size_t size);
-EfErrCode ef_log_write(const uint32_t *log, size_t size);
-EfErrCode ef_log_clean(void);
-size_t ef_log_get_used_size(void);
-#endif
+/* Time series log API like a TSDB */
+EfErrCode ef_tsl_append      (ef_tsdb_t db, ef_blob_t blob);
+void      ef_tsl_iter        (ef_tsdb_t db, ef_tsl_cb cb, void *cb_arg);
+void      ef_tsl_iter_by_time(ef_tsdb_t db, ef_time_t from, ef_time_t to, ef_tsl_cb cb, void *cb_arg);
+size_t    ef_tsl_query_count (ef_tsdb_t db, ef_time_t from, ef_time_t to, ef_tsl_status_t status);
+EfErrCode ef_tsl_set_status  (ef_tsdb_t db, ef_tsl_t tsl, ef_tsl_status_t status);
+void      ef_tsl_clean       (ef_tsdb_t db);
+ef_blob_t ef_tsl_to_blob     (ef_tsl_t tsl, ef_blob_t blob);
 
 /* ef_utils.c */
 uint32_t ef_calc_crc32(uint32_t crc, const void *buf, size_t size);
-
-/* ef_port.c */
-EfErrCode ef_port_read(uint32_t addr, uint32_t *buf, size_t size);
-EfErrCode ef_port_erase(uint32_t addr, size_t size);
-EfErrCode ef_port_write(uint32_t addr, const uint32_t *buf, size_t size);
-void ef_port_env_lock(void);
-void ef_port_env_unlock(void);
-void ef_log_debug(const char *file, const long line, const char *format, ...);
-void ef_log_info(const char *format, ...);
-void ef_print(const char *format, ...);
 
 #ifdef __cplusplus
 }

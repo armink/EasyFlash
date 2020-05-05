@@ -1,7 +1,7 @@
 /*
  * This file is part of the EasyFlash Library.
  *
- * Copyright (c) 2015-2017, Armink, <armink.ztl@gmail.com>
+ * Copyright (c) 2015-2020, Armink, <armink.ztl@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,7 +26,12 @@
  * Created on: 2015-01-14
  */
 
+#include <stdio.h>
+#include <string.h>
 #include <easyflash.h>
+#include <ef_low_lvl.h>
+
+#define EF_LOG_TAG "[utils]"
 
 static const uint32_t crc32_table[] =
 {
@@ -96,4 +101,185 @@ uint32_t ef_calc_crc32(uint32_t crc, const void *buf, size_t size)
     }
 
     return crc ^ ~0U;
+}
+
+size_t _ef_set_status(uint8_t status_table[], size_t status_num, size_t status_index)
+{
+    size_t byte_index = ~0UL;
+    /*
+     * | write garn |       status0       |       status1       |      status2         |
+     * ---------------------------------------------------------------------------------
+     * |    1bit    | 0xFF                | 0x7F                |  0x3F                |
+     * |    8bit    | 0xFFFF              | 0x00FF              |  0x0000              |
+     * |   32bit    | 0xFFFFFFFF FFFFFFFF | 0x00FFFFFF FFFFFFFF |  0x00FFFFFF 00FFFFFF |
+     */
+    memset(status_table, 0xFF, EF_STATUS_TABLE_SIZE(status_num));
+    if (status_index > 0) {
+#if (EF_WRITE_GRAN == 1)
+        byte_index = (status_index - 1) / 8;
+        status_table[byte_index] &= ~(0x80 >> ((status_index - 1) % 8));
+#else
+        byte_index = (status_index - 1) * (EF_WRITE_GRAN / 8);
+        status_table[byte_index] = 0x00;
+#endif /* EF_WRITE_GRAN == 1 */
+    }
+
+    return byte_index;
+}
+
+size_t _ef_get_status(uint8_t status_table[], size_t status_num)
+{
+    size_t i = 0, status_num_bak = --status_num;
+
+    while (status_num --) {
+        /* get the first 0 position from end address to start address */
+#if (EF_WRITE_GRAN == 1)
+        if ((status_table[status_num / 8] & (0x80 >> (status_num % 8))) == 0x00) {
+            break;
+        }
+#else /*  (EF_WRITE_GRAN == 8) ||  (EF_WRITE_GRAN == 32) ||  (EF_WRITE_GRAN == 64) */
+        if (status_table[status_num * EF_WRITE_GRAN / 8] == 0x00) {
+            break;
+        }
+#endif /* EF_WRITE_GRAN == 1 */
+        i++;
+    }
+
+    return status_num_bak - i;
+}
+
+EfErrCode _ef_write_status(ef_db_t db, uint32_t addr, uint8_t status_table[], size_t status_num, size_t status_index)
+{
+    EfErrCode result = EF_NO_ERR;
+    size_t byte_index;
+
+    EF_ASSERT(status_index < status_num);
+    EF_ASSERT(status_table);
+
+    /* set the status first */
+    byte_index = _ef_set_status(status_table, status_num, status_index);
+
+    /* the first status table value is all 1, so no need to write flash */
+    if (byte_index == ~0UL) {
+        return EF_NO_ERR;
+    }
+#if (EF_WRITE_GRAN == 1)
+    result = _ef_flash_write(db, addr + byte_index, (uint32_t *)&status_table[byte_index], 1);
+#else /*  (EF_WRITE_GRAN == 8) ||  (EF_WRITE_GRAN == 32) ||  (EF_WRITE_GRAN == 64) */
+    /* write the status by write granularity
+     * some flash (like stm32 onchip) NOT supported repeated write before erase */
+    result = _ef_flash_write(db, addr + byte_index, (uint32_t *) &status_table[byte_index], EF_WRITE_GRAN / 8);
+#endif /* EF_WRITE_GRAN == 1 */
+
+    return result;
+}
+
+size_t _ef_read_status(ef_db_t db, uint32_t addr, uint8_t status_table[], size_t total_num)
+{
+    EF_ASSERT(status_table);
+
+    _ef_flash_read(db, addr, (uint32_t *) status_table, EF_STATUS_TABLE_SIZE(total_num));
+
+    return _ef_get_status(status_table, total_num);
+}
+
+/*
+ * find the continue 0xFF flash address to end address
+ */
+uint32_t _ef_continue_ff_addr(ef_db_t db, uint32_t start, uint32_t end)
+{
+    uint8_t buf[32], last_data = 0x00;
+    size_t i, addr = start, read_size;
+
+    for (; start < end; start += sizeof(buf)) {
+        if (start + sizeof(buf) < end) {
+            read_size = sizeof(buf);
+        } else {
+            read_size = end - start;
+        }
+        _ef_flash_read(db, start, (uint32_t *) buf, read_size);
+        for (i = 0; i < read_size; i++) {
+            if (last_data != 0xFF && buf[i] == 0xFF) {
+                addr = start + i;
+            }
+            last_data = buf[i];
+        }
+    }
+
+    if (last_data == 0xFF) {
+        return EF_WG_ALIGN(addr);
+    } else {
+        return end;
+    }
+}
+
+/**
+ * Make a blob object.
+ *
+ * @param blob blob object
+ * @param value_buf value buffer
+ * @param buf_len buffer length
+ *
+ * @return new blob object
+ */
+ef_blob_t ef_blob_make(ef_blob_t blob, const void *value_buf, size_t buf_len)
+{
+    blob->buf = (void *)value_buf;
+    blob->size = buf_len;
+
+    return blob;
+}
+
+/**
+ * Read the blob object in database.
+ *
+ * @param db database object
+ * @param blob blob object
+ *
+ * @return read length
+ */
+size_t ef_blob_read(ef_db_t db, ef_blob_t blob)
+{
+    size_t read_len = blob->size;
+
+    if (read_len > blob->saved.len) {
+        read_len = blob->saved.len;
+    }
+    _ef_flash_read(db, blob->saved.addr, blob->buf, read_len);
+
+    return read_len;
+}
+
+EfErrCode _ef_flash_read(ef_db_t db, uint32_t addr, void *buf, size_t size)
+{
+    EfErrCode result = EF_NO_ERR;
+
+    fal_partition_read(db->part, addr, (uint8_t *)buf, size);
+
+    return result;
+}
+
+EfErrCode _ef_flash_erase(ef_db_t db, uint32_t addr, size_t size)
+{
+    EfErrCode result = EF_NO_ERR;
+
+    if (fal_partition_erase(db->part, addr, size) < 0)
+    {
+        result = EF_ERASE_ERR;
+    }
+
+    return result;
+}
+
+EfErrCode _ef_flash_write(ef_db_t db, uint32_t addr, const void *buf, size_t size)
+{
+    EfErrCode result = EF_NO_ERR;
+
+    if (fal_partition_write(db->part, addr, (uint8_t *)buf, size) < 0)
+    {
+        result = EF_WRITE_ERR;
+    }
+
+    return result;
+
 }
