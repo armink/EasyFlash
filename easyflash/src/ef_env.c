@@ -1194,11 +1194,16 @@ static uint32_t new_env(sector_meta_data_t sector, size_t env_size)
 
 __retry:
 
-    if ((empty_env = alloc_env(sector, env_size)) == FAILED_ADDR && gc_request && !already_gc) {
-        EF_DEBUG("Warning: Alloc an ENV (size %d) failed when new ENV. Now will GC then retry.\n", env_size);
-        gc_collect();
-        already_gc = true;
-        goto __retry;
+    if ((empty_env = alloc_env(sector, env_size)) == FAILED_ADDR) {
+        if (gc_request && !already_gc) {
+            EF_DEBUG("Warning: Alloc an ENV (size %d) failed when new ENV. Now will GC then retry.\n", env_size);
+            gc_collect();
+            already_gc = true;
+            goto __retry;
+        } else {
+            EF_DEBUG("Error: Alloc an ENV (size %d) failed after GC. ENV full.\n", env_size);
+            gc_request = false;
+        }
     }
 
     return empty_env;
