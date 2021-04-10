@@ -74,16 +74,16 @@ static void gpio_configuration(spi_user_data_t spi) {
 static void spi_configuration(spi_user_data_t spi) {
     SPI_InitTypeDef SPI_InitStructure;
 
-    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex; //SPI ÉèÖÃÎªË«ÏßË«ÏòÈ«Ë«¹¤
-    SPI_InitStructure.SPI_Mode = SPI_Mode_Master;                      //ÉèÖÃÎªÖ÷ SPI
-    SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;                  //SPI ·¢ËÍ½ÓÊÕ 8 Î»Ö¡½á¹¹
-    SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;                         //Ê±ÖÓĞü¿ÕµÍ
-    SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;                       //Êı¾İ²¶»ñÓÚµÚÒ»¸öÊ±ÖÓÑØ
-    //TODO ÒÔºó¿ÉÒÔ³¢ÊÔÓ²¼ş CS
-    SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;                          //ÄÚ²¿  NSS ĞÅºÅÓÉ SSI Î»¿ØÖÆ
-    SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2; //²¨ÌØÂÊÔ¤·ÖÆµÖµÎª 2
-    SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;                 //Êı¾İ´«Êä´Ó MSB Î»¿ªÊ¼
-    SPI_InitStructure.SPI_CRCPolynomial = 7;                           // CRC Öµ¼ÆËãµÄ¶àÏîÊ½
+    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex; //SPI è®¾ç½®ä¸ºåŒçº¿åŒå‘å…¨åŒå·¥
+    SPI_InitStructure.SPI_Mode = SPI_Mode_Master;                      //è®¾ç½®ä¸ºä¸» SPI
+    SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;                  //SPI å‘é€æ¥æ”¶ 8 ä½å¸§ç»“æ„
+    SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;                         //æ—¶é’Ÿæ‚¬ç©ºä½
+    SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;                       //æ•°æ®æ•è·äºç¬¬ä¸€ä¸ªæ—¶é’Ÿæ²¿
+    //TODO ä»¥åå¯ä»¥å°è¯•ç¡¬ä»¶ CS
+    SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;                          //å†…éƒ¨  NSS ä¿¡å·ç”± SSI ä½æ§åˆ¶
+    SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2; //æ³¢ç‰¹ç‡é¢„åˆ†é¢‘å€¼ä¸º 2
+    SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;                 //æ•°æ®ä¼ è¾“ä» MSB ä½å¼€å§‹
+    SPI_InitStructure.SPI_CRCPolynomial = 7;                           // CRC å€¼è®¡ç®—çš„å¤šé¡¹å¼
 
     SPI_I2S_DeInit(spi->spix);
     SPI_Init(spi->spix, &SPI_InitStructure);
@@ -117,15 +117,15 @@ static sfud_err spi_write_read(const sfud_spi *spi, const uint8_t *write_buf, si
     }
 
     GPIO_ResetBits(spi_dev->cs_gpiox, spi_dev->cs_gpio_pin);
-    /* ¿ªÊ¼¶ÁĞ´Êı¾İ */
+    /* å¼€å§‹è¯»å†™æ•°æ® */
     for (size_t i = 0, retry_times; i < write_size + read_size; i++) {
-        /* ÏÈĞ´»º³åÇøÖĞµÄÊı¾İµ½ SPI ×ÜÏß£¬Êı¾İĞ´Íêºó£¬ÔÙĞ´ dummy(0xFF) µ½ SPI ×ÜÏß */
+        /* å…ˆå†™ç¼“å†²åŒºä¸­çš„æ•°æ®åˆ° SPI æ€»çº¿ï¼Œæ•°æ®å†™å®Œåï¼Œå†å†™ dummy(0xFF) åˆ° SPI æ€»çº¿ */
         if (i < write_size) {
             send_data = *write_buf++;
         } else {
             send_data = SFUD_DUMMY_DATA;
         }
-        /* ·¢ËÍÊı¾İ */
+        /* å‘é€æ•°æ® */
         retry_times = 1000;
         while (SPI_I2S_GetFlagStatus(spi_dev->spix, SPI_I2S_FLAG_TXE) == RESET) {
             SFUD_RETRY_PROCESS(NULL, retry_times, result);
@@ -134,7 +134,7 @@ static sfud_err spi_write_read(const sfud_spi *spi, const uint8_t *write_buf, si
             goto exit;
         }
         SPI_I2S_SendData(spi_dev->spix, send_data);
-        /* ½ÓÊÕÊı¾İ */
+        /* æ¥æ”¶æ•°æ® */
         retry_times = 1000;
         while (SPI_I2S_GetFlagStatus(spi_dev->spix, SPI_I2S_FLAG_RXNE) == RESET) {
             SFUD_RETRY_PROCESS(NULL, retry_times, result);
@@ -143,7 +143,7 @@ static sfud_err spi_write_read(const sfud_spi *spi, const uint8_t *write_buf, si
             goto exit;
         }
         read_data = SPI_I2S_ReceiveData(spi_dev->spix);
-        /* Ğ´»º³åÇøÖĞµÄÊı¾İ·¢Íêºó£¬ÔÙ¶ÁÈ¡ SPI ×ÜÏßÖĞµÄÊı¾İµ½¶Á»º³åÇø */
+        /* å†™ç¼“å†²åŒºä¸­çš„æ•°æ®å‘å®Œåï¼Œå†è¯»å– SPI æ€»çº¿ä¸­çš„æ•°æ®åˆ°è¯»ç¼“å†²åŒº */
         if (i >= write_size) {
             *read_buf++ = read_data;
         }
@@ -167,13 +167,13 @@ sfud_err sfud_spi_port_init(sfud_flash *flash) {
 
     switch (flash->index) {
     case SFUD_SST25_DEVICE_INDEX: {
-        /* RCC ³õÊ¼»¯ */
+        /* RCC åˆå§‹åŒ– */
         rcc_configuration(&spi1);
-        /* GPIO ³õÊ¼»¯ */
+        /* GPIO åˆå§‹åŒ– */
         gpio_configuration(&spi1);
-        /* SPI ÍâÉè³õÊ¼»¯ */
+        /* SPI å¤–è®¾åˆå§‹åŒ– */
         spi_configuration(&spi1);
-        /* Í¬²½ Flash ÒÆÖ²ËùĞèµÄ½Ó¿Ú¼°Êı¾İ */
+        /* åŒæ­¥ Flash ç§»æ¤æ‰€éœ€çš„æ¥å£åŠæ•°æ® */
         flash->spi.wr = spi_write_read;
         flash->spi.lock = spi_lock;
         flash->spi.unlock = spi_unlock;

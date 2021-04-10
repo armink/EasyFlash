@@ -39,23 +39,23 @@ void rt_hw_board_init()
  */
 static void RCC_Configuration(void)
 {
-	//œ¬√Ê «∏¯∏˜ƒ£øÈø™∆Ù ±÷”
-	//∆Ù∂ØGPIO
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | \
-	                       RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | \
-	                       RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOG,
-	                       ENABLE);
+    //‰∏ãÈù¢ÊòØÁªôÂêÑÊ®°ÂùóÂºÄÂêØÊó∂Èíü
+    //ÂêØÂä®GPIO
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | \
+                           RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | \
+                           RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOG,
+                           ENABLE);
 
-	//∆Ù∂ØUSART1 ±÷”
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
-	//∆Ù∂ØUSART2 ±÷”
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-	//∆Ù∂ØDMA ±÷”
-	RCC_APB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
-	/* Enable ADC1 and GPIOC clock */
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
-	/* Enable WWDG clock */
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_WWDG, ENABLE);
+    //ÂêØÂä®USART1Êó∂Èíü
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+    //ÂêØÂä®USART2Êó∂Èíü
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+    //ÂêØÂä®DMAÊó∂Èíü
+    RCC_APB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+    /* Enable ADC1 and GPIOC clock */
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+    /* Enable WWDG clock */
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_WWDG, ENABLE);
 }
 
 /**
@@ -81,9 +81,9 @@ static void NVIC_Configuration(void)
  */
 static void GPIO_Configuration(void)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitTypeDef GPIO_InitStructure;
 
-	/* PA13:SWDIO PA14:SWCLK for debug, can't set to output mode */
+    /* PA13:SWDIO PA14:SWCLK for debug, can't set to output mode */
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All & (~(GPIO_Pin_13 | GPIO_Pin_14));
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -99,20 +99,20 @@ static void GPIO_Configuration(void)
     GPIO_Init(GPIOF, &GPIO_InitStructure);
     GPIO_Init(GPIOG, &GPIO_InitStructure);
 
-	/******************œµÕ≥‘À––LED÷∏ æµ∆≈‰÷√*******************/
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+    /******************Á≥ªÁªüËøêË°åLEDÊåáÁ§∫ÁÅØÈÖçÁΩÆ*******************/
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
 
 
 /**
  * IWDG_Configuration
  */
-static void IWDG_Configuration(void) 
+static void IWDG_Configuration(void)
 {
     IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
     IWDG_SetPrescaler(IWDG_Prescaler_64);

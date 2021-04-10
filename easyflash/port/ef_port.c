@@ -102,7 +102,7 @@ EfErrCode ef_port_erase(uint32_t addr, size_t size) {
  */
 EfErrCode ef_port_write(uint32_t addr, const uint32_t *buf, size_t size) {
     EfErrCode result = EF_NO_ERR;
-    
+
     /* You can add your code under here. */
 
     return result;
@@ -112,18 +112,18 @@ EfErrCode ef_port_write(uint32_t addr, const uint32_t *buf, size_t size) {
  * lock the ENV ram cache
  */
 void ef_port_env_lock(void) {
-    
+
     /* You can add your code under here. */
-    
+
 }
 
 /**
  * unlock the ENV ram cache
  */
 void ef_port_env_unlock(void) {
-    
+
     /* You can add your code under here. */
-    
+
 }
 
 
@@ -146,7 +146,7 @@ void ef_log_debug(const char *file, const long line, const char *format, ...) {
     va_start(args, format);
 
     /* You can add your code under here. */
-    
+
     va_end(args);
 
 #endif
@@ -166,7 +166,7 @@ void ef_log_info(const char *format, ...) {
     va_start(args, format);
 
     /* You can add your code under here. */
-    
+
     va_end(args);
 }
 /**
@@ -182,6 +182,6 @@ void ef_print(const char *format, ...) {
     va_start(args, format);
 
     /* You can add your code under here. */
-    
+
     va_end(args);
 }

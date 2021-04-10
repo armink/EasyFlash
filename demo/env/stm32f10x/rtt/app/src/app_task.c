@@ -83,14 +83,14 @@ void test_env(void) {
  * @param parameter parameter
  */
 void sys_init_thread(void* parameter){
-	set_system_status(SYSTEM_STATUS_INIT);
+    set_system_status(SYSTEM_STATUS_INIT);
 
     /* EasyFlash initialization */
     if (easyflash_init() == EF_NO_ERR) {
         /* initialize OK and switch to running status */
         set_system_status(SYSTEM_STATUS_RUN);
-		/* test Env demo */
-		test_env();
+        /* test Env demo */
+        test_env();
     } else {
         /* initialize fail and switch to fault status */
         set_system_status(SYSTEM_STATUS_FAULT);

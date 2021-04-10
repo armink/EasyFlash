@@ -96,10 +96,10 @@ EfErrCode ef_port_erase(uint32_t addr, size_t size) {
     EfErrCode result = EF_NO_ERR;
     sfud_err sfud_result = SFUD_SUCCESS;
     const sfud_flash *flash = sfud_get_device_table() + SFUD_SST25_DEVICE_INDEX;
-    
+
     /* make sure the start address is a multiple of FLASH_ERASE_MIN_SIZE */
     EF_ASSERT(addr % EF_ERASE_MIN_SIZE == 0);
-    
+
     sfud_result = sfud_erase(flash, addr, size);
 
     if(sfud_result != SFUD_SUCCESS) {

@@ -75,7 +75,7 @@ void test_env(void) {
  * @param parameter parameter
  */
 void sys_init_thread(void* parameter){
-	set_system_status(SYSTEM_STATUS_INIT);
+    set_system_status(SYSTEM_STATUS_INIT);
 
     /* EasyFlash initialization */
     if (easyflash_init() == EF_NO_ERR) {
@@ -134,8 +134,8 @@ void rtthread_startup(void)
     rt_system_timer_init();
 
 #ifdef RT_USING_HEAP
-	/* init memory system */
-	rt_system_heap_init((void*)STM32_SRAM_BEGIN, (void*)STM32_SRAM_END);
+    /* init memory system */
+    rt_system_heap_init((void*)STM32_SRAM_BEGIN, (void*)STM32_SRAM_END);
 #endif
 
     /* init scheduler system */

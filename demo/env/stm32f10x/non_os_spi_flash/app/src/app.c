@@ -6,21 +6,21 @@
 static void test_env(void);
 
 int main(void){
-        
+
     BSP_Init();
-    
+
     if (easyflash_init() == EF_NO_ERR) {
         /* test Env demo */
         test_env();
-    } 
+    }
 
     while(1) {
       LED_RUN_ON;
       delay(6000000);
       LED_RUN_OFF;
-      delay(6000000);      
+      delay(6000000);
     }
-    
+
     return 0;
 }
 
