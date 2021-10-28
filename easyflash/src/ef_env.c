@@ -1286,9 +1286,13 @@ static EfErrCode align_write(uint32_t addr, const uint32_t *buf, size_t size)
 #endif
 
     memset(align_data, 0xFF, align_data_size);
-    result = ef_port_write(addr, buf, EF_WG_ALIGN_DOWN(size));
+    align_remain = EF_WG_ALIGN_DOWN(size);//use align_remain temporary to save aligned size.
 
-    align_remain = size - EF_WG_ALIGN_DOWN(size);
+    if(align_remain > 0){//it may be 0 in this function.
+        result = ef_port_write(addr, buf, align_remain);
+    }
+
+    align_remain = size - align_remain;
     if (result == EF_NO_ERR && align_remain) {
         memcpy(align_data, (uint8_t *)buf + EF_WG_ALIGN_DOWN(size), align_remain);
         result = ef_port_write(addr + EF_WG_ALIGN_DOWN(size), (uint32_t *) align_data, align_data_size);
