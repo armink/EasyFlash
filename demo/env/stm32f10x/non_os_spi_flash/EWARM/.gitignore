@@ -1,7 +1,0 @@
-/stm32f103xB
-/stm32f103xE
-/Debug
-/Release
-/settings
-*.dep
-*.ewd
