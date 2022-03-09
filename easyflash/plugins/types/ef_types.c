@@ -82,7 +82,7 @@ long ef_get_long(const char *key) {
         return atol(value);
     } else {
         EF_INFO("Couldn't find this ENV(%s)!\n", key);
-        return NULL;
+        return 0;
     }
 }
 
@@ -96,7 +96,7 @@ double ef_get_double(const char *key) {
         return atof(value);
     } else {
         EF_INFO("Couldn't find this ENV(%s)!\n", key);
-        return NULL;
+        return 0;
     }
 }
 

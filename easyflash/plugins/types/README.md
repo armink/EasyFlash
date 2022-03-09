@@ -142,7 +142,7 @@ ef_set_struct("张三学生", &orignal_student, stu_set_cb);
 
 /* 获取结构体类型环境变量 */
 Student *student;
-ef_get_struct("张三学生", student, stu_get_cb);
+student = ef_get_struct("张三学生", stu_get_cb);
 
 /* 打印获取到的结构体内容 */
 printf("姓名：%s 籍贯：%s \n", student->name, student->hometown.name);
