@@ -59,6 +59,9 @@
  * only support 1(nor flash)/ 8(stm32f4)/ 32(stm32f1) */
 #define EF_WRITE_GRAN             /* @note you must define it for a value */
 
+
+/* The size of read_env and continue_ff_addr function used*/
+#define EF_READ_BUF_SIZE             32     /* @default 32, Larger numbers can improve first-time speed of alloc_env but require more stack space*/
 /*
  *
  * This all Backup Area Flash storage index. All used flash area configure is under here.
