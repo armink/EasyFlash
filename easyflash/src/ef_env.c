@@ -424,7 +424,7 @@ static bool get_env_from_cache(const char *name, size_t name_len, uint32_t *addr
  */
 static uint32_t continue_ff_addr(uint32_t start, uint32_t end)
 {
-    uint8_t buf[32], last_data = 0x00;
+    uint8_t buf[EF_READ_BUF_SIZE], last_data = 0x00;
     size_t i, addr = start, read_size;
 
     for (; start < end; start += sizeof(buf)) {
@@ -522,7 +522,7 @@ static uint32_t get_next_env_addr(sector_meta_data_t sector, env_node_obj_t pre_
 static EfErrCode read_env(env_node_obj_t env)
 {
     struct env_hdr_data env_hdr;
-    uint8_t buf[32];
+    uint8_t buf[EF_READ_BUF_SIZE];
     uint32_t calc_crc32 = 0, crc_data_len, env_name_addr;
     EfErrCode result = EF_NO_ERR;
     size_t len, size;
