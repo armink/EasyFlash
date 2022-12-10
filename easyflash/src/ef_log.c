@@ -463,8 +463,7 @@ static uint32_t log_index2addr(size_t index) {
         if (log_start_addr + index + header_total_offset < log_area_start_addr + LOG_AREA_SIZE) {
             return log_start_addr + index + header_total_offset;
         } else {
-            return log_start_addr + index + header_total_offset - LOG_AREA_SIZE;
-
+            return (log_start_addr + index + header_total_offset) % LOG_AREA_SIZE;
         }
     }
 }
