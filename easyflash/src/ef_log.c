@@ -490,8 +490,14 @@ EfErrCode ef_log_read(size_t index, uint32_t *log, size_t size) {
         return result;
     }
 
-    EF_ASSERT(size % 4 == 0);
-    EF_ASSERT(index < cur_using_size);
+    if (size % 4 == 0) {
+        EF_DEBUG("Error: size must be word aligned.");
+        return EF_READ_ERR;
+    }
+    if (index < cur_using_size) {
+        EF_DEBUG("Error: index out of ranges, current using size is %d", cur_using_size);
+        return EF_READ_ERR;
+    }
 
     if (index + size > cur_using_size) {
         EF_DEBUG("Warning: Log read size out of bound. Cut read size.\n");
