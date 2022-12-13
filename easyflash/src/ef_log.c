@@ -411,6 +411,23 @@ size_t ef_log_get_used_size(void) {
 }
 
 /**
+ * Get log flash total size.
+ *
+ * @return log flash total size. @note NOT contain sector headers
+ */
+size_t ef_log_get_total_size(void) {
+    size_t header_total_num = 0;
+    /* must be call this function after initialize OK */
+    if (!init_ok) {
+        return 0;
+    }
+
+    header_total_num = LOG_AREA_SIZE / EF_ERASE_MIN_SIZE;
+
+    return LOG_AREA_SIZE - header_total_num * LOG_SECTOR_HEADER_SIZE;
+}
+
+/**
  * Sequential reading log data. It will ignore sector headers.
  *
  * @param addr address
