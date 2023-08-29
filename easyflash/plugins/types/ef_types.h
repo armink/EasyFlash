@@ -33,6 +33,10 @@
 #include <stdbool.h>
 #include "struct2json\inc\s2j.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* EasyFlash types plugin's software version number */
 #define EF_TYPES_SW_VERSION                      "0.11.03"
 
@@ -72,5 +76,9 @@ EfErrCode ef_set_float_array(const char *key, float *value, size_t len);
 EfErrCode ef_set_double_array(const char *key, double *value, size_t len);
 EfErrCode ef_set_string_array(const char *key, char **value, size_t len);
 EfErrCode ef_set_struct(const char *key, void *value, ef_types_set_cb set_cb);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* EF_TYPES_H_ */
