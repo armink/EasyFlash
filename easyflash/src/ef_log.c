@@ -474,13 +474,15 @@ static uint32_t log_index2addr(size_t index) {
     size_t sector_num = index / (EF_ERASE_MIN_SIZE - LOG_SECTOR_HEADER_SIZE) + 1;
 
     header_total_offset = sector_num * LOG_SECTOR_HEADER_SIZE;
+    uint32_t virtual_addr = log_start_addr + index + header_total_offset;
     if (log_start_addr < log_end_addr) {
-        return log_start_addr + index + header_total_offset;
+        return virtual_addr;
     } else {
         if (log_start_addr + index + header_total_offset < log_area_start_addr + LOG_AREA_SIZE) {
-            return log_start_addr + index + header_total_offset;
+            return virtual_addr;
         } else {
-            return (log_start_addr + index + header_total_offset) % LOG_AREA_SIZE;
+            // the address will restart from the first sector address.
+            return virtual_addr - (log_area_start_addr + LOG_AREA_SIZE) + log_area_start_addr;
         }
     }
 }
