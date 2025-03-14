@@ -46,7 +46,7 @@ void s2j_init(S2jHook *hook) {
         s2jHook.malloc_fn = (hook->malloc_fn) ? hook->malloc_fn : malloc;
         s2jHook.free_fn = (hook->free_fn) ? hook->free_fn : free;
     } else {
-        hook->malloc_fn = malloc;
-        hook->free_fn = free;
+        s2jHook.malloc_fn = malloc;
+        s2jHook.free_fn = free;
     }
 }
