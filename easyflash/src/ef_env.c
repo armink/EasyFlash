@@ -1780,6 +1780,51 @@ __retry:
     return result;
 }
 
+#ifdef EF_ENV_USING_CACHE
+static bool prefetch_cache_env_cb(env_node_obj_t env, void *arg1, void *arg2)
+{
+    uint32_t *cache_count = arg1;
+
+    if (env->crc_is_ok && env->status == ENV_WRITE) {
+        update_env_cache(env->name, env->name_len, env->addr.start);
+        (*cache_count)++;
+
+        if (*cache_count >= EF_ENV_CACHE_TABLE_SIZE) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Prefetch kv into cache.
+ *
+ * @return result
+ */
+EfErrCode ef_prefetch_cache_env(void)
+{
+    EfErrCode result = EF_NO_ERR;
+    struct env_node_obj env;
+    uint32_t cache_count = 0;
+
+    if (!init_ok) {
+        EF_INFO("ENV isn't initialize OK.\r\n");
+        return EF_ENV_INIT_FAILED;
+    }
+
+    /* lock the ENV cache */
+    ef_port_env_lock();
+
+    env_iterator(&env, &cache_count, NULL, prefetch_cache_env_cb);
+
+    /* unlock the ENV cache */
+    ef_port_env_unlock();
+
+    return result;
+}
+#endif
+
 /**
  * Flash ENV initialize.
  *
